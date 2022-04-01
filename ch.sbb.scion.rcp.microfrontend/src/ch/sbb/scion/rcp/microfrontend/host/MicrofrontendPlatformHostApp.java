@@ -47,8 +47,8 @@ public class MicrofrontendPlatformHostApp {
     // Create the shell
     shell = new Shell(Display.getDefault());
     shell.setLayout(new FillLayout());
-    shell.setSize(new Point(350, 500));
-    shell.setText("Host Application");
+    shell.setSize(new Point(400, 700));
+    shell.setText("SCION Microfrontend Platform RCP host");
 
     // Create webserver to serve the host app on a random port.
     webserver = new Webserver(Map.of(
