@@ -25,6 +25,9 @@ import ch.sbb.scion.rcp.microfrontend.model.MicrofrontendPlatformConfig;
 import ch.sbb.scion.rcp.microfrontend.script.Script.Flags;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
 
+/**
+ * Starts the SCION Microfrontend Platform RCP host in an invisible shell in a web browser.
+ */
 @Component(service = MicrofrontendPlatformHostApp.class)
 public class MicrofrontendPlatformHostApp {
 
@@ -36,7 +39,7 @@ public class MicrofrontendPlatformHostApp {
   public CompletableFuture<Browser> whenHostBrowser = new CompletableFuture<>();
 
   /**
-   * Starts the platform in the host application.
+   * Starts the SCION Microfrontend Platform host.
    * 
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/MicrofrontendPlatform.html#startHost
    */

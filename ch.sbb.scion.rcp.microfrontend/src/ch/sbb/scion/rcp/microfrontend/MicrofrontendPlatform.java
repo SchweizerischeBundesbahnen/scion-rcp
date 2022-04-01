@@ -19,7 +19,7 @@ public class MicrofrontendPlatform {
   private MicrofrontendPlatformHostApp microfrontendPlatformHostApp;
   
   /**
-   * Starts the platform in the host application.
+   * Starts the SCION Microfrontend Platform host.
    * 
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/MicrofrontendPlatform.html#startHost
    */
