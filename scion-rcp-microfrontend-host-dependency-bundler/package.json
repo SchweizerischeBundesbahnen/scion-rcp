@@ -1,9 +1,10 @@
 {
+  "name": "scion-rcp-microfrontend-host-dependency-bundler",
   "scripts": {
     "bundle": "parcel build src/refs.ts --no-cache --dist-dir ../ch.sbb.scion.rcp.microfrontend/js"
   },
   "dependencies": {
-    "@scion/microfrontend-platform": "1.0.0-rc.2",
+    "@scion/microfrontend-platform": "1.0.0-rc.3",
     "@scion/toolkit": "13.0.0-beta.2",
     "rxjs": "7.5.5"
   },
