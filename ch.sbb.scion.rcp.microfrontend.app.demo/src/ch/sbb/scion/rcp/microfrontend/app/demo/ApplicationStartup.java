@@ -13,13 +13,14 @@ public class ApplicationStartup {
   @PostContextCreate
   public void postContextCreate(MicrofrontendPlatform microfrontendPlatform) {
     microfrontendPlatform.startHost(new MicrofrontendPlatformConfig()
+        .manifestLoadTimeout(2000L)
         .applications(List.of(
             new ApplicationConfig()
                 .symbolicName("client-app")
                 .manifestUrl("http://localhost:4201/manifest.json"),
             new ApplicationConfig()
                 .symbolicName("devtools")
-                .manifestUrl("http://localhost:5200/assets/manifest.json")
+                .manifestUrl("https://scion-microfrontend-platform-devtools-v1-0-0-rc-3.vercel.app/assets/manifest.json")
                 .intentionCheckDisabled(true)
                 .scopeCheckDisabled(true))));
   }

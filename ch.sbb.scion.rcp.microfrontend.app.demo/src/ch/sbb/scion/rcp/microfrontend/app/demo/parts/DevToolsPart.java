@@ -19,6 +19,6 @@ public class DevToolsPart {
   @PostConstruct
   public void createComposite(Composite parent) {
     new SciRouterOutlet(parent, SWT.NONE, PART_ID);
-    outletRouter.navigate("http://localhost:5200", PART_ID);    
+    outletRouter.navigate("https://scion-microfrontend-platform-devtools-v1-0-0-rc-3.vercel.app", PART_ID);    
   }
 }
