@@ -15,7 +15,7 @@ import ch.sbb.scion.rcp.microfrontend.browser.BrowserCallback;
 import ch.sbb.scion.rcp.microfrontend.browser.BrowserCallback.Options;
 import ch.sbb.scion.rcp.microfrontend.browser.BrowserRxJsObservable;
 import ch.sbb.scion.rcp.microfrontend.browser.BrowserScriptExecutor;
-import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformHostApp;
+import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost;
 import ch.sbb.scion.rcp.microfrontend.internal.ParameterizedType;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscriber;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscription;
@@ -31,7 +31,7 @@ import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
 public class SciMessageClient {
 
   @Reference
-  private MicrofrontendPlatformHostApp microfrontendPlatformHostApp;
+  private MicrofrontendPlatformRcpHost microfrontendPlatformRcpHost;
 
   /**
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/MessageClient.html#publish
@@ -86,7 +86,7 @@ public class SciMessageClient {
         .replacePlaceholder("topic", topic, Flags.ToJson)
         .substitute();
 
-    var observable = new BrowserRxJsObservable<TopicMessage<T>>(microfrontendPlatformHostApp.whenHostBrowser, script, new ParameterizedType(TopicMessage.class, clazz));
+    var observable = new BrowserRxJsObservable<TopicMessage<T>>(microfrontendPlatformRcpHost.whenHostBrowser, script, new ParameterizedType(TopicMessage.class, clazz));
     return observable.subscribe(subscriber);
   }
 
@@ -96,7 +96,7 @@ public class SciMessageClient {
   private CompletableFuture<Void> publishJson(String topic, String json, PublishOptions options) {
     options = Optional.ofNullable(options).orElse(new PublishOptions());
     var published = new CompletableFuture<Void>();
-    var browserCallback = new BrowserCallback("__sci_messageclient$onpublish_" + UUID.randomUUID(), microfrontendPlatformHostApp.whenHostBrowser, new Options()
+    var browserCallback = new BrowserCallback("__sci_messageclient$onpublish_" + UUID.randomUUID(), microfrontendPlatformRcpHost.whenHostBrowser, new Options()
         .once()
         .onCallback(args -> {
           var error = args[0];
@@ -108,7 +108,7 @@ public class SciMessageClient {
           }
         }));
 
-    new BrowserScriptExecutor(microfrontendPlatformHostApp.whenHostBrowser, """
+    new BrowserScriptExecutor(microfrontendPlatformRcpHost.whenHostBrowser, """
         try {
           await ${refs.MessageClient}.publish(JSON.parse('${topic}'), JSON.parse('${message}') ?? null, {
             headers: JSON.parse('${options.headers}') ?? undefined,

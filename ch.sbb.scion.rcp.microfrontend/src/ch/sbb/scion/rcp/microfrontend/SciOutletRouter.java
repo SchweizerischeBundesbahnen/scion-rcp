@@ -11,7 +11,7 @@ import org.osgi.service.component.annotations.Reference;
 import ch.sbb.scion.rcp.microfrontend.browser.BrowserCallback;
 import ch.sbb.scion.rcp.microfrontend.browser.BrowserCallback.Options;
 import ch.sbb.scion.rcp.microfrontend.browser.BrowserScriptExecutor;
-import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformHostApp;
+import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost;
 import ch.sbb.scion.rcp.microfrontend.script.Script.Flags;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
 
@@ -22,7 +22,7 @@ import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
 public class SciOutletRouter {
 
   @Reference
-  private MicrofrontendPlatformHostApp microfrontendPlatformHostApp;
+  private MicrofrontendPlatformRcpHost microfrontendPlatformRcpHost;
 
   /**
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/OutletRouter.html#navigate
@@ -45,7 +45,7 @@ public class SciOutletRouter {
     options = Optional.ofNullable(options).orElse(new NavigationOptions());
 
     var navigated = new CompletableFuture<Void>();
-    var browserCallback = new BrowserCallback("__sci_outletrouter$onnavigate_" + UUID.randomUUID(), microfrontendPlatformHostApp.whenHostBrowser, new Options()
+    var browserCallback = new BrowserCallback("__sci_outletrouter$onnavigate_" + UUID.randomUUID(), microfrontendPlatformRcpHost.whenHostBrowser, new Options()
         .once()
         .onCallback(args -> {
           var error = args[0];
@@ -57,7 +57,7 @@ public class SciOutletRouter {
           }
         }));
 
-    new BrowserScriptExecutor(microfrontendPlatformHostApp.whenHostBrowser, """
+    new BrowserScriptExecutor(microfrontendPlatformRcpHost.whenHostBrowser, """
         try {
           await ${refs.OutletRouter}.navigate(JSON.parse('${url}') ?? undefined, {
             outlet: JSON.parse('${options.outlet}') ?? undefined,

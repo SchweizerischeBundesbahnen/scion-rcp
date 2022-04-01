@@ -6,7 +6,7 @@ import org.eclipse.swt.browser.Browser;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformHostApp;
+import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost;
 import ch.sbb.scion.rcp.microfrontend.model.MicrofrontendPlatformConfig;
 
 /**
@@ -16,7 +16,7 @@ import ch.sbb.scion.rcp.microfrontend.model.MicrofrontendPlatformConfig;
 public class MicrofrontendPlatform {
 
   @Reference
-  private MicrofrontendPlatformHostApp microfrontendPlatformHostApp;
+  private MicrofrontendPlatformRcpHost microfrontendPlatformRcpHost;
   
   /**
    * Starts the SCION Microfrontend Platform host.
@@ -24,6 +24,6 @@ public class MicrofrontendPlatform {
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/MicrofrontendPlatform.html#startHost
    */
   public CompletableFuture<Browser> startHost(MicrofrontendPlatformConfig config) {
-    return microfrontendPlatformHostApp.start(config);
+    return microfrontendPlatformRcpHost.start(config);
   }
 }

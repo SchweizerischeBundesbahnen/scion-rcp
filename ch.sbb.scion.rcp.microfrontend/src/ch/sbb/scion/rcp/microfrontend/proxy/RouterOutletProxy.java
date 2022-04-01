@@ -13,7 +13,7 @@ import org.eclipse.swt.widgets.Event;
 import ch.sbb.scion.rcp.microfrontend.SciRouterOutlet;
 import ch.sbb.scion.rcp.microfrontend.browser.BrowserCallback;
 import ch.sbb.scion.rcp.microfrontend.browser.BrowserScriptExecutor;
-import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformHostApp;
+import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost;
 import ch.sbb.scion.rcp.microfrontend.internal.ContextInjectors;
 import ch.sbb.scion.rcp.microfrontend.internal.Resources;
 import ch.sbb.scion.rcp.microfrontend.keyboard.JavaScriptKeyboardEvent;
@@ -24,7 +24,7 @@ import ch.sbb.scion.rcp.microfrontend.script.Scripts.JsonHelpers;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
 
 /**
- * Proxy for the actual <sci-router-outlet> mounted in the host application.
+ * Proxy for the actual <sci-router-outlet> mounted in the RCP host application.
  */
 public class RouterOutletProxy {
 
@@ -34,7 +34,7 @@ public class RouterOutletProxy {
   private BrowserCallback outletToProxyKeystrokeCallback;
 
   @Inject
-  private MicrofrontendPlatformHostApp microfrontendPlatformHostApp;
+  private MicrofrontendPlatformRcpHost microfrontendPlatformRcpHost;
 
   @Inject
   private KeyboardEventMapper keyboardEventMapper;
@@ -47,10 +47,10 @@ public class RouterOutletProxy {
   }
 
   public void init() {
-    outletToProxyMessageCallback = new BrowserCallback("__sci_outlet-to-proxy-onmessage_" + outletId, microfrontendPlatformHostApp.whenHostBrowser);
-    outletToProxyKeystrokeCallback = new BrowserCallback("__sci_outlet-to-proxy-onkeystroke_" + outletId, microfrontendPlatformHostApp.whenHostBrowser);
+    outletToProxyMessageCallback = new BrowserCallback("__sci_outlet-to-proxy-onmessage_" + outletId, microfrontendPlatformRcpHost.whenHostBrowser);
+    outletToProxyKeystrokeCallback = new BrowserCallback("__sci_outlet-to-proxy-onkeystroke_" + outletId, microfrontendPlatformRcpHost.whenHostBrowser);
 
-    new BrowserScriptExecutor(microfrontendPlatformHostApp.whenHostBrowser, """
+    new BrowserScriptExecutor(microfrontendPlatformRcpHost.whenHostBrowser, """
         const sciRouterOutlet = document.body.appendChild(document.createElement('sci-router-outlet'));
 
         const outletContent= `<html>
@@ -95,7 +95,7 @@ public class RouterOutletProxy {
         .replacePlaceholder("refs.OutletRouter", Refs.OutletRouter)
         .replacePlaceholder("helpers.stringify", JsonHelpers.stringify)
         .execute()
-        .thenRun(() -> whenOutlet.complete(microfrontendPlatformHostApp.hostBrowser));
+        .thenRun(() -> whenOutlet.complete(microfrontendPlatformRcpHost.hostBrowser));
   }
 
   /**

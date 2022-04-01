@@ -16,6 +16,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 
+import ch.sbb.scion.rcp.microfrontend.SciRouterOutlet;
 import ch.sbb.scion.rcp.microfrontend.browser.BrowserCallback;
 import ch.sbb.scion.rcp.microfrontend.browser.BrowserCallback.Options;
 import ch.sbb.scion.rcp.microfrontend.browser.BrowserScriptExecutor;
@@ -26,10 +27,18 @@ import ch.sbb.scion.rcp.microfrontend.script.Script.Flags;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
 
 /**
- * Starts the SCION Microfrontend Platform RCP host in an invisible shell in a web browser.
+ * Represents the RCP host for the SCION Microfrontend Platform that is started 
+ * in an invisible shell in a web browser.
+ * 
+ * When instantiating the {@link SciRouterOutlet} SWT component, an
+ * <sci-router-outlet> web component is added to the DOM of the RCP host
+ * application. From the perspective of the SCION Microfrontend Platform Host,
+ * the microfrontend is embedded directly into this outlet.
+ * {@link SciRouterOutlet} effectively acts as a proxy, bridging traffic between
+ * <sci-router-outlet> and {@link SciRouterOutlet}.
  */
-@Component(service = MicrofrontendPlatformHostApp.class)
-public class MicrofrontendPlatformHostApp {
+@Component(service = MicrofrontendPlatformRcpHost.class)
+public class MicrofrontendPlatformRcpHost {
 
   private boolean headless = false;
   private Shell shell;

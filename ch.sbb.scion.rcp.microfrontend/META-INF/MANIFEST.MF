@@ -19,7 +19,7 @@ Service-Component: OSGI-INF/ch.sbb.scion.rcp.microfrontend.MicrofrontendPlatform
  OSGI-INF/ch.sbb.scion.rcp.microfrontend.SciIntentClient.xml,
  OSGI-INF/ch.sbb.scion.rcp.microfrontend.SciMessageClient.xml,
  OSGI-INF/ch.sbb.scion.rcp.microfrontend.SciOutletRouter.xml,
- OSGI-INF/ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformHostApp.xml,
+ OSGI-INF/ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost.xml,
  OSGI-INF/ch.sbb.scion.rcp.microfrontend.keyboard.KeyboardEventMapper.xml
 Import-Package: javax.annotation,
  javax.inject;resolution:=optional

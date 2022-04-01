@@ -15,7 +15,7 @@ import ch.sbb.scion.rcp.microfrontend.browser.BrowserCallback;
 import ch.sbb.scion.rcp.microfrontend.browser.BrowserCallback.Options;
 import ch.sbb.scion.rcp.microfrontend.browser.BrowserRxJsObservable;
 import ch.sbb.scion.rcp.microfrontend.browser.BrowserScriptExecutor;
-import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformHostApp;
+import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost;
 import ch.sbb.scion.rcp.microfrontend.internal.ParameterizedType;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscriber;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscription;
@@ -33,7 +33,7 @@ import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
 public class SciIntentClient {
 
   @Reference
-  private MicrofrontendPlatformHostApp microfrontendPlatformHostApp;
+  private MicrofrontendPlatformRcpHost microfrontendPlatformRcpHost;
 
   /**
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish
@@ -91,7 +91,7 @@ public class SciIntentClient {
         .replacePlaceholder("selector", selector, Flags.ToJson | Flags.UndefinedIfNull)
         .substitute();
 
-    var observable = new BrowserRxJsObservable<IntentMessage<T>>(microfrontendPlatformHostApp.whenHostBrowser, observableScript, new ParameterizedType(IntentMessage.class, clazz));
+    var observable = new BrowserRxJsObservable<IntentMessage<T>>(microfrontendPlatformRcpHost.whenHostBrowser, observableScript, new ParameterizedType(IntentMessage.class, clazz));
     return observable.subscribe(subscriber);
   }
 
@@ -115,7 +115,7 @@ public class SciIntentClient {
         .replacePlaceholder("options.headers", options.headers, Flags.ToJson)
         .substitute();
 
-    var observable = new BrowserRxJsObservable<TopicMessage<T>>(microfrontendPlatformHostApp.whenHostBrowser, requestScript, new ParameterizedType(TopicMessage.class, clazz));
+    var observable = new BrowserRxJsObservable<TopicMessage<T>>(microfrontendPlatformRcpHost.whenHostBrowser, requestScript, new ParameterizedType(TopicMessage.class, clazz));
     return observable.subscribe(subscriber);
   }
 
@@ -125,7 +125,7 @@ public class SciIntentClient {
   private CompletableFuture<Void> publishJson(Intent intent, String json, IntentOptions options) {
     options = Optional.ofNullable(options).orElse(new IntentOptions());
     var published = new CompletableFuture<Void>();
-    var browserCallback = new BrowserCallback("__sci_intentclient$onpublish_" + UUID.randomUUID(), microfrontendPlatformHostApp.whenHostBrowser, new Options()
+    var browserCallback = new BrowserCallback("__sci_intentclient$onpublish_" + UUID.randomUUID(), microfrontendPlatformRcpHost.whenHostBrowser, new Options()
         .once()
         .onCallback(args -> {
           var error = args[0];
@@ -137,7 +137,7 @@ public class SciIntentClient {
           }
         }));
 
-    new BrowserScriptExecutor(microfrontendPlatformHostApp.whenHostBrowser, """
+    new BrowserScriptExecutor(microfrontendPlatformRcpHost.whenHostBrowser, """
         try {
           await ${refs.IntentClient}.publish(JSON.parse('${intent}'), JSON.parse('${body}') ?? null, {
             headers: JSON.parse('${options.headers}') ?? undefined

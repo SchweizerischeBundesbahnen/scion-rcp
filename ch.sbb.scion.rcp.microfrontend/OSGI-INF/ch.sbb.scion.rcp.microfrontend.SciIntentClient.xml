@@ -3,6 +3,6 @@
    <service>
       <provide interface="ch.sbb.scion.rcp.microfrontend.SciIntentClient"/>
    </service>
-   <reference cardinality="1..1" field="microfrontendPlatformHostApp" interface="ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformHostApp" name="microfrontendPlatformHostApp"/>
+   <reference cardinality="1..1" field="microfrontendPlatformRcpHost" interface="ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost" name="microfrontendPlatformRcpHost"/>
    <implementation class="ch.sbb.scion.rcp.microfrontend.SciIntentClient"/>
 </scr:component>
