@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.3.0" name="ch.sbb.scion.rcp.microfrontend.MicrofrontendPlatform">
+   <service>
+      <provide interface="ch.sbb.scion.rcp.microfrontend.MicrofrontendPlatform"/>
+   </service>
+   <reference cardinality="1..1" field="microfrontendPlatformHostApp" interface="ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformHostApp" name="microfrontendPlatformHostApp"/>
+   <implementation class="ch.sbb.scion.rcp.microfrontend.MicrofrontendPlatform"/>
+</scr:component>

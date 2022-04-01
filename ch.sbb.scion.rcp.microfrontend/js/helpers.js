@@ -1,0 +1,91 @@
+(() => {
+  window['__SCION_RCP'] = window['__SCION_RCP'] || {};
+  window['__SCION_RCP'].storage = {};
+  window['__SCION_RCP'].helpers = {
+    JSON: {stringify, parse},
+  };
+
+  /**
+   * TODO [dwie]
+   * @param object
+   * @param rules JavaScript JSON does not support {Map} and {Set} collections. If encountering a {Map}, it
+   *
+   *
+   * creates a discriminator object for unsupported JSON collection types like {Map} or {Set} object,
+   *              that can be restored to the original JavaScript type when calling {@link parse}.
+   *              You can override this behavior by passing following rules
+   *              - 'Map=>MapObject': Converts a JavaScript {Map} object into a dictionary. The original collection type will be lost, thus {@link parse} will return a JavaScript dictionary.
+   *              - 'Set=>SetObject': Converts a JavaScript {Set} object into an array. The original collection type will be lost, thus {@link parse} will return a JavaScript array.
+   */
+  function stringify(object, ...rules) {
+    return JSON.stringify(object, (key, value) => {
+      // Marshalling of Maps: JSON does not yet support maps. Therefore, we convert Map objects to custom objects containing the contents of the map as an array of tuples.
+      if (isMapLike(value)) {
+        if (rules?.includes('Map=>MapObject')) {
+          return {__type: 'Map', __value: [...value]};
+        }
+        return toDictionary(value);
+      }
+      if (isSetLike(value)) {
+        if (rules?.includes('Set=>SetObject')) {
+          return {__type: 'Set', __value: [...value]};
+        }
+        return [...value];
+      }
+      return value;
+    });
+  }
+
+  function parse(json) {
+    return JSON.parse(json, (key, value) => {
+      if (value?.__type === 'Map' && Array.isArray(value.__value)) {
+        return new Map(value.__value);
+      }
+      if (value?.__type === 'Set' && Array.isArray(value.__value)) {
+        return new Set(value.__value);
+      }
+      return value;
+    });
+  }
+
+  function isMapLike(object) {
+    if (object instanceof Map) {
+      return true;
+    }
+    // Data sent from one JavaScript realm to another is serialized with the structured clone algorithm.
+    // Although the algorithm supports the 'Map' data type, a deserialized map object cannot be checked to be instance of 'Map'.
+    if (object && typeof object === 'object' && object.constructor.toString().includes('function Map()')) {
+      return true;
+    }
+    return false;
+  }
+
+  function isSetLike(object) {
+    if (object instanceof Set) {
+      return true;
+    }
+    // Data sent from one JavaScript realm to another is serialized with the structured clone algorithm.
+    // Although the algorithm supports the 'Map' data type, a deserialized map object cannot be checked to be instance of 'Map'.
+    if (object && typeof object === 'object' && object.constructor.toString().includes('function Set()')) {
+      return true;
+    }
+    return false;
+  }
+
+  function toDictionary(map) {
+    if (map === null || map === undefined) {
+      return map;
+    }
+    return Array
+    .from(map.entries())
+    .reduce(
+        (dictionary, [key, value]) => {
+          dictionary[key] = value;
+          return dictionary;
+        },
+        {},
+    );
+  }
+})();
+
+

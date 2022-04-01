@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Client App</title>
+    <link rel="stylesheet" type="text/css" href="styles.scss">
+    <script type="module" src="./client-controller.ts"></script>
+  </head>
+  <body>
+    <h1>Client Application</h1>
+    <fieldset class="connection">
+      <legend>Connection</legend>
+      <output id="connect-status"></output>
+    </fieldset>
+
+    <fieldset class="publish-message">
+      <legend>Send Message</legend>
+      Topic
+      <input id="publish-topic" placeholder="Topic">
+      Message
+      <textarea id="message" placeholder="Message"></textarea>
+      Retain
+      <input id="retain" type="checkbox">
+      <button id="publish">Publish</button>
+      <output id="publish-error" class="error"></output>
+    </fieldset>
+
+    <fieldset class="subscribe-topic">
+      <legend>Subscribe Topic</legend>
+      Topic
+      <input id="subscribe-topic" placeholder="Topic">
+
+      <button id="subscribe">Subscribe</button>
+      <output id="subscribe-error" class="error"></output>
+
+      <ul id="messages">
+      </ul>
+    </fieldset>
+  </body>
+</html>

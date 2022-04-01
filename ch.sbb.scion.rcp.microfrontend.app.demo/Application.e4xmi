@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application:Application xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:application="http://www.eclipse.org/ui/2010/UIModel/application" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/ui/basic" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_6wlLcMgZEeSyMNYR5xypkQ" elementId="ch.sbb.scion.rcp.microfrontend.app.demo.application" bindingContexts="_6wlLecgZEeSyMNYR5xypkQ">
+  <children xsi:type="basic:TrimmedWindow" xmi:id="_6wlLccgZEeSyMNYR5xypkQ" elementId="ch.sbb.scion.rcp.microfrontend.app.demo.window.main" label="Eclipse RCP Application" width="600" height="1000">
+    <children xsi:type="basic:PartSashContainer" xmi:id="_6wlLksgZEeSyMNYR5xypkQ" elementId="ch.sbb.scion.rcp.microfrontend.app.demo.partsashcontainer.sample">
+      <children xsi:type="basic:PartStack" xmi:id="_6wlLk8gZEeSyMNYR5xypkQ" elementId="ch.sbb.scion.rcp.microfrontend.app.demo.partstack.sample">
+        <children xsi:type="basic:Part" xmi:id="_6wlLlMgZEeSyMNYR5xypkQ" elementId="ch.sbb.scion.rcp.microfrontend.app.demo.part.router-outlet-1" contributionURI="bundleclass://ch.sbb.scion.rcp.microfrontend.app.demo/ch.sbb.scion.rcp.microfrontend.app.demo.parts.RouterOutletExample1Part" label="SciRouterOutlet" iconURI="" closeable="true"/>
+        <children xsi:type="basic:Part" xmi:id="_d8C2wK5eEeyTKIg0xHXYBg" elementId="ch.sbb.scion.rcp.microfrontend.app.demo.part.router-outlet-2" contributionURI="bundleclass://ch.sbb.scion.rcp.microfrontend.app.demo/ch.sbb.scion.rcp.microfrontend.app.demo.parts.RouterOutletExample2Part" label="SciRouterOutlet" iconURI="" closeable="true"/>
+        <children xsi:type="basic:Part" xmi:id="_5yx0YK8fEeyAX4nxWZeazw" elementId="ch.sbb.scion.rcp.microfrontend.app.demo.part.message-client" contributionURI="bundleclass://ch.sbb.scion.rcp.microfrontend.app.demo/ch.sbb.scion.rcp.microfrontend.app.demo.parts.MessageClientPart" label="Message Client (Java API)" iconURI="" closeable="true"/>
+        <children xsi:type="basic:Part" xmi:id="_d15T8K85EeyAX4nxWZeazw" elementId="ch.sbb.scion.rcp.microfrontend.app.demo.part.outlet-router" contributionURI="bundleclass://ch.sbb.scion.rcp.microfrontend.app.demo/ch.sbb.scion.rcp.microfrontend.app.demo.parts.OutletRouterPart" label="Outlet Router (Java API)" iconURI="" closeable="true"/>
+        <children xsi:type="basic:Part" xmi:id="_AmVRMK8zEeyAX4nxWZeazw" elementId="ch.sbb.scion.rcp.microfrontend.app.demo.part.devtools" contributionURI="bundleclass://ch.sbb.scion.rcp.microfrontend.app.demo/ch.sbb.scion.rcp.microfrontend.app.demo.parts.DevToolsPart" label="DevTools" iconURI="" closeable="true"/>
+      </children>
+    </children>
+    <mainMenu xmi:id="_6wlLicgZEeSyMNYR5xypkQ" elementId="org.eclipse.ui.main.menu">
+      <children xsi:type="menu:Menu" xmi:id="_8nHssK5NEeyTKIg0xHXYBg" elementId="file" label="File">
+        <children xsi:type="menu:HandledMenuItem" xmi:id="_8nHss65NEeyTKIg0xHXYBg" elementId="ch.sbb.scion.rcp.microfrontend.app.demo.handleditem.exit" label="Exit" command="_6wlLfMgZEeSyMNYR5xypkQ"/>
+      </children>
+    </mainMenu>
+  </children>
+  <handlers xmi:id="_6wlLfcgZEeSyMNYR5xypkQ" elementId="ch.sbb.scion.rcp.microfrontend.app.demo.handler.exitCommand" contributionURI="bundleclass://ch.sbb.scion.rcp.microfrontend.app.demo/ch.sbb.scion.rcp.microfrontend.app.demo.handlers.ExitHandler" command="_6wlLfMgZEeSyMNYR5xypkQ"/>
+  <bindingTables xmi:id="_6wlLfsgZEeSyMNYR5xypkQ" elementId="ch.sbb.scion.rcp.microfrontend.app.demo.bindingtable" bindingContext="_6wlLecgZEeSyMNYR5xypkQ"/>
+  <rootContext xmi:id="_6wlLecgZEeSyMNYR5xypkQ" elementId="org.eclipse.ui.contexts.dialogAndWindow" name="In Dialog and Windows">
+    <children xmi:id="_6wlLesgZEeSyMNYR5xypkQ" elementId="org.eclipse.ui.contexts.window" name="In Windows"/>
+    <children xmi:id="_6wlLe8gZEeSyMNYR5xypkQ" elementId="org.eclipse.ui.contexts.dialog" name="In Dialogs"/>
+  </rootContext>
+  <commands xmi:id="_6wlLfMgZEeSyMNYR5xypkQ" elementId="org.eclipse.ui.file.exit" commandName="exitCommand"/>
+  <addons xmi:id="_6wlLcsgZEeSyMNYR5xypkQ" elementId="org.eclipse.e4.core.commands.service" contributionURI="bundleclass://org.eclipse.e4.core.commands/org.eclipse.e4.core.commands.CommandServiceAddon"/>
+  <addons xmi:id="_6wlLc8gZEeSyMNYR5xypkQ" elementId="org.eclipse.e4.ui.contexts.service" contributionURI="bundleclass://org.eclipse.e4.ui.services/org.eclipse.e4.ui.services.ContextServiceAddon"/>
+  <addons xmi:id="_6wlLdMgZEeSyMNYR5xypkQ" elementId="org.eclipse.e4.ui.bindings.service" contributionURI="bundleclass://org.eclipse.e4.ui.bindings/org.eclipse.e4.ui.bindings.BindingServiceAddon"/>
+  <addons xmi:id="_6wlLdcgZEeSyMNYR5xypkQ" elementId="org.eclipse.e4.ui.workbench.commands.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.CommandProcessingAddon"/>
+  <addons xmi:id="_6wlLdsgZEeSyMNYR5xypkQ" elementId="org.eclipse.e4.ui.workbench.handler.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.HandlerProcessingAddon"/>
+  <addons xmi:id="_6wlLd8gZEeSyMNYR5xypkQ" elementId="org.eclipse.e4.ui.workbench.contexts.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.ContextProcessingAddon"/>
+  <addons xmi:id="_6wlLeMgZEeSyMNYR5xypkQ" elementId="org.eclipse.e4.ui.workbench.bindings.model" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.swt/org.eclipse.e4.ui.workbench.swt.util.BindingProcessingAddon"/>
+</application:Application>

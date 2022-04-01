@@ -1,0 +1,21 @@
+{
+  "scripts": {
+    "bundle": "parcel build src/refs.ts --no-cache --dist-dir ../ch.sbb.scion.rcp.microfrontend/js"
+  },
+  "dependencies": {
+    "@scion/microfrontend-platform": "1.0.0-rc.2",
+    "@scion/toolkit": "13.0.0-beta.2",
+    "rxjs": "7.5.5"
+  },
+  "devDependencies": {
+    "@types/node": "^15.6.1",
+    "parcel": "^2.4.0",
+    "typescript": "^4.6.0"
+  },
+  "browserslist": [
+    "last 2 Chrome versions"
+  ],
+  "alias": {
+    "process": false
+  }
+}
