@@ -7,37 +7,37 @@ import org.eclipse.swt.browser.Browser;
 
 import ch.sbb.scion.rcp.microfrontend.script.Script;
 
-public class BrowserScriptExecutor {
+public class JavaScriptExecutor {
 
   private CompletableFuture<Browser> browser;
   private boolean logToConsole;
   private boolean asyncFunction;
   private Script browserScript;
 
-  public BrowserScriptExecutor(Browser browser, String script) {
+  public JavaScriptExecutor(Browser browser, String script) {
     this(CompletableFuture.completedFuture(browser), script);
   }
 
-  public BrowserScriptExecutor(CompletableFuture<Browser> browser, String script) {
+  public JavaScriptExecutor(CompletableFuture<Browser> browser, String script) {
     this.browser = browser;
     this.browserScript = new Script(script);
   }
 
-  public BrowserScriptExecutor replacePlaceholder(String name, Object value) {
+  public JavaScriptExecutor replacePlaceholder(String name, Object value) {
     return replacePlaceholder(name, value, 0);
   }
 
-  public BrowserScriptExecutor replacePlaceholder(String name, Object value, int flags) {
+  public JavaScriptExecutor replacePlaceholder(String name, Object value, int flags) {
     browserScript.replacePlaceholder(name, value, flags);
     return this;
   }
 
-  public BrowserScriptExecutor runInsideAsyncFunction() {
+  public JavaScriptExecutor runInsideAsyncFunction() {
     asyncFunction = true;
     return this;
   }
 
-  public BrowserScriptExecutor printScriptToConsole() {
+  public JavaScriptExecutor printScriptToConsole() {
     logToConsole = true;
     return this;
   }
@@ -48,13 +48,13 @@ public class BrowserScriptExecutor {
     var iife = "(" + asyncToken + "() => { " + script + " })();";
 
     if (logToConsole) {
-      Platform.getLog(BrowserScriptExecutor.class).info(iife);
+      Platform.getLog(JavaScriptExecutor.class).info(iife);
     }
 
     return browser.thenAccept(browser -> {
       var success = browser.execute(iife);
       if (!success) {
-        Platform.getLog(BrowserScriptExecutor.class).error("Failed to inject or execute JavaScript: " + iife);
+        Platform.getLog(JavaScriptExecutor.class).error("Failed to inject or execute JavaScript: " + iife);
       }
     });
   }

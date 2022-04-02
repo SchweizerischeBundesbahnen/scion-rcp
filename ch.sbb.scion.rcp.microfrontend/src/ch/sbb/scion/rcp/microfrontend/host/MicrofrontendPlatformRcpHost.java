@@ -1,7 +1,6 @@
 package ch.sbb.scion.rcp.microfrontend.host;
 
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.core.runtime.Platform;
@@ -17,9 +16,8 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 
 import ch.sbb.scion.rcp.microfrontend.SciRouterOutlet;
-import ch.sbb.scion.rcp.microfrontend.browser.BrowserCallback;
-import ch.sbb.scion.rcp.microfrontend.browser.BrowserCallback.Options;
-import ch.sbb.scion.rcp.microfrontend.browser.BrowserScriptExecutor;
+import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
+import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptCallback;
 import ch.sbb.scion.rcp.microfrontend.host.Webserver.Resource;
 import ch.sbb.scion.rcp.microfrontend.internal.Resources;
 import ch.sbb.scion.rcp.microfrontend.model.MicrofrontendPlatformConfig;
@@ -27,7 +25,7 @@ import ch.sbb.scion.rcp.microfrontend.script.Script.Flags;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
 
 /**
- * Represents the RCP host for the SCION Microfrontend Platform that is started 
+ * Represents the RCP host for the SCION Microfrontend Platform that is started
  * in an invisible shell in a web browser.
  * 
  * When instantiating the {@link SciRouterOutlet} SWT component, an
@@ -86,20 +84,18 @@ public class MicrofrontendPlatformRcpHost {
   }
 
   private void start(MicrofrontendPlatformConfig config, Browser browser) {
-    var callback = new BrowserCallback(browser, new Options()
-        .once()
-        .onCallback(args -> {
-          var error = args[0];
-          if (error == null) {
-            whenHostBrowser.complete(browser);
-          }
-          else {
-            Platform.getLog(BrowserScriptExecutor.class).error("Failed to start Microfrontend Platform: " + error);
-            whenHostBrowser.completeExceptionally(new RuntimeException((String) error));
-          }
-        }));
+    var callback = new JavaScriptCallback(browser, args -> {
+      var error = args[0];
+      if (error == null) {
+        whenHostBrowser.complete(browser);
+      }
+      else {
+        Platform.getLog(JavaScriptExecutor.class).error("Failed to start Microfrontend Platform: " + error);
+        whenHostBrowser.completeExceptionally(new RuntimeException((String) error));
+      }
+    }).installOnce();
 
-    new BrowserScriptExecutor(browser, """
+    new JavaScriptExecutor(browser, """
         try {
           // Set the message origin
           const config = JSON.parse('${platformConfig}');
@@ -113,7 +109,7 @@ public class MicrofrontendPlatformRcpHost {
           window['${callback}'](error.message ?? `${error}` ?? 'Failed to start Microfrontend Platform');
         }
         """)
-        .replacePlaceholder("callback", callback)
+        .replacePlaceholder("callback", callback.name)
         .replacePlaceholder("MicrofrontendPlatform", Refs.MicrofrontendPlatform)
         .replacePlaceholder("platformConfig", config, Flags.ToJson)
         .runInsideAsyncFunction()

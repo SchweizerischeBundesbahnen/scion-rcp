@@ -21,9 +21,8 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 
-import ch.sbb.scion.rcp.microfrontend.browser.BrowserCallback;
-import ch.sbb.scion.rcp.microfrontend.browser.BrowserCallback.Options;
-import ch.sbb.scion.rcp.microfrontend.browser.BrowserScriptExecutor;
+import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
+import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptCallback;
 import ch.sbb.scion.rcp.microfrontend.internal.ContextInjectors;
 import ch.sbb.scion.rcp.microfrontend.internal.Resources;
 import ch.sbb.scion.rcp.microfrontend.model.IDisposable;
@@ -100,7 +99,7 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
         }
 
         var pushStateToSessionHistoryStack = Optional.ofNullable(event.headers.get("ɵPUSH_STATE_TO_SESSION_HISTORY_STACK")).orElse(false);
-        new BrowserScriptExecutor(browser, """
+        new JavaScriptExecutor(browser, """
             if (${pushStateToSessionHistoryStack}) {
                window.location.assign('${url}');
             }
@@ -168,22 +167,21 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
    * Taps messages from the client and dispatches them to the <sci-router-outlet>.
    */
   private IDisposable installClientToSciRouterOutletMessageDispatcher() {
-    var callback = new BrowserCallback(browser, new Options()
-        .onCallback(args -> {
-          if (bridgeLoggerEnabled) {
-            Platform.getLog(SciRouterOutlet.class).info("[SciBridge] [client=>host] " + args[0]);
-          }
-          routerOutletProxy.postJsonMessage((String) args[0]);
-        }));
+    var callback = new JavaScriptCallback(browser, args -> {
+      if (bridgeLoggerEnabled) {
+        Platform.getLog(SciRouterOutlet.class).info("[SciBridge] [client=>host] " + args[0]);
+      }
+      routerOutletProxy.postJsonMessage((String) args[0]);
+    }).install();
 
-    new BrowserScriptExecutor(browser, """
+    new JavaScriptExecutor(browser, """
         window.addEventListener('message', event => {
           if (event.data?.transport === 'sci://microfrontend-platform/client-to-broker' || event.data?.transport === 'sci://microfrontend-platform/microfrontend-to-outlet') {
             window['${callback}']?.(${helpers.stringify}(event.data, 'Map=>MapObject', 'Set=>SetObject'));
           }
         });
         """)
-        .replacePlaceholder("callback", callback)
+        .replacePlaceholder("callback", callback.name)
         .replacePlaceholder("helpers.stringify", JsonHelpers.stringify)
         .execute();
 
@@ -199,7 +197,7 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
         Platform.getLog(SciRouterOutlet.class).info("[SciBridge] [client=>host] " + json);
       }
 
-      new BrowserScriptExecutor(browser, "window.postMessage(${helpers.parse}('${json}'));")
+      new JavaScriptExecutor(browser, "window.postMessage(${helpers.parse}('${json}'));")
           .replacePlaceholder("json", json.replace("'", "\\'"))
           .replacePlaceholder("helpers.parse", JsonHelpers.parse)
           .execute();
