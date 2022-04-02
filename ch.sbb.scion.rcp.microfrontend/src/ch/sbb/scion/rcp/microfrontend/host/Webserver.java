@@ -13,9 +13,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.Platform;
-
-import ch.sbb.scion.rcp.microfrontend.Activator;
 
 /**
  * Serves passed resources on a random port.
@@ -23,6 +22,7 @@ import ch.sbb.scion.rcp.microfrontend.Activator;
 public class Webserver {
 
   private static final Pattern HTTP_GET_PATTERN = Pattern.compile("GET /(?<resource>.*) HTTP");
+  private static final ILog LOGGER = Platform.getLog(Webserver.class);
 
   private Map<String, Resource> resources;
   private ExecutorService executor;
@@ -43,7 +43,9 @@ public class Webserver {
           handleRequest(serverSocket.accept());
         }
         catch (IOException e) {
-          Platform.getLog(Activator.class).error("Failed to handle HTTP request.", e);
+          if (!serverSocket.isClosed()) {
+            LOGGER.error("Failed to handle HTTP request.", e);            
+          }
         }
       }
     });
@@ -99,7 +101,7 @@ public class Webserver {
         serverSocket.close();
       }
       catch (IOException e) {
-        Platform.getLog(Activator.class).error("Failed to stop HTTP server.", e);
+        LOGGER.error("Failed to stop HTTP server.", e);
       }
     }
   }
@@ -107,7 +109,7 @@ public class Webserver {
   public int getPort() {
     return serverSocket.getLocalPort();
   }
-  
+
   public CompletableFuture<Void> whenStarted() {
     return this.whenStarted;
   }
