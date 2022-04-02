@@ -168,7 +168,7 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
    * Taps messages from the client and dispatches them to the <sci-router-outlet>.
    */
   private IDisposable installClientToSciRouterOutletMessageDispatcher() {
-    var messageCallback = new BrowserCallback("__sci_onclientmessage", browser, new Options()
+    var callback = new BrowserCallback(browser, new Options()
         .onCallback(args -> {
           if (bridgeLoggerEnabled) {
             Platform.getLog(SciRouterOutlet.class).info("[SciBridge] [client=>host] " + args[0]);
@@ -179,15 +179,15 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
     new BrowserScriptExecutor(browser, """
         window.addEventListener('message', event => {
           if (event.data?.transport === 'sci://microfrontend-platform/client-to-broker' || event.data?.transport === 'sci://microfrontend-platform/microfrontend-to-outlet') {
-            window['${callbackName}']?.(${helpers.stringify}(event.data, 'Map=>MapObject', 'Set=>SetObject'));
+            window['${callback}']?.(${helpers.stringify}(event.data, 'Map=>MapObject', 'Set=>SetObject'));
           }
         });
         """)
-        .replacePlaceholder("callbackName", messageCallback.name)
+        .replacePlaceholder("callback", callback)
         .replacePlaceholder("helpers.stringify", JsonHelpers.stringify)
         .execute();
 
-    return () -> messageCallback.dispose();
+    return () -> callback.dispose();
   }
 
   /**

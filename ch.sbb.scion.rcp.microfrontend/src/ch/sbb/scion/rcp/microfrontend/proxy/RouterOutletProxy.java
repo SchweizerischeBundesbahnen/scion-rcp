@@ -47,8 +47,8 @@ public class RouterOutletProxy {
   }
 
   public void init() {
-    outletToProxyMessageCallback = new BrowserCallback("__sci_outlet-to-proxy-onmessage_" + outletId, microfrontendPlatformRcpHost.whenHostBrowser);
-    outletToProxyKeystrokeCallback = new BrowserCallback("__sci_outlet-to-proxy-onkeystroke_" + outletId, microfrontendPlatformRcpHost.whenHostBrowser);
+    outletToProxyMessageCallback = new BrowserCallback(microfrontendPlatformRcpHost.whenHostBrowser);
+    outletToProxyKeystrokeCallback = new BrowserCallback(microfrontendPlatformRcpHost.whenHostBrowser);
 
     new BrowserScriptExecutor(microfrontendPlatformRcpHost.whenHostBrowser, """
         const sciRouterOutlet = document.body.appendChild(document.createElement('sci-router-outlet'));

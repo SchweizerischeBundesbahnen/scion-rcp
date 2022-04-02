@@ -125,7 +125,7 @@ public class SciIntentClient {
   private CompletableFuture<Void> publishJson(Intent intent, String json, IntentOptions options) {
     options = Optional.ofNullable(options).orElse(new IntentOptions());
     var published = new CompletableFuture<Void>();
-    var browserCallback = new BrowserCallback("__sci_intentclient$onpublish_" + UUID.randomUUID(), microfrontendPlatformRcpHost.whenHostBrowser, new Options()
+    var callback = new BrowserCallback(microfrontendPlatformRcpHost.whenHostBrowser, new Options()
         .once()
         .onCallback(args -> {
           var error = args[0];
@@ -142,13 +142,13 @@ public class SciIntentClient {
           await ${refs.IntentClient}.publish(JSON.parse('${intent}'), JSON.parse('${body}') ?? null, {
             headers: JSON.parse('${options.headers}') ?? undefined
           });
-          window['${callbackName}'](null);
+          window['${callback}'](null);
         }
         catch (error) {
-          window['${callbackName}'](error.message ?? `${error}` ?? 'ERROR');
+          window['${callback}'](error.message ?? `${error}` ?? 'ERROR');
         }
         """)
-        .replacePlaceholder("callbackName", browserCallback.name)
+        .replacePlaceholder("callback", callback)
         .replacePlaceholder("intent", intent, Flags.ToJson)
         .replacePlaceholder("body", json)
         .replacePlaceholder("options.headers", options.headers, Flags.ToJson)
