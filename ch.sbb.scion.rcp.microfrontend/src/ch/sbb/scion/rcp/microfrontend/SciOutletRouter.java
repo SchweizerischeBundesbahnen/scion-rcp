@@ -45,7 +45,7 @@ public class SciOutletRouter {
     options = Optional.ofNullable(options).orElse(new NavigationOptions());
 
     var navigated = new CompletableFuture<Void>();
-    var browserCallback = new BrowserCallback("__sci_outletrouter$onnavigate_" + UUID.randomUUID(), microfrontendPlatformRcpHost.whenHostBrowser, new Options()
+    var callback = new BrowserCallback(microfrontendPlatformRcpHost.whenHostBrowser, new Options()
         .once()
         .onCallback(args -> {
           var error = args[0];
@@ -65,13 +65,13 @@ public class SciOutletRouter {
             params: JSON.parse('${options.params}') ?? undefined,
             pushStateToSessionHistoryStack: ${options.pushStateToSessionHistoryStack} ?? undefined,
           });
-          window['${callbackName}'](null);
+          window['${callback}'](null);
         }
         catch (error) {
-          window['${callbackName}'](error.message ?? `${error}` ?? 'ERROR');
+          window['${callback}'](error.message ?? `${error}` ?? 'ERROR');
         }
         """)
-        .replacePlaceholder("callbackName", browserCallback.name)
+        .replacePlaceholder("callback", callback)
         .replacePlaceholder("url", url, Flags.ToJson)
         .replacePlaceholder("options.outlet", options.outlet, Flags.ToJson)
         .replacePlaceholder("options.relativeTo", options.relativeTo, Flags.ToJson)

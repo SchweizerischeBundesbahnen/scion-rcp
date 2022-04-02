@@ -86,7 +86,7 @@ public class MicrofrontendPlatformRcpHost {
   }
 
   private void start(MicrofrontendPlatformConfig config, Browser browser) {
-    var browserCallback = new BrowserCallback("__sci_microfrontendplatform$started_" + UUID.randomUUID(), browser, new Options()
+    var callback = new BrowserCallback(browser, new Options()
         .once()
         .onCallback(args -> {
           var error = args[0];
@@ -106,14 +106,14 @@ public class MicrofrontendPlatformRcpHost {
           config.applications.forEach(application => application.messageOrigin = window.location.origin);
 
           await ${MicrofrontendPlatform}.startHost(config);
-          window['${callbackName}'](null);
+          window['${callback}'](null);
         }
         catch (error) {
           console.log('Failed to start Microfrontend Platform', error);
-          window['${callbackName}'](error.message ?? `${error}` ?? 'Failed to start Microfrontend Platform');
+          window['${callback}'](error.message ?? `${error}` ?? 'Failed to start Microfrontend Platform');
         }
         """)
-        .replacePlaceholder("callbackName", browserCallback.name)
+        .replacePlaceholder("callback", callback)
         .replacePlaceholder("MicrofrontendPlatform", Refs.MicrofrontendPlatform)
         .replacePlaceholder("platformConfig", config, Flags.ToJson)
         .runInsideAsyncFunction()

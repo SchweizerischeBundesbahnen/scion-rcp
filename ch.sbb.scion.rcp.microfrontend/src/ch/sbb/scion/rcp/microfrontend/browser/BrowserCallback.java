@@ -2,6 +2,7 @@ package ch.sbb.scion.rcp.microfrontend.browser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
@@ -21,26 +22,26 @@ public class BrowserCallback implements IDisposable {
   private BrowserFunction browserFunction;
   private List<Consumer<Object[]>> callbacks = new ArrayList<>();
 
-  public BrowserCallback(String name, Browser browser) {
-    this(name, CompletableFuture.completedFuture(browser), Options.EMPTY);
+  public BrowserCallback(Browser browser) {
+    this(CompletableFuture.completedFuture(browser), Options.EMPTY);
   }
 
-  public BrowserCallback(String name, CompletableFuture<Browser> whenBrowser) {
-    this(name, whenBrowser, Options.EMPTY);
+  public BrowserCallback(CompletableFuture<Browser> whenBrowser) {
+    this(whenBrowser, Options.EMPTY);
   }
 
-  public BrowserCallback(String name, Browser browser, Options options) {
-    this(name, CompletableFuture.completedFuture(browser), options);
+  public BrowserCallback(Browser browser, Options options) {
+    this(CompletableFuture.completedFuture(browser), options);
   }
 
-  public BrowserCallback(String name, CompletableFuture<Browser> whenBrowser, Options options) {
-    this.name = toValidJavaScriptIdentifier(name);
+  public BrowserCallback(CompletableFuture<Browser> whenBrowser, Options options) {
+    name = toValidJavaScriptIdentifier("__scion_rcp_browserfunction_" + UUID.randomUUID());
     if (options.callback != null) {
       callbacks.add(options.callback);
     }
 
     whenBrowser.thenAccept(browser -> {
-      browserFunction = new BrowserFunction(browser, this.name) {
+      browserFunction = new BrowserFunction(browser, name) {
         @Override
         public Boolean function(Object[] arguments) {
           callbacks.forEach(listener -> listener.accept(arguments));
@@ -58,6 +59,11 @@ public class BrowserCallback implements IDisposable {
   public IDisposable addCallback(Consumer<Object[]> callback) {
     callbacks.add(callback);
     return () -> callbacks.remove(callback);
+  }
+  
+  @Override
+  public String toString() {
+    return name;
   }
 
   /**

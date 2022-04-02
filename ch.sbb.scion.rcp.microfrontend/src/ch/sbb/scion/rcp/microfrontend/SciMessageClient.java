@@ -96,7 +96,7 @@ public class SciMessageClient {
   private CompletableFuture<Void> publishJson(String topic, String json, PublishOptions options) {
     options = Optional.ofNullable(options).orElse(new PublishOptions());
     var published = new CompletableFuture<Void>();
-    var browserCallback = new BrowserCallback("__sci_messageclient$onpublish_" + UUID.randomUUID(), microfrontendPlatformRcpHost.whenHostBrowser, new Options()
+    var callback = new BrowserCallback(microfrontendPlatformRcpHost.whenHostBrowser, new Options()
         .once()
         .onCallback(args -> {
           var error = args[0];
@@ -114,13 +114,13 @@ public class SciMessageClient {
             headers: JSON.parse('${options.headers}') ?? undefined,
             retain: ${options.retain} ?? undefined,
           });
-          window['${callbackName}'](null);
+          window['${callback}'](null);
         }
         catch (error) {
-          window['${callbackName}'](error.message ?? `${error}` ?? 'ERROR');
+          window['${callback}'](error.message ?? `${error}` ?? 'ERROR');
         }
         """)
-        .replacePlaceholder("callbackName", browserCallback.name)
+        .replacePlaceholder("callback", callback)
         .replacePlaceholder("topic", topic, Flags.ToJson)
         .replacePlaceholder("message", json)
         .replacePlaceholder("options.headers", options.headers, Flags.ToJson)

@@ -42,7 +42,7 @@ public class BrowserRxJsObservable<T> {
     var subscriptionUuid = UUID.randomUUID();
     var disposables = new ArrayList<IDisposable>();
 
-    var browserCallback = new BrowserCallback("__sci_observable#onemit_" + UUID.randomUUID(), whenBrowser, new Options()
+    var callback = new BrowserCallback(whenBrowser, new Options()
         .onCallback(args -> {
           try {
             var emission = new Gson().<Emission<T>>fromJson((String) args[0], new ParameterizedType(Emission.class, clazz));
@@ -71,25 +71,25 @@ public class BrowserRxJsObservable<T> {
     new BrowserScriptExecutor(whenBrowser, """
         try {
           const subscription = ${observable}.subscribe({
-            next: (next) => window['${callbackName}'](${helpers.stringify}({type: 'Next', next})),
-            error: (error) => window['${callbackName}'](${helpers.stringify}({type: 'Error', error: error.message || `${error}` || 'ERROR'})),
-            complete: () => window['${callbackName}'](${helpers.stringify}({type: 'Complete'})),
+            next: (next) => window['${callback}'](${helpers.stringify}({type: 'Next', next})),
+            error: (error) => window['${callback}'](${helpers.stringify}({type: 'Error', error: error.message || `${error}` || 'ERROR'})),
+            complete: () => window['${callback}'](${helpers.stringify}({type: 'Complete'})),
           });
           ${storage}['${subscriptionUuid}'] = subscription;
         }
         catch (error) {
           console.error(error);
-          window['${callbackName}']({type: 'Error', message: error.message ?? `${error}` ?? 'ERROR'});
+          window['${callback}']({type: 'Error', message: error.message ?? `${error}` ?? 'ERROR'});
         }
         """)
-        .replacePlaceholder("callbackName", browserCallback.name)
+        .replacePlaceholder("callback", callback)
         .replacePlaceholder("helpers.stringify", JsonHelpers.stringify)
         .replacePlaceholder("storage", Scripts.Storage)
         .replacePlaceholder("subscriptionUuid", subscriptionUuid)
         .replacePlaceholder("observable", observableScript)
         .execute();
 
-    disposables.add(browserCallback);
+    disposables.add(callback);
     disposables.add(() -> {
       new BrowserScriptExecutor(whenBrowser, """
           ${storage}?.['${subscriptionUuid}']?.unsubscribe();
