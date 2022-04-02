@@ -79,7 +79,7 @@ public class BrowserRxJsObservable<T> {
         }
         catch (error) {
           console.error(error);
-          window['${errorCallbackName}']({type: 'Error', message: error.message ?? `${error}` ?? 'ERROR'});
+          window['${callbackName}']({type: 'Error', message: error.message ?? `${error}` ?? 'ERROR'});
         }
         """)
         .replacePlaceholder("callbackName", browserCallback.name)
