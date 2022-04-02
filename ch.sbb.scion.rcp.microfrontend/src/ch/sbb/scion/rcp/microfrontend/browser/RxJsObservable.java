@@ -11,7 +11,6 @@ import org.eclipse.swt.browser.Browser;
 import com.google.gson.Gson;
 
 import ch.sbb.scion.rcp.microfrontend.SciMessageClient;
-import ch.sbb.scion.rcp.microfrontend.browser.BrowserCallback.Options;
 import ch.sbb.scion.rcp.microfrontend.internal.ParameterizedType;
 import ch.sbb.scion.rcp.microfrontend.model.IDisposable;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscriber;
@@ -22,17 +21,17 @@ import ch.sbb.scion.rcp.microfrontend.script.Scripts.JsonHelpers;
 /**
  * Subscribes to an RxJS Observable in the browser.
  */
-public class BrowserRxJsObservable<T> {
+public class RxJsObservable<T> {
 
   private CompletableFuture<Browser> whenBrowser;
   private Type clazz;
   private String observableScript;
 
-  public BrowserRxJsObservable(Browser browser, String observableScript, Type clazz) {
+  public RxJsObservable(Browser browser, String observableScript, Type clazz) {
     this(CompletableFuture.completedFuture(browser), observableScript, clazz);
   }
 
-  public BrowserRxJsObservable(CompletableFuture<Browser> browser, String rxJsObservableScript, Type clazz) {
+  public RxJsObservable(CompletableFuture<Browser> browser, String rxJsObservableScript, Type clazz) {
     this.whenBrowser = browser;
     this.observableScript = rxJsObservableScript;
     this.clazz = clazz;
@@ -42,33 +41,32 @@ public class BrowserRxJsObservable<T> {
     var subscriptionUuid = UUID.randomUUID();
     var disposables = new ArrayList<IDisposable>();
 
-    var callback = new BrowserCallback(whenBrowser, new Options()
-        .onCallback(args -> {
-          try {
-            var emission = new Gson().<Emission<T>>fromJson((String) args[0], new ParameterizedType(Emission.class, clazz));
-            switch (emission.type) {
-            case Next: {
-              observer.onNext(emission.next);
-              break;
-            }
-            case Error: {
-              observer.onError(new RuntimeException(emission.error));
-              disposables.forEach(IDisposable::dispose);
-              break;
-            }
-            case Complete: {
-              observer.onComplete();
-              disposables.forEach(IDisposable::dispose);
-              break;
-            }
-            }
-          }
-          catch (RuntimeException e) {
-            Platform.getLog(SciMessageClient.class).error("Unhandled error in callback", e);
-          }
-        }));
+    var callback = new JavaScriptCallback(whenBrowser, args -> {
+      try {
+        var emission = new Gson().<Emission<T>>fromJson((String) args[0], new ParameterizedType(Emission.class, clazz));
+        switch (emission.type) {
+        case Next: {
+          observer.onNext(emission.next);
+          break;
+        }
+        case Error: {
+          observer.onError(new RuntimeException(emission.error));
+          disposables.forEach(IDisposable::dispose);
+          break;
+        }
+        case Complete: {
+          observer.onComplete();
+          disposables.forEach(IDisposable::dispose);
+          break;
+        }
+        }
+      }
+      catch (RuntimeException e) {
+        Platform.getLog(SciMessageClient.class).error("Unhandled error in callback", e);
+      }
+    }).install();
 
-    new BrowserScriptExecutor(whenBrowser, """
+    new JavaScriptExecutor(whenBrowser, """
         try {
           const subscription = ${observable}.subscribe({
             next: (next) => window['${callback}'](${helpers.stringify}({type: 'Next', next})),
@@ -82,7 +80,7 @@ public class BrowserRxJsObservable<T> {
           window['${callback}']({type: 'Error', message: error.message ?? `${error}` ?? 'ERROR'});
         }
         """)
-        .replacePlaceholder("callback", callback)
+        .replacePlaceholder("callback", callback.name)
         .replacePlaceholder("helpers.stringify", JsonHelpers.stringify)
         .replacePlaceholder("storage", Scripts.Storage)
         .replacePlaceholder("subscriptionUuid", subscriptionUuid)
@@ -91,7 +89,7 @@ public class BrowserRxJsObservable<T> {
 
     disposables.add(callback);
     disposables.add(() -> {
-      new BrowserScriptExecutor(whenBrowser, """
+      new JavaScriptExecutor(whenBrowser, """
           ${storage}?.['${subscriptionUuid}']?.unsubscribe();
           delete ${storage}?.['${subscriptionUuid}']
           """)

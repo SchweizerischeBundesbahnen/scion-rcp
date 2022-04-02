@@ -2,15 +2,13 @@ package ch.sbb.scion.rcp.microfrontend;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import ch.sbb.scion.rcp.microfrontend.browser.BrowserCallback;
-import ch.sbb.scion.rcp.microfrontend.browser.BrowserCallback.Options;
-import ch.sbb.scion.rcp.microfrontend.browser.BrowserScriptExecutor;
+import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
+import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptCallback;
 import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost;
 import ch.sbb.scion.rcp.microfrontend.script.Script.Flags;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
@@ -45,19 +43,17 @@ public class SciOutletRouter {
     options = Optional.ofNullable(options).orElse(new NavigationOptions());
 
     var navigated = new CompletableFuture<Void>();
-    var callback = new BrowserCallback(microfrontendPlatformRcpHost.whenHostBrowser, new Options()
-        .once()
-        .onCallback(args -> {
-          var error = args[0];
-          if (error == null) {
-            navigated.complete(null);
-          }
-          else {
-            navigated.completeExceptionally(new RuntimeException((String) error));
-          }
-        }));
+    var callback = new JavaScriptCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
+      var error = args[0];
+      if (error == null) {
+        navigated.complete(null);
+      }
+      else {
+        navigated.completeExceptionally(new RuntimeException((String) error));
+      }
+    }).installOnce();
 
-    new BrowserScriptExecutor(microfrontendPlatformRcpHost.whenHostBrowser, """
+    new JavaScriptExecutor(microfrontendPlatformRcpHost.whenHostBrowser, """
         try {
           await ${refs.OutletRouter}.navigate(JSON.parse('${url}') ?? undefined, {
             outlet: JSON.parse('${options.outlet}') ?? undefined,
@@ -71,7 +67,7 @@ public class SciOutletRouter {
           window['${callback}'](error.message ?? `${error}` ?? 'ERROR');
         }
         """)
-        .replacePlaceholder("callback", callback)
+        .replacePlaceholder("callback", callback.name)
         .replacePlaceholder("url", url, Flags.ToJson)
         .replacePlaceholder("options.outlet", options.outlet, Flags.ToJson)
         .replacePlaceholder("options.relativeTo", options.relativeTo, Flags.ToJson)

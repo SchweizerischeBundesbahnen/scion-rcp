@@ -1,5 +1,7 @@
 package ch.sbb.scion.rcp.microfrontend.proxy;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -11,8 +13,8 @@ import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.widgets.Event;
 
 import ch.sbb.scion.rcp.microfrontend.SciRouterOutlet;
-import ch.sbb.scion.rcp.microfrontend.browser.BrowserCallback;
-import ch.sbb.scion.rcp.microfrontend.browser.BrowserScriptExecutor;
+import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
+import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptCallback;
 import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost;
 import ch.sbb.scion.rcp.microfrontend.internal.ContextInjectors;
 import ch.sbb.scion.rcp.microfrontend.internal.Resources;
@@ -30,8 +32,10 @@ public class RouterOutletProxy {
 
   private String outletId;
   private CompletableFuture<Browser> whenOutlet;
-  private BrowserCallback outletToProxyMessageCallback;
-  private BrowserCallback outletToProxyKeystrokeCallback;
+  private JavaScriptCallback outletToProxyMessageCallback;
+  private JavaScriptCallback outletToProxyKeystrokeCallback;
+  private List<Consumer<String>> outletToProxyMessageListeners = new ArrayList<>();
+  private List<Consumer<Event>> outletToProxyKeystrokeListeners = new ArrayList<>();
 
   @Inject
   private MicrofrontendPlatformRcpHost microfrontendPlatformRcpHost;
@@ -47,10 +51,20 @@ public class RouterOutletProxy {
   }
 
   public void init() {
-    outletToProxyMessageCallback = new BrowserCallback(microfrontendPlatformRcpHost.whenHostBrowser);
-    outletToProxyKeystrokeCallback = new BrowserCallback(microfrontendPlatformRcpHost.whenHostBrowser);
+    // Callback invoked for messages to be transported to the client.
+    outletToProxyMessageCallback = new JavaScriptCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
+      var jsonMessage = (String) args[0];
+      outletToProxyMessageListeners.forEach(listener -> listener.accept(jsonMessage));
+    }).install();
 
-    new BrowserScriptExecutor(microfrontendPlatformRcpHost.whenHostBrowser, """
+    // Callback invoked for keystrokes triggered by the client.
+    outletToProxyKeystrokeCallback = new JavaScriptCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
+      var webEvent = new JavaScriptKeyboardEvent((String) args[0], (String) args[1], (boolean) args[2], (boolean) args[3], (boolean) args[4], (boolean) args[5]);
+      var swtEvent = keyboardEventMapper.mapKeyboardEvent(webEvent);
+      outletToProxyKeystrokeListeners.forEach(listener -> listener.accept(swtEvent));
+    }).install();
+
+    new JavaScriptExecutor(microfrontendPlatformRcpHost.whenHostBrowser, """
         const sciRouterOutlet = document.body.appendChild(document.createElement('sci-router-outlet'));
 
         const outletContent= `<html>
@@ -66,7 +80,7 @@ public class RouterOutletProxy {
               // Dispatch messages from the host
               window.addEventListener('message', event => {
                 if (event.data?.transport === 'sci://microfrontend-platform/broker-to-client') {
-                  window.parent['${outletToProxyMessageCallbackName}']?.(${helpers.stringify}(event.data, 'Map=>MapObject', 'Set=>SetObject'));
+                  window.parent['${outletToProxyMessageCallback}']?.(${helpers.stringify}(event.data, 'Map=>MapObject', 'Set=>SetObject'));
                 }
               });
             </script>
@@ -88,7 +102,7 @@ public class RouterOutletProxy {
           window['${outletToProxyKeystrokeCallback}']('keyup', event.key, event.ctrlKey, event.shiftKey, event.altKey, event.metaKey);
         });
         """)
-        .replacePlaceholder("outletToProxyMessageCallbackName", outletToProxyMessageCallback.name)
+        .replacePlaceholder("outletToProxyMessageCallback", outletToProxyMessageCallback.name)
         .replacePlaceholder("outletToProxyKeystrokeCallback", outletToProxyKeystrokeCallback.name)
         .replacePlaceholder("outletId", outletId)
         .replacePlaceholder("helpers.js", Resources.readString("js/helpers.js"))
@@ -103,7 +117,7 @@ public class RouterOutletProxy {
    * proxy} to dispatch given keystrokes.
    */
   public CompletableFuture<Void> registerKeystrokes(Set<String> keystrokes) {
-    return new BrowserScriptExecutor(whenOutlet, """
+    return new JavaScriptExecutor(whenOutlet, """
         const sciRouterOutlet = document.querySelector('sci-router-outlet[name="${outletId}"]');
         sciRouterOutlet.keystrokes = JSON.parse('${keystrokes}') || [];
         """)
@@ -117,7 +131,7 @@ public class RouterOutletProxy {
    * loaded into the the {@link SciRouterOutlet outlet proxy}.
    */
   public void postJsonMessage(String jsonMessage) {
-    new BrowserScriptExecutor(whenOutlet, """
+    new JavaScriptExecutor(whenOutlet, """
         const sciRouterOutlet = document.querySelector('sci-router-outlet[name="${outletId}"]');
 
         try {
@@ -138,9 +152,8 @@ public class RouterOutletProxy {
    * loaded into the {@link SciRouterOutlet outlet proxy}.
    */
   public IDisposable onMessage(Consumer<String> messageListener) {
-    return outletToProxyMessageCallback.addCallback(args -> {
-      messageListener.accept((String) args[0]);
-    });
+    outletToProxyMessageListeners.add(messageListener);
+    return () -> outletToProxyMessageListeners.remove(messageListener);
   }
 
   /**
@@ -148,10 +161,8 @@ public class RouterOutletProxy {
    * {@link SciRouterOutlet outlet proxy}.
    */
   public IDisposable onKeystroke(Consumer<Event> keystrokeListener) {
-    return outletToProxyKeystrokeCallback.addCallback(args -> {
-      var keyboardEvent = new JavaScriptKeyboardEvent((String) args[0], (String) args[1], (boolean) args[2], (boolean) args[3], (boolean) args[4], (boolean) args[5]);
-      keystrokeListener.accept(keyboardEventMapper.mapKeyboardEvent(keyboardEvent));
-    });
+    outletToProxyKeystrokeListeners.add(keystrokeListener);
+    return () -> outletToProxyMessageListeners.remove(keystrokeListener);
   }
 
   public String getOutletId() {
@@ -159,7 +170,7 @@ public class RouterOutletProxy {
   }
 
   public void dispose() {
-    new BrowserScriptExecutor(whenOutlet, """
+    new JavaScriptExecutor(whenOutlet, """
         const sciRouterOutlet = document.querySelector('sci-router-outlet[name="${outletId}"]');
         sciRouterOutlet.remove();
         """)

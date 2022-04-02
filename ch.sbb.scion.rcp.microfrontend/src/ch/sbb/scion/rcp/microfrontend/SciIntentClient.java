@@ -2,7 +2,6 @@ package ch.sbb.scion.rcp.microfrontend;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.osgi.service.component.annotations.Component;
@@ -11,10 +10,9 @@ import org.osgi.service.component.annotations.Reference;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 
-import ch.sbb.scion.rcp.microfrontend.browser.BrowserCallback;
-import ch.sbb.scion.rcp.microfrontend.browser.BrowserCallback.Options;
-import ch.sbb.scion.rcp.microfrontend.browser.BrowserRxJsObservable;
-import ch.sbb.scion.rcp.microfrontend.browser.BrowserScriptExecutor;
+import ch.sbb.scion.rcp.microfrontend.browser.RxJsObservable;
+import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
+import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptCallback;
 import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost;
 import ch.sbb.scion.rcp.microfrontend.internal.ParameterizedType;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscriber;
@@ -91,7 +89,7 @@ public class SciIntentClient {
         .replacePlaceholder("selector", selector, Flags.ToJson | Flags.UndefinedIfNull)
         .substitute();
 
-    var observable = new BrowserRxJsObservable<IntentMessage<T>>(microfrontendPlatformRcpHost.whenHostBrowser, observableScript, new ParameterizedType(IntentMessage.class, clazz));
+    var observable = new RxJsObservable<IntentMessage<T>>(microfrontendPlatformRcpHost.whenHostBrowser, observableScript, new ParameterizedType(IntentMessage.class, clazz));
     return observable.subscribe(subscriber);
   }
 
@@ -115,7 +113,7 @@ public class SciIntentClient {
         .replacePlaceholder("options.headers", options.headers, Flags.ToJson)
         .substitute();
 
-    var observable = new BrowserRxJsObservable<TopicMessage<T>>(microfrontendPlatformRcpHost.whenHostBrowser, requestScript, new ParameterizedType(TopicMessage.class, clazz));
+    var observable = new RxJsObservable<TopicMessage<T>>(microfrontendPlatformRcpHost.whenHostBrowser, requestScript, new ParameterizedType(TopicMessage.class, clazz));
     return observable.subscribe(subscriber);
   }
 
@@ -125,19 +123,17 @@ public class SciIntentClient {
   private CompletableFuture<Void> publishJson(Intent intent, String json, IntentOptions options) {
     options = Optional.ofNullable(options).orElse(new IntentOptions());
     var published = new CompletableFuture<Void>();
-    var callback = new BrowserCallback(microfrontendPlatformRcpHost.whenHostBrowser, new Options()
-        .once()
-        .onCallback(args -> {
-          var error = args[0];
-          if (error == null) {
-            published.complete(null);
-          }
-          else {
-            published.completeExceptionally(new RuntimeException((String) error));
-          }
-        }));
+    var callback = new JavaScriptCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
+      var error = args[0];
+      if (error == null) {
+        published.complete(null);
+      }
+      else {
+        published.completeExceptionally(new RuntimeException((String) error));
+      }
+    }).installOnce();
 
-    new BrowserScriptExecutor(microfrontendPlatformRcpHost.whenHostBrowser, """
+    new JavaScriptExecutor(microfrontendPlatformRcpHost.whenHostBrowser, """
         try {
           await ${refs.IntentClient}.publish(JSON.parse('${intent}'), JSON.parse('${body}') ?? null, {
             headers: JSON.parse('${options.headers}') ?? undefined
@@ -148,7 +144,7 @@ public class SciIntentClient {
           window['${callback}'](error.message ?? `${error}` ?? 'ERROR');
         }
         """)
-        .replacePlaceholder("callback", callback)
+        .replacePlaceholder("callback", callback.name)
         .replacePlaceholder("intent", intent, Flags.ToJson)
         .replacePlaceholder("body", json)
         .replacePlaceholder("options.headers", options.headers, Flags.ToJson)
