@@ -44,7 +44,7 @@ public class SciIntentClient {
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish
    */
   public CompletableFuture<Void> publish(Intent intent, Object body) {
-    return publish(intent, body, null);
+    return publishJson(intent, new Gson().toJson(body), null);
   }
 
   /**
@@ -94,9 +94,44 @@ public class SciIntentClient {
   }
 
   /**
+   * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#request_
+   */
+  public <T> ISubscription request(Intent intent, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
+    return requestJson(intent, null, null, clazz, subscriber);
+  }
+
+  /**
+   * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#request_
+   */
+  public <T> ISubscription request(Intent intent, Object body, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
+    return requestJson(intent, new Gson().toJson(body), null, clazz, subscriber);
+  }
+
+  /**
+   * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#request_
+   */
+  public <T> ISubscription request(Intent intent, IntentOptions options, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
+    return requestJson(intent, null, options, clazz, subscriber);
+  }
+
+  /**
+   * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#request_
+   */
+  public <T> ISubscription request(Intent intent, Object body, IntentOptions options, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
+    return requestJson(intent, new Gson().toJson(body), options, clazz, subscriber);
+  }
+
+  /**
+   * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish
+   */
+  public <T> ISubscription request(Intent intent, JsonElement jsonElement, IntentOptions options, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
+    return requestJson(intent, new Gson().toJson(jsonElement), options, clazz, subscriber);
+  }
+  
+  /**
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#observe_
    */
-  public <T> ISubscription request(Intent intent, String json, IntentOptions options, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
+  private <T> ISubscription requestJson(Intent intent, String json, IntentOptions options, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
     options = Optional.ofNullable(options).orElse(new IntentOptions());
     var requestIIFE = new Script("""
         (() => {
