@@ -97,6 +97,7 @@ public class SciIntentClient {
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#observe_
    */
   public <T> ISubscription request(Intent intent, String json, IntentOptions options, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
+    options = Optional.ofNullable(options).orElse(new IntentOptions());
     var requestIIFE = new Script("""
         (() => {
           const intent = JSON.parse('${intent}');
