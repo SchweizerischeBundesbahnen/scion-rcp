@@ -42,7 +42,7 @@ public class SciMessageClient {
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/MessageClient.html#publish
    */
   public CompletableFuture<Void> publish(String topic, Object message) {
-    return publish(topic, message, null);
+    return publishJson(topic, new Gson().toJson(message), null);
   }
 
   /**
