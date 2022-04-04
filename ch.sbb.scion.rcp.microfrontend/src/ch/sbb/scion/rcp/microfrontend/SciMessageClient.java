@@ -77,14 +77,14 @@ public class SciMessageClient {
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/MessageClient.html#observe_
    */
   public <T> ISubscription subscribe(String topic, ISubscriber<TopicMessage<T>> subscriber, Class<T> clazz) {
-    var script = new Script("""
-        ${refs.MessageClient}.observe$(JSON.parse('${topic}'))
+    var observeIIFE = new Script("""
+        (() => ${refs.MessageClient}.observe$(JSON.parse('${topic}')))()
         """)
         .replacePlaceholder("refs.MessageClient", Refs.MessageClient)
         .replacePlaceholder("topic", topic, Flags.ToJson)
         .substitute();
 
-    var observable = new RxJsObservable<TopicMessage<T>>(microfrontendPlatformRcpHost.whenHostBrowser, script, new ParameterizedType(TopicMessage.class, clazz));
+    var observable = new RxJsObservable<TopicMessage<T>>(microfrontendPlatformRcpHost.whenHostBrowser, observeIIFE, new ParameterizedType(TopicMessage.class, clazz));
     return observable.subscribe(subscriber);
   }
 
