@@ -6,16 +6,14 @@
   };
 
   /**
-   * TODO [dwie]
-   * @param object
-   * @param rules JavaScript JSON does not support {Map} and {Set} collections. If encountering a {Map}, it
+   * JavaScript JSON serialization does not support {Map} and {Set} collections. By default, this utility serializes a
+   * {Map} to a dictionary and a {Set} to an array.
    *
-   *
-   * creates a discriminator object for unsupported JSON collection types like {Map} or {Set} object,
-   *              that can be restored to the original JavaScript type when calling {@link parse}.
-   *              You can override this behavior by passing following rules
-   *              - 'Map=>MapObject': Converts a JavaScript {Map} object into a dictionary. The original collection type will be lost, thus {@link parse} will return a JavaScript dictionary.
-   *              - 'Set=>SetObject': Converts a JavaScript {Set} object into an array. The original collection type will be lost, thus {@link parse} will return a JavaScript array.
+   * To retain the collection type, you can pass following rules:
+   * - 'Map=>MapObject'
+   *   Converts {Map} objects into custom objects that can be unmarshalled using {@link #parse}.
+   * - 'Set=>SetObject'
+   *   Converts {Set} objects into custom objects that can be unmarshalled using {@link #parse}.
    */
   function stringify(object, ...rules) {
     return JSON.stringify(object, (key, value) => {
