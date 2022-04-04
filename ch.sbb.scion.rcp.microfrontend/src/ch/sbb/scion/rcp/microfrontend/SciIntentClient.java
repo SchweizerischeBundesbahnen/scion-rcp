@@ -77,11 +77,11 @@ public class SciIntentClient {
    */
   public <T> ISubscription subscribe(IntentSelector selector, Class<T> clazz, ISubscriber<IntentMessage<T>> subscriber) {
     selector = Optional.ofNullable(selector).orElse(new IntentSelector());
-    var observableScript = new Script("""
-        ${refs.IntentClient}.observe$({
+    var observeIIFE = new Script("""
+        (() => ${refs.IntentClient}.observe$({
           type: JSON.parse('${selector.type}') ?? undefined,
           qualifier: JSON.parse('${selector.qualifier}') ?? undefined,
-        })
+        }))()
         """)
         .replacePlaceholder("refs.IntentClient", Refs.IntentClient)
         .replacePlaceholder("selector.type", selector.type, Flags.ToJson)
@@ -89,7 +89,7 @@ public class SciIntentClient {
         .replacePlaceholder("selector", selector, Flags.ToJson | Flags.UndefinedIfNull)
         .substitute();
 
-    var observable = new RxJsObservable<IntentMessage<T>>(microfrontendPlatformRcpHost.whenHostBrowser, observableScript, new ParameterizedType(IntentMessage.class, clazz));
+    var observable = new RxJsObservable<IntentMessage<T>>(microfrontendPlatformRcpHost.whenHostBrowser, observeIIFE, new ParameterizedType(IntentMessage.class, clazz));
     return observable.subscribe(subscriber);
   }
 
@@ -97,7 +97,7 @@ public class SciIntentClient {
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#observe_
    */
   public <T> ISubscription request(Intent intent, String json, IntentOptions options, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
-    var requestScript = new Script("""
+    var requestIIFE = new Script("""
         (() => {
           const intent = JSON.parse('${intent}');
           const body = JSON.parse('${body}') ?? null;
@@ -113,7 +113,7 @@ public class SciIntentClient {
         .replacePlaceholder("options.headers", options.headers, Flags.ToJson)
         .substitute();
 
-    var observable = new RxJsObservable<TopicMessage<T>>(microfrontendPlatformRcpHost.whenHostBrowser, requestScript, new ParameterizedType(TopicMessage.class, clazz));
+    var observable = new RxJsObservable<TopicMessage<T>>(microfrontendPlatformRcpHost.whenHostBrowser, requestIIFE, new ParameterizedType(TopicMessage.class, clazz));
     return observable.subscribe(subscriber);
   }
 

@@ -25,15 +25,15 @@ public class RxJsObservable<T> {
 
   private CompletableFuture<Browser> whenBrowser;
   private Type clazz;
-  private String observableScript;
+  private String rxjsObservableIIFE;
 
   public RxJsObservable(Browser browser, String observableScript, Type clazz) {
     this(CompletableFuture.completedFuture(browser), observableScript, clazz);
   }
 
-  public RxJsObservable(CompletableFuture<Browser> browser, String rxJsObservableScript, Type clazz) {
+  public RxJsObservable(CompletableFuture<Browser> browser, String rxjsObservableIIFE, Type clazz) {
     this.whenBrowser = browser;
-    this.observableScript = rxJsObservableScript;
+    this.rxjsObservableIIFE = rxjsObservableIIFE;
     this.clazz = clazz;
   }
 
@@ -68,7 +68,7 @@ public class RxJsObservable<T> {
 
     new JavaScriptExecutor(whenBrowser, """
         try {
-          const subscription = ${observable}.subscribe({
+          const subscription = ${rxjsObservableIIFE}.subscribe({
             next: (next) => window['${callback}'](${helpers.stringify}({type: 'Next', next})),
             error: (error) => window['${callback}'](${helpers.stringify}({type: 'Error', error: error.message || `${error}` || 'ERROR'})),
             complete: () => window['${callback}'](${helpers.stringify}({type: 'Complete'})),
@@ -84,7 +84,7 @@ public class RxJsObservable<T> {
         .replacePlaceholder("helpers.stringify", JsonHelpers.stringify)
         .replacePlaceholder("storage", Scripts.Storage)
         .replacePlaceholder("subscriptionUuid", subscriptionUuid)
-        .replacePlaceholder("observable", observableScript)
+        .replacePlaceholder("rxjsObservableIIFE", rxjsObservableIIFE)
         .execute();
 
     disposables.add(callback);
