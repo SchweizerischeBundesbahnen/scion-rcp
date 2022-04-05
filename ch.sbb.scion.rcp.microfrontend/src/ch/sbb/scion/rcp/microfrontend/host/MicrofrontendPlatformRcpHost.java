@@ -84,7 +84,7 @@ public class MicrofrontendPlatformRcpHost {
   }
 
   private void start(MicrofrontendPlatformConfig config, Browser browser) {
-    var callback = new JavaScriptCallback(browser, args -> {
+    new JavaScriptCallback(browser, args -> {
       var error = args[0];
       if (error == null) {
         whenHostBrowser.complete(browser);
@@ -93,27 +93,34 @@ public class MicrofrontendPlatformRcpHost {
         Platform.getLog(JavaScriptExecutor.class).error("Failed to start Microfrontend Platform: " + error);
         whenHostBrowser.completeExceptionally(new RuntimeException((String) error));
       }
-    }).installOnce();
+    })
+        .installOnce()
+        .thenAccept(callback -> {
+          new JavaScriptExecutor(browser, """
+              try {
+                const config = JSON.parse('${platformConfig}');
 
-    new JavaScriptExecutor(browser, """
-        try {
-          // Set the message origin
-          const config = JSON.parse('${platformConfig}');
-          config.applications.forEach(application => application.messageOrigin = window.location.origin);
+                // Overwrite message origin as we forward messages from the client to the host under the host's origin and vice versa.
+                config.applications.forEach(application => {
+                  application.messageOrigin = window.location.origin;
+                });
 
-          await ${MicrofrontendPlatform}.startHost(config);
-          window['${callback}'](null);
-        }
-        catch (error) {
-          console.log('Failed to start Microfrontend Platform', error);
-          window['${callback}'](error.message ?? `${error}` ?? 'Failed to start Microfrontend Platform');
-        }
-        """)
-        .replacePlaceholder("callback", callback.name)
-        .replacePlaceholder("MicrofrontendPlatform", Refs.MicrofrontendPlatform)
-        .replacePlaceholder("platformConfig", config, Flags.ToJson)
-        .runInsideAsyncFunction()
-        .execute();
+                // Start the platform host.
+                await ${MicrofrontendPlatform}.startHost(config);
+
+                window['${callback}'](null);
+              }
+              catch (error) {
+                console.log('Failed to start Microfrontend Platform', error);
+                window['${callback}'](error.message ?? `${error}` ?? 'Failed to start Microfrontend Platform');
+              }
+              """)
+              .replacePlaceholder("callback", callback.name)
+              .replacePlaceholder("MicrofrontendPlatform", Refs.MicrofrontendPlatform)
+              .replacePlaceholder("platformConfig", config, Flags.ToJson)
+              .runInsideAsyncFunction()
+              .execute();
+        });
   }
 
   @Deactivate

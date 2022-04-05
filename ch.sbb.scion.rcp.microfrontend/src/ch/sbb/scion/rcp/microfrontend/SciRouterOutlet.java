@@ -21,8 +21,8 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 
-import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
 import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptCallback;
+import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
 import ch.sbb.scion.rcp.microfrontend.internal.ContextInjectors;
 import ch.sbb.scion.rcp.microfrontend.internal.Resources;
 import ch.sbb.scion.rcp.microfrontend.model.IDisposable;
@@ -32,10 +32,9 @@ import ch.sbb.scion.rcp.microfrontend.script.Scripts.JsonHelpers;
 /**
  * Widget to display a microfrontend.
  * 
- * @see https://scion-microfrontend-platform-api.vercel.app/classes/SciRouterOutletElement.html
+ * This widget acts as proxy for the SCION <sci-router-outlet> web component.
  * 
- *      This widget acts as proxy for the SCION <sci-router-outlet> web
- *      component.
+ * @see https://scion-microfrontend-platform-api.vercel.app/classes/SciRouterOutletElement.html
  */
 public class SciRouterOutlet extends Composite implements DisposeListener {
 
@@ -167,25 +166,29 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
    * Taps messages from the client and dispatches them to the <sci-router-outlet>.
    */
   private IDisposable installClientToSciRouterOutletMessageDispatcher() {
-    var callback = new JavaScriptCallback(browser, args -> {
+    var disposables = new ArrayList<IDisposable>();
+    new JavaScriptCallback(browser, args -> {
       if (bridgeLoggerEnabled) {
         Platform.getLog(SciRouterOutlet.class).info("[SciBridge] [client=>host] " + args[0]);
       }
       routerOutletProxy.postJsonMessage((String) args[0]);
-    }).install();
-
-    new JavaScriptExecutor(browser, """
-        window.addEventListener('message', event => {
-          if (event.data?.transport === 'sci://microfrontend-platform/client-to-broker' || event.data?.transport === 'sci://microfrontend-platform/microfrontend-to-outlet') {
-            window['${callback}']?.(${helpers.stringify}(event.data, 'Map=>MapObject', 'Set=>SetObject'));
-          }
+    })
+        .addTo(disposables)
+        .install()
+        .thenAccept(callback -> {
+          new JavaScriptExecutor(browser, """
+              window.addEventListener('message', event => {
+                if (event.data?.transport === 'sci://microfrontend-platform/client-to-broker' || event.data?.transport === 'sci://microfrontend-platform/microfrontend-to-outlet') {
+                  window['${callback}']?.(${helpers.stringify}(event.data, 'Map=>MapObject', 'Set=>SetObject'));
+                }
+              });
+              """)
+              .replacePlaceholder("callback", callback.name)
+              .replacePlaceholder("helpers.stringify", JsonHelpers.stringify)
+              .execute();
         });
-        """)
-        .replacePlaceholder("callback", callback.name)
-        .replacePlaceholder("helpers.stringify", JsonHelpers.stringify)
-        .execute();
 
-    return () -> callback.dispose();
+    return () -> disposables.forEach(IDisposable::dispose);
   }
 
   /**

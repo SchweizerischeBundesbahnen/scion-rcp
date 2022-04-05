@@ -2,7 +2,6 @@ package ch.sbb.scion.rcp.microfrontend.browser;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.core.runtime.Platform;
@@ -38,65 +37,63 @@ public class RxJsObservable<T> {
   }
 
   public ISubscription subscribe(ISubscriber<T> observer) {
-    var subscriptionUuid = UUID.randomUUID();
     var disposables = new ArrayList<IDisposable>();
 
-    var callback = new JavaScriptCallback(whenBrowser, args -> {
+    new JavaScriptCallback(whenBrowser, args -> {
       try {
         var emission = new Gson().<Emission<T>>fromJson((String) args[0], new ParameterizedType(Emission.class, clazz));
         switch (emission.type) {
-        case Next: {
-          observer.onNext(emission.next);
-          break;
-        }
-        case Error: {
-          observer.onError(new RuntimeException(emission.error));
-          disposables.forEach(IDisposable::dispose);
-          break;
-        }
-        case Complete: {
-          observer.onComplete();
-          disposables.forEach(IDisposable::dispose);
-          break;
-        }
+          case Next: {
+            observer.onNext(emission.next);
+            break;
+          }
+          case Error: {
+            observer.onError(new RuntimeException(emission.error));
+            disposables.forEach(IDisposable::dispose);
+            break;
+          }
+          case Complete: {
+            observer.onComplete();
+            disposables.forEach(IDisposable::dispose);
+            break;
+          }
         }
       }
       catch (RuntimeException e) {
         Platform.getLog(SciMessageClient.class).error("Unhandled error in callback", e);
       }
-    }).install();
+    })
+        .addTo(disposables)
+        .install()
+        .thenAccept(callback -> {
+          new JavaScriptExecutor(whenBrowser, """
+              try {
+                const subscription = ${rxjsObservableIIFE}.subscribe({
+                  next: (next) => window['${callback}'](${helpers.stringify}({type: 'Next', next})),
+                  error: (error) => window['${callback}'](${helpers.stringify}({type: 'Error', error: error.message || `${error}` || 'ERROR'})),
+                  complete: () => window['${callback}'](${helpers.stringify}({type: 'Complete'})),
+                });
+                ${storage}['${callback}_subscription'] = subscription;
+              }
+              catch (error) {
+                console.error(error);
+                window['${callback}']({type: 'Error', message: error.message ?? `${error}` ?? 'ERROR'});
+              }
+              """)
+              .replacePlaceholder("callback", callback.name)
+              .replacePlaceholder("helpers.stringify", JsonHelpers.stringify)
+              .replacePlaceholder("storage", Scripts.Storage)
+              .replacePlaceholder("rxjsObservableIIFE", rxjsObservableIIFE)
+              .execute();
 
-    new JavaScriptExecutor(whenBrowser, """
-        try {
-          const subscription = ${rxjsObservableIIFE}.subscribe({
-            next: (next) => window['${callback}'](${helpers.stringify}({type: 'Next', next})),
-            error: (error) => window['${callback}'](${helpers.stringify}({type: 'Error', error: error.message || `${error}` || 'ERROR'})),
-            complete: () => window['${callback}'](${helpers.stringify}({type: 'Complete'})),
-          });
-          ${storage}['${subscriptionUuid}'] = subscription;
-        }
-        catch (error) {
-          console.error(error);
-          window['${callback}']({type: 'Error', message: error.message ?? `${error}` ?? 'ERROR'});
-        }
-        """)
-        .replacePlaceholder("callback", callback.name)
-        .replacePlaceholder("helpers.stringify", JsonHelpers.stringify)
-        .replacePlaceholder("storage", Scripts.Storage)
-        .replacePlaceholder("subscriptionUuid", subscriptionUuid)
-        .replacePlaceholder("rxjsObservableIIFE", rxjsObservableIIFE)
-        .execute();
-
-    disposables.add(callback);
-    disposables.add(() -> {
-      new JavaScriptExecutor(whenBrowser, """
-          ${storage}?.['${subscriptionUuid}']?.unsubscribe();
-          delete ${storage}?.['${subscriptionUuid}']
-          """)
-          .replacePlaceholder("subscriptionUuid", subscriptionUuid)
-          .replacePlaceholder("storage", Scripts.Storage)
-          .execute();
-    });
+          disposables.add(() -> new JavaScriptExecutor(whenBrowser, """
+              ${storage}['${callback}_subscription'].unsubscribe();
+              delete ${storage}['${callback}_subscription']
+              """)
+              .replacePlaceholder("callback", callback.name)
+              .replacePlaceholder("storage", Scripts.Storage)
+              .execute());
+        });
 
     return () -> disposables.forEach(IDisposable::dispose);
   }

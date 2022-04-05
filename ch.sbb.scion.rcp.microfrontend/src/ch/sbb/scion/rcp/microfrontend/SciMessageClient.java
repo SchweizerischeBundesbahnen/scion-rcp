@@ -91,10 +91,10 @@ public class SciMessageClient {
   /**
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/MessageClient.html#publish
    */
-  private CompletableFuture<Void> publishJson(String topic, String json, PublishOptions options) {
-    options = Optional.ofNullable(options).orElse(new PublishOptions());
+  private CompletableFuture<Void> publishJson(String topic, String json, PublishOptions publishOptions) {
+    var options = Optional.ofNullable(publishOptions).orElse(new PublishOptions());
     var published = new CompletableFuture<Void>();
-    var callback = new JavaScriptCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
+    new JavaScriptCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
       var error = args[0];
       if (error == null) {
         published.complete(null);
@@ -102,28 +102,30 @@ public class SciMessageClient {
       else {
         published.completeExceptionally(new RuntimeException((String) error));
       }
-    }).installOnce();
-
-    new JavaScriptExecutor(microfrontendPlatformRcpHost.whenHostBrowser, """
-        try {
-          await ${refs.MessageClient}.publish(JSON.parse('${topic}'), JSON.parse('${message}') ?? null, {
-            headers: JSON.parse('${options.headers}') ?? undefined,
-            retain: ${options.retain} ?? undefined,
-          });
-          window['${callback}'](null);
-        }
-        catch (error) {
-          window['${callback}'](error.message ?? `${error}` ?? 'ERROR');
-        }
-        """)
-        .replacePlaceholder("callback", callback.name)
-        .replacePlaceholder("topic", topic, Flags.ToJson)
-        .replacePlaceholder("message", json)
-        .replacePlaceholder("options.headers", options.headers, Flags.ToJson)
-        .replacePlaceholder("options.retain", options.retain)
-        .replacePlaceholder("refs.MessageClient", Refs.MessageClient)
-        .runInsideAsyncFunction()
-        .execute();
+    })
+        .installOnce()
+        .thenAccept(callback -> {
+          new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, """
+              try {
+                await ${refs.MessageClient}.publish(JSON.parse('${topic}'), JSON.parse('${message}') ?? null, {
+                  headers: JSON.parse('${options.headers}') ?? undefined,
+                  retain: ${options.retain} ?? undefined,
+                });
+                window['${callback}'](null);
+              }
+              catch (error) {
+                window['${callback}'](error.message ?? `${error}` ?? 'ERROR');
+              }
+              """)
+              .replacePlaceholder("callback", callback.name)
+              .replacePlaceholder("topic", topic, Flags.ToJson)
+              .replacePlaceholder("message", json)
+              .replacePlaceholder("options.headers", options.headers, Flags.ToJson)
+              .replacePlaceholder("options.retain", options.retain)
+              .replacePlaceholder("refs.MessageClient", Refs.MessageClient)
+              .runInsideAsyncFunction()
+              .execute();
+        });
 
     return published;
   }

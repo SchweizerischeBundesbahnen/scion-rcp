@@ -127,7 +127,7 @@ public class SciIntentClient {
   public <T> ISubscription request(Intent intent, JsonElement jsonElement, IntentOptions options, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
     return requestJson(intent, new Gson().toJson(jsonElement), options, clazz, subscriber);
   }
-  
+
   /**
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#observe_
    */
@@ -156,10 +156,10 @@ public class SciIntentClient {
   /**
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish
    */
-  private CompletableFuture<Void> publishJson(Intent intent, String json, IntentOptions options) {
-    options = Optional.ofNullable(options).orElse(new IntentOptions());
+  private CompletableFuture<Void> publishJson(Intent intent, String json, IntentOptions intentOptions) {
+    var options = Optional.ofNullable(intentOptions).orElse(new IntentOptions());
     var published = new CompletableFuture<Void>();
-    var callback = new JavaScriptCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
+    new JavaScriptCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
       var error = args[0];
       if (error == null) {
         published.complete(null);
@@ -167,26 +167,28 @@ public class SciIntentClient {
       else {
         published.completeExceptionally(new RuntimeException((String) error));
       }
-    }).installOnce();
-
-    new JavaScriptExecutor(microfrontendPlatformRcpHost.whenHostBrowser, """
-        try {
-          await ${refs.IntentClient}.publish(JSON.parse('${intent}'), JSON.parse('${body}') ?? null, {
-            headers: JSON.parse('${options.headers}') ?? undefined
-          });
-          window['${callback}'](null);
-        }
-        catch (error) {
-          window['${callback}'](error.message ?? `${error}` ?? 'ERROR');
-        }
-        """)
-        .replacePlaceholder("callback", callback.name)
-        .replacePlaceholder("intent", intent, Flags.ToJson)
-        .replacePlaceholder("body", json)
-        .replacePlaceholder("options.headers", options.headers, Flags.ToJson)
-        .replacePlaceholder("refs.IntentClient", Refs.IntentClient)
-        .runInsideAsyncFunction()
-        .execute();
+    })
+        .installOnce()
+        .thenAccept(callback -> {
+          new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, """
+              try {
+                await ${refs.IntentClient}.publish(JSON.parse('${intent}'), JSON.parse('${body}') ?? null, {
+                  headers: JSON.parse('${options.headers}') ?? undefined
+                });
+                window['${callback}'](null);
+              }
+              catch (error) {
+                window['${callback}'](error.message ?? `${error}` ?? 'ERROR');
+              }
+              """)
+              .replacePlaceholder("callback", callback.name)
+              .replacePlaceholder("intent", intent, Flags.ToJson)
+              .replacePlaceholder("body", json)
+              .replacePlaceholder("options.headers", options.headers, Flags.ToJson)
+              .replacePlaceholder("refs.IntentClient", Refs.IntentClient)
+              .runInsideAsyncFunction()
+              .execute();
+        });
 
     return published;
   }

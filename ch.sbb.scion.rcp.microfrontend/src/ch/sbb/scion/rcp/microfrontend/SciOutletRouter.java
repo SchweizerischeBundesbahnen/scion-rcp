@@ -39,11 +39,11 @@ public class SciOutletRouter {
   /**
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/OutletRouter.html#navigate
    */
-  public CompletableFuture<Void> navigate(String url, NavigationOptions options) {
-    options = Optional.ofNullable(options).orElse(new NavigationOptions());
+  public CompletableFuture<Void> navigate(String url, NavigationOptions navigationOptions) {
+    var options = Optional.ofNullable(navigationOptions).orElse(new NavigationOptions());
 
     var navigated = new CompletableFuture<Void>();
-    var callback = new JavaScriptCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
+    new JavaScriptCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
       var error = args[0];
       if (error == null) {
         navigated.complete(null);
@@ -51,31 +51,33 @@ public class SciOutletRouter {
       else {
         navigated.completeExceptionally(new RuntimeException((String) error));
       }
-    }).installOnce();
-
-    new JavaScriptExecutor(microfrontendPlatformRcpHost.whenHostBrowser, """
-        try {
-          await ${refs.OutletRouter}.navigate(JSON.parse('${url}') ?? undefined, {
-            outlet: JSON.parse('${options.outlet}') ?? undefined,
-            relativeTo: JSON.parse('${options.relativeTo}') ?? undefined,
-            params: JSON.parse('${options.params}') ?? undefined,
-            pushStateToSessionHistoryStack: ${options.pushStateToSessionHistoryStack} ?? undefined,
-          });
-          window['${callback}'](null);
-        }
-        catch (error) {
-          window['${callback}'](error.message ?? `${error}` ?? 'ERROR');
-        }
-        """)
-        .replacePlaceholder("callback", callback.name)
-        .replacePlaceholder("url", url, Flags.ToJson)
-        .replacePlaceholder("options.outlet", options.outlet, Flags.ToJson)
-        .replacePlaceholder("options.relativeTo", options.relativeTo, Flags.ToJson)
-        .replacePlaceholder("options.params", options.params, Flags.ToJson)
-        .replacePlaceholder("options.pushStateToSessionHistoryStack", options.pushStateToSessionHistoryStack)
-        .replacePlaceholder("refs.OutletRouter", Refs.OutletRouter)
-        .runInsideAsyncFunction()
-        .execute();
+    })
+        .installOnce()
+        .thenAccept(callback -> {
+          new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, """
+              try {
+                await ${refs.OutletRouter}.navigate(JSON.parse('${url}') ?? undefined, {
+                  outlet: JSON.parse('${options.outlet}') ?? undefined,
+                  relativeTo: JSON.parse('${options.relativeTo}') ?? undefined,
+                  params: JSON.parse('${options.params}') ?? undefined,
+                  pushStateToSessionHistoryStack: ${options.pushStateToSessionHistoryStack} ?? undefined,
+                });
+                window['${callback}'](null);
+              }
+              catch (error) {
+                window['${callback}'](error.message ?? `${error}` ?? 'ERROR');
+              }
+              """)
+              .replacePlaceholder("callback", callback.name)
+              .replacePlaceholder("url", url, Flags.ToJson)
+              .replacePlaceholder("options.outlet", options.outlet, Flags.ToJson)
+              .replacePlaceholder("options.relativeTo", options.relativeTo, Flags.ToJson)
+              .replacePlaceholder("options.params", options.params, Flags.ToJson)
+              .replacePlaceholder("options.pushStateToSessionHistoryStack", options.pushStateToSessionHistoryStack)
+              .replacePlaceholder("refs.OutletRouter", Refs.OutletRouter)
+              .runInsideAsyncFunction()
+              .execute();
+        });
 
     return navigated;
   }
