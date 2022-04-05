@@ -17,7 +17,6 @@ import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptCallback;
 import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
 import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost;
 import ch.sbb.scion.rcp.microfrontend.internal.ContextInjectors;
-import ch.sbb.scion.rcp.microfrontend.internal.Resources;
 import ch.sbb.scion.rcp.microfrontend.keyboard.JavaScriptKeyboardEvent;
 import ch.sbb.scion.rcp.microfrontend.keyboard.KeyboardEventMapper;
 import ch.sbb.scion.rcp.microfrontend.model.IDisposable;
@@ -69,13 +68,12 @@ public class RouterOutletProxy {
 
           const outletContent= `<html>
             <head>
+              <script src="${location.origin}/js/helpers.js"></script>            
               <script>
-                ${helpers.js}
                 // Dispatch message to the host
-                function __sci_postMessageToParentWindow(message, targetOrigin) {
-                  window.parent.postMessage(message, targetOrigin);
+                function __scion_rcp_postMessageToParentWindow(envelope) {
+                  window.parent.postMessage(envelope, location.origin);
                 }
-
 
                 // Dispatch messages from the host
                 window.addEventListener('message', event => {
@@ -105,7 +103,6 @@ public class RouterOutletProxy {
           .replacePlaceholder("outletToProxyMessageCallback", outletToProxyMessageCallback.name)
           .replacePlaceholder("outletToProxyKeystrokeCallback", outletToProxyKeystrokeCallback.name)
           .replacePlaceholder("outletId", outletId)
-          .replacePlaceholder("helpers.js", Resources.readString("js/helpers.js"))
           .replacePlaceholder("refs.OutletRouter", Refs.OutletRouter)
           .replacePlaceholder("helpers.stringify", JsonHelpers.stringify)
           .execute()
@@ -136,7 +133,8 @@ public class RouterOutletProxy {
         const sciRouterOutlet = document.querySelector('sci-router-outlet[name="${outletId}"]');
 
         try {
-          sciRouterOutlet.iframe.contentWindow.__sci_postMessageToParentWindow(${helpers.parse}('${json}'), '*');
+          const envelope = ${helpers.parse}('${json}');
+          sciRouterOutlet.iframe.contentWindow.__scion_rcp_postMessageToParentWindow(envelope);
         }
         catch (error) {
           console.error('[MessageDispatchError] Failed to dispatch message to outlet window. [outlet=${outletId}]', error);
