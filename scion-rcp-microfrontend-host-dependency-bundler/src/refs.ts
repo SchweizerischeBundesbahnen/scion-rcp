@@ -1,4 +1,4 @@
-import {IntentClient, MessageClient, MicrofrontendPlatform, OutletRouter} from '@scion/microfrontend-platform';
+import {IntentClient, ManifestService, MessageClient, MessageHeaders, MicrofrontendPlatform, OutletRouter} from '@scion/microfrontend-platform';
 import {Beans} from '@scion/toolkit/bean-manager';
 
 window['__SCION_RCP'] = window['__SCION_RCP'] || {};
@@ -14,5 +14,8 @@ window['__SCION_RCP'].refs = {
   },
   get OutletRouter() {
     return Beans.get(OutletRouter);
+  },
+  get ManifestService() {
+    return Beans.get(ManifestService);
   },
 };

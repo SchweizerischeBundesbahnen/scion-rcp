@@ -5,8 +5,6 @@ import {Beans} from '@scion/toolkit/bean-manager';
 class ClientController {
 
   public async init(): Promise<void> {
-
-
     this.createConnectSection();
     this.createPublishSection();
     this.createSubscribeSection();

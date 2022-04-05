@@ -17,6 +17,7 @@ Export-Package: ch.sbb.scion.rcp.microfrontend,
  ch.sbb.scion.rcp.microfrontend.model
 Service-Component: OSGI-INF/ch.sbb.scion.rcp.microfrontend.MicrofrontendPlatform.xml,
  OSGI-INF/ch.sbb.scion.rcp.microfrontend.SciIntentClient.xml,
+ OSGI-INF/ch.sbb.scion.rcp.microfrontend.SciManifestService.xml,
  OSGI-INF/ch.sbb.scion.rcp.microfrontend.SciMessageClient.xml,
  OSGI-INF/ch.sbb.scion.rcp.microfrontend.SciOutletRouter.xml,
  OSGI-INF/ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost.xml,

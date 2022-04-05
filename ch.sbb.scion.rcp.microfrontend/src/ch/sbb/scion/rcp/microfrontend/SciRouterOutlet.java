@@ -5,9 +5,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -25,8 +27,11 @@ import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptCallback;
 import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
 import ch.sbb.scion.rcp.microfrontend.internal.ContextInjectors;
 import ch.sbb.scion.rcp.microfrontend.internal.Resources;
+import ch.sbb.scion.rcp.microfrontend.model.Application;
 import ch.sbb.scion.rcp.microfrontend.model.IDisposable;
+import ch.sbb.scion.rcp.microfrontend.model.MessageHeaders;
 import ch.sbb.scion.rcp.microfrontend.proxy.RouterOutletProxy;
+import ch.sbb.scion.rcp.microfrontend.script.Scripts;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.JsonHelpers;
 
 /**
@@ -50,6 +55,9 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
 
   @Inject
   private SciMessageClient messageClient;
+
+  @Inject
+  private SciManifestService manifestService;
 
   public SciRouterOutlet(Composite parent, int style, String outletName) {
     super(parent, style);
@@ -167,26 +175,68 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
    */
   private IDisposable installClientToSciRouterOutletMessageDispatcher() {
     var disposables = new ArrayList<IDisposable>();
-    new JavaScriptCallback(browser, args -> {
-      if (bridgeLoggerEnabled) {
-        Platform.getLog(SciRouterOutlet.class).info("[SciBridge] [client=>host] " + args[0]);
-      }
-      routerOutletProxy.postJsonMessage((String) args[0]);
-    })
-        .addTo(disposables)
-        .install()
-        .thenAccept(callback -> {
-          new JavaScriptExecutor(browser, """
-              window.addEventListener('message', event => {
-                if (event.data?.transport === 'sci://microfrontend-platform/client-to-broker' || event.data?.transport === 'sci://microfrontend-platform/microfrontend-to-outlet') {
-                  window['${callback}']?.(${helpers.stringify}(event.data, 'Map=>MapObject', 'Set=>SetObject'));
-                }
-              });
-              """)
-              .replacePlaceholder("callback", callback.name)
-              .replacePlaceholder("helpers.stringify", JsonHelpers.stringify)
-              .execute();
-        });
+    manifestService.getApplications().thenAccept(applications -> {
+      var trustedOrigins = getTrustedOrigins(applications);
+      new JavaScriptCallback(browser, args -> {
+        var envelope = (String) args[0];
+        var origin = (String) args[1];
+        var sender = (String) args[2];
+
+        // Reject messages from untrusted origins. If not trusted, ignore the message and uninstall the bridge.
+        // Since we are bridging messages from the client to the host, the "SCION Microfrontend Platform" host
+        // cannot perform the "actual" origin check as we dispatch messages to the host under the host's origin.
+        // For that reason, we need to check the "actual" origin prior to dispatching the message to the host.
+        // Also, when registering the applications, we set the applications "actual" message origin to the origin
+        // of the host as SCION would reject messages otherwise.
+        if (sender == null && !trustedOrigins.containsValue(origin)) {
+          Platform.getLog(SciRouterOutlet.class).info(String.format("[BLOCKED] Request blocked. Wrong origin [actual='%s', expectedOneOf='%s', envelope='%s']", origin, trustedOrigins.values(), envelope));
+          disposables.forEach(IDisposable::dispose);
+        }
+        else if (sender != null && !trustedOrigins.containsKey(sender)) {
+          Platform.getLog(SciRouterOutlet.class).info(String.format("[BLOCKED] Request blocked. Unknown application [app='%s', envelope='%s']", sender, envelope));
+          disposables.forEach(IDisposable::dispose);
+        }
+        else if (sender != null && !origin.equals(trustedOrigins.get(sender))) {
+          Platform.getLog(SciRouterOutlet.class).info(String.format("[BLOCKED] Request blocked. Wrong origin [app='%s', actual='%s', expected='%s', envelope='%s']", sender, origin, trustedOrigins.get(sender), envelope));
+          disposables.forEach(IDisposable::dispose);
+        }
+        else {
+          if (bridgeLoggerEnabled) {
+            Platform.getLog(SciRouterOutlet.class).info("[SciBridge] [client=>host] " + envelope);
+          }
+          routerOutletProxy.postJsonMessage(envelope);
+        }
+      })
+          .addTo(disposables)
+          .install()
+          .thenAccept(callback -> {
+            new JavaScriptExecutor(browser, """
+                const onmessage = event => {
+                  if (event.data?.transport === 'sci://microfrontend-platform/client-to-broker' || event.data?.transport === 'sci://microfrontend-platform/microfrontend-to-outlet') {
+                    const sender = event.data.message?.headers?.get('${headers.AppSymbolicName}');
+                    const envelope = ${helpers.stringify}(event.data, 'Map=>MapObject', 'Set=>SetObject');
+                    window['${callback}'](envelope, event.origin, sender);
+                  }
+                };
+
+                window.addEventListener('message', onmessage);
+                ${storage}['${callback}_dispose'] = () => window.removeEventListener('message', onmessage);
+                """)
+                .replacePlaceholder("callback", callback.name)
+                .replacePlaceholder("helpers.stringify", JsonHelpers.stringify)
+                .replacePlaceholder("headers.AppSymbolicName", MessageHeaders.AppSymbolicName)
+                .replacePlaceholder("storage", Scripts.Storage)
+                .execute();
+
+            disposables.add(() -> new JavaScriptExecutor(browser, """
+                ${storage}['${callback}_dispose']();
+                delete ${storage}['${callback}_dispose'];
+                """)
+                .replacePlaceholder("storage", Scripts.Storage)
+                .replacePlaceholder("callback", callback.name)
+                .execute());
+          });
+    });
 
     return () -> disposables.forEach(IDisposable::dispose);
   }
@@ -205,6 +255,28 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
           .replacePlaceholder("helpers.parse", JsonHelpers.parse)
           .execute();
     });
+  }
+
+  /**
+   * Creates a {@link Map} with the origins of the passed applications.
+   */
+  private Map<String, String> getTrustedOrigins(Set<Application> applications) {
+    return applications
+        .stream()
+        .collect(Collectors.toMap(app -> app.symbolicName, app -> {
+          try {
+            var url = new URL(app.baseUrl);
+            if (url.getPort() == -1) {
+              return url.getProtocol() + "://" + url.getHost();
+            }
+            else {
+              return url.getProtocol() + "://" + url.getHost() + ":" + url.getPort();
+            }
+          }
+          catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+          }
+        }));
   }
 
   @Override
