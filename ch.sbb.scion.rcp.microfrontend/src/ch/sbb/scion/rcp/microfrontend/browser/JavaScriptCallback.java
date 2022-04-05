@@ -1,5 +1,6 @@
 package ch.sbb.scion.rcp.microfrontend.browser;
 
+import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -41,10 +42,11 @@ public class JavaScriptCallback implements IDisposable {
   /**
    * Installs this callback on the {Window} of the currently loaded document in
    * the browser. Applications must dispose this function if not used anymore.
+   * 
+   * This method resolves to the callback when installed the callback.
    */
-  public JavaScriptCallback install() {
-    install(false);
-    return this;
+  public CompletableFuture<JavaScriptCallback> install() {
+    return install(false);
   }
 
   /**
@@ -52,29 +54,40 @@ public class JavaScriptCallback implements IDisposable {
    * the browser.
    * 
    * This callback is automatically uninstalled after first invocvation.
+   * 
+   * This method resolves to the callback when installed the callback.
    */
-  public JavaScriptCallback installOnce() {
-    install(true);
-    return this;
+  public CompletableFuture<JavaScriptCallback> installOnce() {
+    return install(true);
   }
 
-  private void install(boolean once) {
-    whenBrowser.thenAccept(browser -> {
-      browserFunction = new BrowserFunction(browser, name) {
-        @Override
-        public Boolean function(Object[] arguments) {
-          try {
-            callback.accept(arguments);
-          }
-          finally {
-            if (once) {
-              dispose();
+  private CompletableFuture<JavaScriptCallback> install(boolean once) {
+    return whenBrowser
+        .thenAccept(browser -> {
+          browserFunction = new BrowserFunction(browser, name) {
+            @Override
+            public Boolean function(Object[] arguments) {
+              try {
+                callback.accept(arguments);
+              }
+              finally {
+                if (once) {
+                  dispose();
+                }
+              }
+              return true;
             }
-          }
-          return true;
-        }
-      };
-    });
+          };
+        })
+        .thenApply(browser -> this);
+  }
+
+  /**
+   * Adds this {@link JavaScriptCallback} to the passed collection.
+   */
+  public JavaScriptCallback addTo(Collection<IDisposable> disposables) {
+    disposables.add(this);
+    return this;
   }
 
   /**
