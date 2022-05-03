@@ -68,7 +68,7 @@ public class RouterOutletProxy {
 
           const outletContent= `<html>
             <head>
-              <script src="${location.origin}/js/helpers.js"></script>            
+              <script src="${location.origin}/js/helpers.js"></script>
               <script>
                 // Dispatch message to the host
                 function __scion_rcp_postMessageToParentWindow(envelope) {
@@ -122,6 +122,37 @@ public class RouterOutletProxy {
         .replacePlaceholder("outletId", outletId)
         .replacePlaceholder("keystrokes", keystrokes, Flags.ToJson)
         .execute();
+  }
+
+  public CompletableFuture<Void> setContextValue(String name, Object value) {
+    return new JavaScriptExecutor(whenOutlet, """
+        const sciRouterOutlet = document.querySelector('sci-router-outlet[name="${outletId}"]');
+        sciRouterOutlet.setContextValue('${name}', JSON.parse('${value}'));
+        """)
+        .replacePlaceholder("outletId", outletId)
+        .replacePlaceholder("name", name)
+        .replacePlaceholder("value", value, Flags.ToJson)
+        .execute();
+  }
+
+  public CompletableFuture<Boolean> removeContextValue(String name) {
+    var removed = new CompletableFuture<Boolean>();
+    new JavaScriptCallback(whenOutlet, args -> {
+      removed.complete((Boolean) args[0]);
+    })
+        .installOnce()
+        .thenAccept(callback -> {
+          new JavaScriptExecutor(whenOutlet, """
+              const sciRouterOutlet = document.querySelector('sci-router-outlet[name="${outletId}"]');
+              const removed = sciRouterOutlet.removeContextValue('${name}');
+              window['${callback}'](removed);
+              """)
+              .replacePlaceholder("callback", callback.name)
+              .replacePlaceholder("outletId", outletId)
+              .replacePlaceholder("name", name)
+              .execute();
+        });
+    return removed;
   }
 
   /**

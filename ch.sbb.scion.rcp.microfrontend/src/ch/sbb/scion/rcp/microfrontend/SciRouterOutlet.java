@@ -171,6 +171,30 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
   }
 
   /**
+   * Makes contextual data available to embedded content. Embedded content can lookup contextual data using the {@link ContextService}.
+   * Contextual data must be serializable with the structured clone algorithm.
+   * 
+   * @see https://scion-microfrontend-platform-api.vercel.app/classes/SciRouterOutletElement.html#setContextValue
+   */
+  public CompletableFuture<Void> setContextValue(String name, Object value){
+    return routerOutletProxy.setContextValue(name, value);
+  }
+
+  /**
+   * Removes data registered under the given key from the context.
+   *
+   * Removal does not affect parent contexts, so it is possible that a subsequent call to {@link ContextService.observe$} with the same name
+   * will return a non-null result, due to a value being stored in a parent context.
+   *
+   * @return `true` if removed the value from the outlet context; otherwise `false`.
+   * 
+   * @see https://scion-microfrontend-platform-api.vercel.app/classes/SciRouterOutletElement.html#removeContextValue
+   */
+  public CompletableFuture<Boolean> removeContextValue(String name) {
+    return routerOutletProxy.removeContextValue(name);
+  }
+  
+  /**
    * Taps messages from the client and dispatches them to the <sci-router-outlet>.
    */
   private IDisposable installClientToSciRouterOutletMessageDispatcher() {
