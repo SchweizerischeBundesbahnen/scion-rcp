@@ -12,7 +12,9 @@ public interface Scripts {
     public static final String ManifestService = "window['__SCION_RCP'].refs.ManifestService";
     public static final String Beans = "window['__SCION_RCP'].refs.Beans";
     public static final String MessageInterceptor = "window['__SCION_RCP'].refs.MessageInterceptor";
+    public static final String IntentInterceptor = "window['__SCION_RCP'].refs.IntentInterceptor";
     public static final String TopicMatcher = "window['__SCION_RCP'].refs.TopicMatcher";
+    public static final String QualifierMatcher = "window['__SCION_RCP'].refs.QualifierMatcher";
   }
 
   public static class Helpers {
