@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" deactivate="onDeactivate" name="ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost">
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.3.0" deactivate="onDeactivate" name="ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost">
    <service>
       <provide interface="ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost"/>
    </service>
+   <reference cardinality="1..1" field="messageInterceptorInstaller" interface="ch.sbb.scion.rcp.microfrontend.host.MessageInterceptorInstaller" name="messageInterceptorInstaller"/>
    <implementation class="ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost"/>
 </scr:component>

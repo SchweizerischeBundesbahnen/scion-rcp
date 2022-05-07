@@ -1,5 +1,8 @@
 package ch.sbb.scion.rcp.microfrontend.host;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -14,11 +17,14 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 
 import ch.sbb.scion.rcp.microfrontend.SciRouterOutlet;
-import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
 import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptCallback;
+import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
+import ch.sbb.scion.rcp.microfrontend.host.MessageInterceptorInstaller.MessageInterceptorDescriptor;
 import ch.sbb.scion.rcp.microfrontend.host.Webserver.Resource;
+import ch.sbb.scion.rcp.microfrontend.interceptor.MessageInterceptor;
 import ch.sbb.scion.rcp.microfrontend.internal.Resources;
 import ch.sbb.scion.rcp.microfrontend.model.MicrofrontendPlatformConfig;
 import ch.sbb.scion.rcp.microfrontend.script.Script.Flags;
@@ -42,9 +48,13 @@ public class MicrofrontendPlatformRcpHost {
   private boolean headless = false;
   private Shell shell;
   private Webserver webserver;
+  private List<MessageInterceptorDescriptor<?>> messageInterceptors = new ArrayList<>();
 
   public Browser hostBrowser;
   public CompletableFuture<Browser> whenHostBrowser = new CompletableFuture<>();
+
+  @Reference
+  private MessageInterceptorInstaller messageInterceptorInstaller;
 
   /**
    * Starts the SCION Microfrontend Platform host.
@@ -85,6 +95,7 @@ public class MicrofrontendPlatformRcpHost {
   }
 
   private void start(MicrofrontendPlatformConfig config, Browser browser) {
+    messageInterceptors.forEach(interceptor -> messageInterceptorInstaller.install(interceptor, hostBrowser));
     new JavaScriptCallback(browser, args -> {
       var error = args[0];
       if (error == null) {
@@ -125,13 +136,26 @@ public class MicrofrontendPlatformRcpHost {
         });
   }
 
+  public <T> void registerMessageInterceptor(String topic, MessageInterceptor<T> interceptor, Type payloadClazz) {
+    if (isHostStarted()) {
+      throw new IllegalStateException("Host already started. Message interceptors must be registered prior to host startup.");
+    }
+    messageInterceptors.add(new MessageInterceptorDescriptor<T>(topic, interceptor, payloadClazz));
+  }
+
   @Deactivate
   public void onDeactivate() {
     if (shell != null) {
       shell.dispose();
+      shell = null;
     }
     if (webserver != null) {
       webserver.stop();
+      webserver = null;
     }
+  }
+
+  private boolean isHostStarted() {
+    return shell != null;
   }
 }

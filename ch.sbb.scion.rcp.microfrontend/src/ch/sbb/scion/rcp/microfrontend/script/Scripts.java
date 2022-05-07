@@ -10,6 +10,9 @@ public interface Scripts {
     public static final String IntentClient = "window['__SCION_RCP'].refs.IntentClient";
     public static final String OutletRouter = "window['__SCION_RCP'].refs.OutletRouter";
     public static final String ManifestService = "window['__SCION_RCP'].refs.ManifestService";
+    public static final String Beans = "window['__SCION_RCP'].refs.Beans";
+    public static final String MessageInterceptor = "window['__SCION_RCP'].refs.MessageInterceptor";
+    public static final String TopicMatcher = "window['__SCION_RCP'].refs.TopicMatcher";
   }
 
   public static class Helpers {
