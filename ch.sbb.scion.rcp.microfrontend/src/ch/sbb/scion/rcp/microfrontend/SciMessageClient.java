@@ -7,19 +7,20 @@ import java.util.concurrent.CompletableFuture;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 
-import ch.sbb.scion.rcp.microfrontend.browser.RxJsObservable;
-import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
 import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptCallback;
+import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
+import ch.sbb.scion.rcp.microfrontend.browser.RxJsObservable;
 import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost;
+import ch.sbb.scion.rcp.microfrontend.internal.GsonFactory;
 import ch.sbb.scion.rcp.microfrontend.internal.ParameterizedType;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscriber;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscription;
 import ch.sbb.scion.rcp.microfrontend.model.TopicMessage;
 import ch.sbb.scion.rcp.microfrontend.script.Script;
 import ch.sbb.scion.rcp.microfrontend.script.Script.Flags;
+import ch.sbb.scion.rcp.microfrontend.script.Scripts.Helpers;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
 
 /**
@@ -42,7 +43,7 @@ public class SciMessageClient {
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/MessageClient.html#publish
    */
   public CompletableFuture<Void> publish(String topic, Object message) {
-    return publishJson(topic, new Gson().toJson(message), null);
+    return publishJson(topic, GsonFactory.create().toJson(message), null);
   }
 
   /**
@@ -56,14 +57,14 @@ public class SciMessageClient {
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/MessageClient.html#publish
    */
   public CompletableFuture<Void> publish(String topic, Object message, PublishOptions options) {
-    return publishJson(topic, new Gson().toJson(message), options);
+    return publishJson(topic, GsonFactory.create().toJson(message), options);
   }
 
   /**
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/MessageClient.html#publish
    */
   public CompletableFuture<Void> publish(String topic, JsonElement jsonElement, PublishOptions options) {
-    return publishJson(topic, new Gson().toJson(jsonElement), options);
+    return publishJson(topic, GsonFactory.create().toJson(jsonElement), options);
   }
 
   /**
@@ -78,10 +79,11 @@ public class SciMessageClient {
    */
   public <T> ISubscription subscribe(String topic, ISubscriber<TopicMessage<T>> subscriber, Class<T> clazz) {
     var observeIIFE = new Script("""
-        (() => ${refs.MessageClient}.observe$(JSON.parse('${topic}')))()
+        (() => ${refs.MessageClient}.observe$(${helpers.fromJson}('${topic}')))()
         """)
         .replacePlaceholder("refs.MessageClient", Refs.MessageClient)
         .replacePlaceholder("topic", topic, Flags.ToJson)
+        .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
         .substitute();
 
     var observable = new RxJsObservable<TopicMessage<T>>(microfrontendPlatformRcpHost.whenHostBrowser, observeIIFE, new ParameterizedType(TopicMessage.class, clazz));
@@ -107,8 +109,8 @@ public class SciMessageClient {
         .thenAccept(callback -> {
           new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, """
               try {
-                await ${refs.MessageClient}.publish(JSON.parse('${topic}'), JSON.parse('${message}') ?? null, {
-                  headers: JSON.parse('${options.headers}') ?? undefined,
+                await ${refs.MessageClient}.publish(${helpers.fromJson}('${topic}'), ${helpers.fromJson}('${message}') ?? null, {
+                  headers: ${helpers.fromJson}('${options.headers}') ?? undefined,
                   retain: ${options.retain} ?? undefined,
                 });
                 window['${callback}'](null);
@@ -123,6 +125,7 @@ public class SciMessageClient {
               .replacePlaceholder("options.headers", options.headers, Flags.ToJson)
               .replacePlaceholder("options.retain", options.retain)
               .replacePlaceholder("refs.MessageClient", Refs.MessageClient)
+              .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
               .runInsideAsyncFunction()
               .execute();
         });

@@ -1,19 +1,18 @@
 package ch.sbb.scion.rcp.microfrontend;
 
-import java.util.Set;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import com.google.gson.Gson;
-
 import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptCallback;
 import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
 import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost;
+import ch.sbb.scion.rcp.microfrontend.internal.GsonFactory;
 import ch.sbb.scion.rcp.microfrontend.internal.ParameterizedType;
 import ch.sbb.scion.rcp.microfrontend.model.Application;
-import ch.sbb.scion.rcp.microfrontend.script.Scripts.JsonHelpers;
+import ch.sbb.scion.rcp.microfrontend.script.Scripts.Helpers;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
 
 /**
@@ -28,20 +27,20 @@ public class SciManifestService {
   /**
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/ManifestService.html#applications
    */
-  public CompletableFuture<Set<Application>> getApplications() {
-    var applications = new CompletableFuture<Set<Application>>();
+  public CompletableFuture<List<Application>> getApplications() {
+    var applications = new CompletableFuture<List<Application>>();
     new JavaScriptCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
-      applications.complete(new Gson().fromJson((String) args[0], new ParameterizedType(Set.class, Application.class)));
+      applications.complete(GsonFactory.create().fromJson((String) args[0], new ParameterizedType(List.class, Application.class)));
     })
         .installOnce()
         .thenAccept(callback -> {
           new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, """
               const applications = ${refs.ManifestService}.applications;
-              window['${callback}'](${helpers.stringify}(applications));
+              window['${callback}'](${helpers.toJson}(applications));
               """)
               .replacePlaceholder("callback", callback.name)
               .replacePlaceholder("refs.ManifestService", Refs.ManifestService)
-              .replacePlaceholder("helpers.stringify", JsonHelpers.stringify)
+              .replacePlaceholder("helpers.toJson", Helpers.toJson)
               .execute();
         });
 

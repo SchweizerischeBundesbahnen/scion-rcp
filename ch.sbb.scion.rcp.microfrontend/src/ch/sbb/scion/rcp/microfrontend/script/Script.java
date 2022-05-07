@@ -3,7 +3,7 @@ package ch.sbb.scion.rcp.microfrontend.script;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.gson.Gson;
+import ch.sbb.scion.rcp.microfrontend.internal.GsonFactory;
 
 public class Script {
 
@@ -31,16 +31,15 @@ public class Script {
 
   private String toPlaceholderValue(Object value, int flags) {
     if (value == null) {
-      return ((flags & Flags.UndefinedIfNull) > 0) ? "undefined" : "null";
+      return "null";
     }
     if ((flags & Flags.ToJson) > 0) {
-      return new Gson().toJson(value);
+      return GsonFactory.create().toJson(value);
     }
     return value.toString();
   }
 
   public static class Flags {
-    public static final int UndefinedIfNull = 1 << 1;
     public static final int ToJson = 1 << 2;
   }
 }

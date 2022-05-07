@@ -1,40 +1,39 @@
 (() => {
   window['__SCION_RCP'] = window['__SCION_RCP'] || {};
   window['__SCION_RCP'].storage = {};
-  window['__SCION_RCP'].helpers = {
-    JSON: {stringify, parse},
-  };
+  window['__SCION_RCP'].helpers = {toJson, fromJson};
 
   /**
-   * JavaScript JSON serialization does not support {Map} and {Set} collections. By default, this utility serializes a
-   * {Map} to a dictionary and a {Set} to an array.
+   * JavaScript JSON serialization does not support {Map} and {Set} collections.
    *
-   * To retain the collection type, you can pass following rules:
-   * - 'Map=>MapObject'
-   *   Converts {Map} objects into custom objects that can be unmarshalled using {@link #parse}.
-   * - 'Set=>SetObject'
-   *   Converts {Set} objects into custom objects that can be unmarshalled using {@link #parse}.
+   * This converter serializes a map and set into a custom object of the following form:
+   *
+   * - Map: `{__type: 'Map', __value: [...[key, value]]}`
+   * - Set: `{__type: 'Set', __value: [...values]}`
+   *
+   * Use in conjunction with {@link #fromJson}, and in Java with {@link MapObjectTypeAdapterFactory} and {@link SetObjectTypeAdapterFactory}.
    */
-  function stringify(object, ...rules) {
+  function toJson(object) {
     return JSON.stringify(object, (key, value) => {
-      // Marshalling of Maps: JSON does not yet support maps. Therefore, we convert Map objects to custom objects containing the contents of the map as an array of tuples.
+      // Convert the map to a custom map object that contains the map's values in the field '__value' as array with arrays of map entries.
+      // Each map entry is a two element array containing a key and a value.
       if (isMapLike(value)) {
-        if (rules?.includes('Map=>MapObject')) {
-          return {__type: 'Map', __value: [...value]};
-        }
-        return toDictionary(value);
+        return {__type: 'Map', __value: [...value]};
       }
+      // Convert the set to a custom map object that contains the set's values in the field '__value' as array.
       if (isSetLike(value)) {
-        if (rules?.includes('Set=>SetObject')) {
-          return {__type: 'Set', __value: [...value]};
-        }
-        return [...value];
+        return {__type: 'Set', __value: [...value]};
       }
       return value;
     });
   }
 
-  function parse(json) {
+  /**
+   * JavaScript JSON serialization does not support {Map} and {Set} collections.
+   *
+   * Use in conjunction with {@link #toJson}, and in Java with {@link MapObjectTypeAdapterFactory} and {@link SetObjectTypeAdapterFactory}.
+   */
+  function fromJson(json) {
     return JSON.parse(json, (key, value) => {
       if (value?.__type === 'Map' && Array.isArray(value.__value)) {
         return new Map(value.__value);
@@ -68,21 +67,6 @@
       return true;
     }
     return false;
-  }
-
-  function toDictionary(map) {
-    if (map === null || map === undefined) {
-      return map;
-    }
-    return Array
-    .from(map.entries())
-    .reduce(
-        (dictionary, [key, value]) => {
-          dictionary[key] = value;
-          return dictionary;
-        },
-        {},
-    );
   }
 })();
 
