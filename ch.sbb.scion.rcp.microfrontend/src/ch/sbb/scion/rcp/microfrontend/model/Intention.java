@@ -1,7 +1,5 @@
 package ch.sbb.scion.rcp.microfrontend.model;
 
-import java.util.Map;
-
 /**
  * @see https://scion-microfrontend-platform-api.vercel.app/interfaces/Intention.html
  */
@@ -28,7 +26,7 @@ public class Intention {
    * this: `{property: '?'}`. - **Partial wildcard (`**`):** Matches capabilities
    * even if having additional properties. Use it like this: `{'*': '*'}`.
    */
-  public Map<String, ?> qualifier;
+  public Qualifier qualifier;
   /**
    * Metadata about this intention (read-only, exclusively managed by the
    * platform).
@@ -42,7 +40,7 @@ public class Intention {
     return this;
   }
 
-  public Intention qualifier(Map<String, ?> qualifier) {
+  public Intention qualifier(Qualifier qualifier) {
     this.qualifier = qualifier;
     return this;
   }

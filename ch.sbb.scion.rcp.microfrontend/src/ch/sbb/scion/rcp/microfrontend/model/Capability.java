@@ -31,7 +31,7 @@ public class Capability {
    * like this: `{property: '*'}` - **Optional wildcard character (?):**\ Intents
    * can contain such a property. Use it like this: `{property: '?'}`.
    */
-  public Map<String, ?> qualifier;
+  public Qualifier qualifier;
   /**
    * Specifies parameters which the intent issuer can/must pass along with the
    * intent.
@@ -70,7 +70,7 @@ public class Capability {
     return this;
   }
 
-  public Capability qualifier(Map<String, ?> qualifier) {
+  public Capability qualifier(Qualifier qualifier) {
     this.qualifier = qualifier;
     return this;
   }

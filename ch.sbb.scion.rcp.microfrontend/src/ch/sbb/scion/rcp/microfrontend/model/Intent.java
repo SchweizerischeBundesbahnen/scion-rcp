@@ -8,7 +8,7 @@ import java.util.Map;
 public class Intent {
 
   public String type;
-  public Map<String, Object> qualifier;
+  public Qualifier qualifier;
   public Map<String, Object> params;
 
   public String getType() {
@@ -20,11 +20,11 @@ public class Intent {
     return this;
   }
 
-  public Map<String, Object> getQualifier() {
+  public Qualifier getQualifier() {
     return qualifier;
   }
 
-  public Intent qualifier(Map<String, Object> qualifier) {
+  public Intent qualifier(Qualifier qualifier) {
     this.qualifier = qualifier;
     return this;
   }
