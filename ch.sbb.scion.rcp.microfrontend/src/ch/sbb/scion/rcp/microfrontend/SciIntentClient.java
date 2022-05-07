@@ -9,7 +9,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import com.google.gson.JsonElement;
 
-import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptCallback;
+import ch.sbb.scion.rcp.microfrontend.browser.JavaCallback;
 import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
 import ch.sbb.scion.rcp.microfrontend.browser.RxJsObservable;
 import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost;
@@ -166,7 +166,7 @@ public class SciIntentClient {
   private CompletableFuture<Void> publishJson(Intent intent, String json, IntentOptions intentOptions) {
     var options = Optional.ofNullable(intentOptions).orElse(new IntentOptions());
     var published = new CompletableFuture<Void>();
-    new JavaScriptCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
+    new JavaCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
       var error = args[0];
       if (error == null) {
         published.complete(null);

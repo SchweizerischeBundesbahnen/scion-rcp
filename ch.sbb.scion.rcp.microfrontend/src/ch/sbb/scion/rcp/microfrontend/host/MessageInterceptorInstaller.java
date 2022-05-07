@@ -5,7 +5,7 @@ import java.lang.reflect.Type;
 import org.eclipse.swt.browser.Browser;
 import org.osgi.service.component.annotations.Component;
 
-import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptCallback;
+import ch.sbb.scion.rcp.microfrontend.browser.JavaCallback;
 import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
 import ch.sbb.scion.rcp.microfrontend.interceptor.MessageInterceptor;
 import ch.sbb.scion.rcp.microfrontend.internal.GsonFactory;
@@ -38,7 +38,7 @@ public class MessageInterceptorInstaller {
    * 
    * Intercepted messages are delegated to the passed callback.
    */
-  private <T> void registerInterceptor(JavaScriptCallback interceptorCallback, MessageInterceptorDescriptor<T> interceptorDescriptor, Browser hostBrowser) {
+  private <T> void registerInterceptor(JavaCallback interceptorCallback, MessageInterceptorDescriptor<T> interceptorDescriptor, Browser hostBrowser) {
     new JavaScriptExecutor(hostBrowser, """
         const topic = ${helpers.fromJson}('${topic}');
         const topicMatcher = new ${TopicMatcher}(topic);
@@ -85,8 +85,8 @@ public class MessageInterceptorInstaller {
   /**
    * Creates the Java callback for intercepting messages.
    */
-  private <T> JavaScriptCallback createJavaInterceptorCallback(MessageInterceptorDescriptor<T> interceptorDescriptor, Browser hostBrowser) {
-    return new JavaScriptCallback(hostBrowser, args -> {
+  private <T> JavaCallback createJavaInterceptorCallback(MessageInterceptorDescriptor<T> interceptorDescriptor, Browser hostBrowser) {
+    return new JavaCallback(hostBrowser, args -> {
       TopicMessage<T> message = GsonFactory.create().fromJson((String) args[0], new ParameterizedType(TopicMessage.class, interceptorDescriptor.payloadClazz));
       interceptorDescriptor.interceptor.intercept(message, new InterceptorChainImpl(hostBrowser, (String) args[1]));
     });

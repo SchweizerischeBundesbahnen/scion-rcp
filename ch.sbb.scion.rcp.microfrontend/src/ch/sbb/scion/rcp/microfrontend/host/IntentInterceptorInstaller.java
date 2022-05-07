@@ -5,7 +5,7 @@ import java.lang.reflect.Type;
 import org.eclipse.swt.browser.Browser;
 import org.osgi.service.component.annotations.Component;
 
-import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptCallback;
+import ch.sbb.scion.rcp.microfrontend.browser.JavaCallback;
 import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
 import ch.sbb.scion.rcp.microfrontend.interceptor.IntentInterceptor;
 import ch.sbb.scion.rcp.microfrontend.internal.GsonFactory;
@@ -34,7 +34,7 @@ public class IntentInterceptorInstaller {
    * 
    * Intercepted messages are delegated to the passed callback.
    */
-  private <T> void registerInterceptor(JavaScriptCallback interceptorCallback, IntentInterceptorDescriptor<T> interceptorDescriptor, Browser hostBrowser) {
+  private <T> void registerInterceptor(JavaCallback interceptorCallback, IntentInterceptorDescriptor<T> interceptorDescriptor, Browser hostBrowser) {
     new JavaScriptExecutor(hostBrowser, """
         const type = ${helpers.fromJson}('${type}');
         const qualifier = ${helpers.fromJson}('${qualifier}');
@@ -89,8 +89,8 @@ public class IntentInterceptorInstaller {
   /**
    * Creates the Java callback for intercepting intents.
    */
-  private <T> JavaScriptCallback createJavaInterceptorCallback(IntentInterceptorDescriptor<T> interceptorDescriptor, Browser hostBrowser) {
-    return new JavaScriptCallback(hostBrowser, args -> {
+  private <T> JavaCallback createJavaInterceptorCallback(IntentInterceptorDescriptor<T> interceptorDescriptor, Browser hostBrowser) {
+    return new JavaCallback(hostBrowser, args -> {
       IntentMessage<T> intent = GsonFactory.create().fromJson((String) args[0], new ParameterizedType(IntentMessage.class, interceptorDescriptor.payloadClazz));
       interceptorDescriptor.interceptor.intercept(intent, new InterceptorChainImpl(hostBrowser, (String) args[1]));
     });

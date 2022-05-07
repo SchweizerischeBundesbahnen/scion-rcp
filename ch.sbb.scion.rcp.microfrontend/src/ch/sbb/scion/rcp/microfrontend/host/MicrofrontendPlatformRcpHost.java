@@ -20,7 +20,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import ch.sbb.scion.rcp.microfrontend.SciRouterOutlet;
-import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptCallback;
+import ch.sbb.scion.rcp.microfrontend.browser.JavaCallback;
 import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
 import ch.sbb.scion.rcp.microfrontend.host.IntentInterceptorInstaller.IntentInterceptorDescriptor;
 import ch.sbb.scion.rcp.microfrontend.host.MessageInterceptorInstaller.MessageInterceptorDescriptor;
@@ -105,7 +105,7 @@ public class MicrofrontendPlatformRcpHost {
     messageInterceptors.forEach(interceptor -> messageInterceptorInstaller.install(interceptor, hostBrowser));
     intentInterceptors.forEach(interceptor -> intentInterceptorInstaller.install(interceptor, hostBrowser));
 
-    new JavaScriptCallback(browser, args -> {
+    new JavaCallback(browser, args -> {
       var error = args[0];
       if (error == null) {
         whenHostBrowser.complete(browser);

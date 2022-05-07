@@ -7,7 +7,7 @@ import java.util.concurrent.CompletableFuture;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptCallback;
+import ch.sbb.scion.rcp.microfrontend.browser.JavaCallback;
 import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
 import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost;
 import ch.sbb.scion.rcp.microfrontend.script.Script.Flags;
@@ -44,7 +44,7 @@ public class SciOutletRouter {
     var options = Optional.ofNullable(navigationOptions).orElse(new NavigationOptions());
 
     var navigated = new CompletableFuture<Void>();
-    new JavaScriptCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
+    new JavaCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
       var error = args[0];
       if (error == null) {
         navigated.complete(null);
