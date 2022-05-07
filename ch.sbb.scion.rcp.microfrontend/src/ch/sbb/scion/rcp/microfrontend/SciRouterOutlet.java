@@ -1,8 +1,11 @@
 package ch.sbb.scion.rcp.microfrontend;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -202,7 +205,7 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
     manifestService.getApplications().thenAccept(applications -> {
       var trustedOrigins = getTrustedOrigins(applications);
       new JavaScriptCallback(browser, args -> {
-        var envelope = (String) args[0];
+        var base64json = (String) args[0];
         var origin = (String) args[1];
         var sender = (String) args[2];
 
@@ -213,22 +216,22 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
         // Also, when registering the applications, we set the applications "actual" message origin to the origin
         // of the host as SCION would reject messages otherwise.
         if (sender == null && !trustedOrigins.containsValue(origin)) {
-          Platform.getLog(SciRouterOutlet.class).info(String.format("[BLOCKED] Request blocked. Wrong origin [actual='%s', expectedOneOf='%s', envelope='%s']", origin, trustedOrigins.values(), envelope));
+          Platform.getLog(SciRouterOutlet.class).info(String.format("[BLOCKED] Request blocked. Wrong origin [actual='%s', expectedOneOf='%s', envelope='%s']", origin, trustedOrigins.values(), decodeBase64(base64json)));
           disposables.forEach(IDisposable::dispose);
         }
         else if (sender != null && !trustedOrigins.containsKey(sender)) {
-          Platform.getLog(SciRouterOutlet.class).info(String.format("[BLOCKED] Request blocked. Unknown application [app='%s', envelope='%s']", sender, envelope));
+          Platform.getLog(SciRouterOutlet.class).info(String.format("[BLOCKED] Request blocked. Unknown application [app='%s', envelope='%s']", sender, decodeBase64(base64json)));
           disposables.forEach(IDisposable::dispose);
         }
         else if (sender != null && !origin.equals(trustedOrigins.get(sender))) {
-          Platform.getLog(SciRouterOutlet.class).info(String.format("[BLOCKED] Request blocked. Wrong origin [app='%s', actual='%s', expected='%s', envelope='%s']", sender, origin, trustedOrigins.get(sender), envelope));
+          Platform.getLog(SciRouterOutlet.class).info(String.format("[BLOCKED] Request blocked. Wrong origin [app='%s', actual='%s', expected='%s', envelope='%s']", sender, origin, trustedOrigins.get(sender), decodeBase64(base64json)));
           disposables.forEach(IDisposable::dispose);
         }
         else {
           if (bridgeLoggerEnabled) {
-            Platform.getLog(SciRouterOutlet.class).info("[SciBridge] [client=>host] " + envelope);
+            Platform.getLog(SciRouterOutlet.class).info("[SciBridge] [client=>host] " + decodeBase64(base64json));
           }
-          routerOutletProxy.postJsonMessage(envelope);
+          routerOutletProxy.postJsonMessage(base64json);
         }
       })
           .addTo(disposables)
@@ -238,8 +241,10 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
                 const onmessage = event => {
                   if (event.data?.transport === 'sci://microfrontend-platform/client-to-broker' || event.data?.transport === 'sci://microfrontend-platform/microfrontend-to-outlet') {
                     const sender = event.data.message?.headers?.get('${headers.AppSymbolicName}');
-                    const envelope= ${helpers.toJson}(event.data);
-                    window['${callback}'](envelope, event.origin, sender);
+                    // Encode as base64 so it can be safely inserted into a script as a string literal.
+                    // For example, the apostrophe character (U+0027) would terminate the string literal.
+                    const base64json = ${helpers.toJson}(event.data, {encode: true});
+                    window['${callback}'](base64json, event.origin, sender);
                   }
                 };
 
@@ -269,13 +274,13 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
    * Dispatches messages from the <sci-router-outlet> to the client.
    */
   private IDisposable installSciRouterOutletToClientMessageDispatcher() {
-    return routerOutletProxy.onMessage(json -> {
+    return routerOutletProxy.onMessage(base64json -> {
       if (bridgeLoggerEnabled) {
-        Platform.getLog(SciRouterOutlet.class).info("[SciBridge] [host=>client] " + json);
+        Platform.getLog(SciRouterOutlet.class).info("[SciBridge] [host=>client] " + decodeBase64(base64json));
       }
 
-      new JavaScriptExecutor(browser, "window.postMessage(${helpers.fromJson}('${json}'));")
-          .replacePlaceholder("json", json)
+      new JavaScriptExecutor(browser, "window.postMessage(${helpers.fromJson}('${base64json}', {decode: true}));")
+          .replacePlaceholder("base64json", base64json)
           .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
           .execute();
     });
@@ -301,6 +306,16 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
             throw new RuntimeException(e);
           }
         }));
+  }
+
+  private String decodeBase64(String base64) {
+    try {
+      return URLDecoder.decode(new String(Base64.getUrlDecoder().decode(base64)), "utf-8");
+    }
+    catch (UnsupportedEncodingException | RuntimeException e) {
+      Platform.getLog(SciRouterOutlet.class).info("[SciRouterOutlet] Failed to decode base64-encoded value: " + base64, e);
+      return null;
+    }
   }
 
   @Override

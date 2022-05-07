@@ -13,8 +13,8 @@
    *
    * Use in conjunction with {@link #fromJson}, and in Java with {@link MapObjectTypeAdapterFactory} and {@link SetObjectTypeAdapterFactory}.
    */
-  function toJson(object) {
-    return JSON.stringify(object, (key, value) => {
+  function toJson(object, options) {
+    const json = JSON.stringify(object, (key, value) => {
       // Convert the map to a custom map object that contains the map's values in the field '__value' as array with arrays of map entries.
       // Each map entry is a two element array containing a key and a value.
       if (isMapLike(value)) {
@@ -26,6 +26,11 @@
       }
       return value;
     });
+
+    if (options?.encode) {
+      return btoa(encodeURIComponent(json));
+    }
+    return json;
   }
 
   /**
@@ -33,7 +38,11 @@
    *
    * Use in conjunction with {@link #toJson}, and in Java with {@link MapObjectTypeAdapterFactory} and {@link SetObjectTypeAdapterFactory}.
    */
-  function fromJson(json) {
+  function fromJson(json, options) {
+    if (options?.decode) {
+      json = decodeURIComponent(atob(json));
+    }
+
     return JSON.parse(json, (key, value) => {
       if (value?.__type === 'Map' && Array.isArray(value.__value)) {
         return new Map(value.__value);
