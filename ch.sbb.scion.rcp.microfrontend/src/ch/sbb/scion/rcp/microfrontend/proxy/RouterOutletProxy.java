@@ -13,7 +13,7 @@ import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.widgets.Event;
 
 import ch.sbb.scion.rcp.microfrontend.SciRouterOutlet;
-import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptCallback;
+import ch.sbb.scion.rcp.microfrontend.browser.JavaCallback;
 import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
 import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost;
 import ch.sbb.scion.rcp.microfrontend.internal.ContextInjectors;
@@ -50,13 +50,13 @@ public class RouterOutletProxy {
 
   public void init() {
     // Callback invoked for messages to be transported to the client.
-    var outletToProxyMessageCallback = new JavaScriptCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
+    var outletToProxyMessageCallback = new JavaCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
       var jsonMessage = (String) args[0];
       outletToProxyMessageListeners.forEach(listener -> listener.accept(jsonMessage));
     });
 
     // Callback invoked for keystrokes triggered by the client.
-    var outletToProxyKeystrokeCallback = new JavaScriptCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
+    var outletToProxyKeystrokeCallback = new JavaCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
       var webEvent = new JavaScriptKeyboardEvent((String) args[0], (String) args[1], (boolean) args[2], (boolean) args[3], (boolean) args[4], (boolean) args[5]);
       var swtEvent = keyboardEventMapper.mapKeyboardEvent(webEvent);
       outletToProxyKeystrokeListeners.forEach(listener -> listener.accept(swtEvent));
@@ -142,7 +142,7 @@ public class RouterOutletProxy {
 
   public CompletableFuture<Boolean> removeContextValue(String name) {
     var removed = new CompletableFuture<Boolean>();
-    new JavaScriptCallback(whenOutlet, args -> {
+    new JavaCallback(whenOutlet, args -> {
       removed.complete((Boolean) args[0]);
     })
         .installOnce()

@@ -26,7 +26,7 @@ import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 
-import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptCallback;
+import ch.sbb.scion.rcp.microfrontend.browser.JavaCallback;
 import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
 import ch.sbb.scion.rcp.microfrontend.internal.ContextInjectors;
 import ch.sbb.scion.rcp.microfrontend.internal.Resources;
@@ -204,7 +204,7 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
     var disposables = new ArrayList<IDisposable>();
     manifestService.getApplications().thenAccept(applications -> {
       var trustedOrigins = getTrustedOrigins(applications);
-      new JavaScriptCallback(browser, args -> {
+      new JavaCallback(browser, args -> {
         var base64json = (String) args[0];
         var origin = (String) args[1];
         var sender = (String) args[2];

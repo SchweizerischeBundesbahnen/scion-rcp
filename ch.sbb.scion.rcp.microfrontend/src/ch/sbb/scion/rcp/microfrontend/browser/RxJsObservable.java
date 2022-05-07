@@ -38,7 +38,7 @@ public class RxJsObservable<T> {
   public ISubscription subscribe(ISubscriber<T> observer) {
     var disposables = new ArrayList<IDisposable>();
 
-    new JavaScriptCallback(whenBrowser, args -> {
+    new JavaCallback(whenBrowser, args -> {
       try {
         var emission = GsonFactory.create().<Emission<T>>fromJson((String) args[0], new ParameterizedType(Emission.class, clazz));
         switch (emission.type) {

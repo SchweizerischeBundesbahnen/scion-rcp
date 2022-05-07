@@ -17,11 +17,11 @@ import ch.sbb.scion.rcp.microfrontend.model.IDisposable;
  * Injects a function to the {Window} of the currently loaded document that can
  * be invoked from JavaScript. Invoking that function calls the passed callback.
  * 
- * The function's name can be obtained via {@link JavaScriptCallback#name}.
+ * The function's name can be obtained via {@link JavaCallback#name}.
  * 
  * Wraps a SWT {@link BrowserFunction}.
  */
-public class JavaScriptCallback implements IDisposable {
+public class JavaCallback implements IDisposable {
 
   public final String name;
 
@@ -29,11 +29,11 @@ public class JavaScriptCallback implements IDisposable {
   private BrowserFunction browserFunction;
   private Consumer<Object[]> callback;
 
-  public JavaScriptCallback(Browser browser, Consumer<Object[]> callback) {
+  public JavaCallback(Browser browser, Consumer<Object[]> callback) {
     this(CompletableFuture.completedFuture(browser), callback);
   }
 
-  public JavaScriptCallback(CompletableFuture<Browser> whenBrowser, Consumer<Object[]> callback) {
+  public JavaCallback(CompletableFuture<Browser> whenBrowser, Consumer<Object[]> callback) {
     this.whenBrowser = whenBrowser;
     this.name = toValidJavaScriptIdentifier("__scion_rcp_browserfunction_" + UUID.randomUUID());
     this.callback = callback;
@@ -45,7 +45,7 @@ public class JavaScriptCallback implements IDisposable {
    * 
    * This method resolves to the callback when installed the callback.
    */
-  public CompletableFuture<JavaScriptCallback> install() {
+  public CompletableFuture<JavaCallback> install() {
     return install(false);
   }
 
@@ -57,11 +57,11 @@ public class JavaScriptCallback implements IDisposable {
    * 
    * This method resolves to the callback when installed the callback.
    */
-  public CompletableFuture<JavaScriptCallback> installOnce() {
+  public CompletableFuture<JavaCallback> installOnce() {
     return install(true);
   }
 
-  private CompletableFuture<JavaScriptCallback> install(boolean once) {
+  private CompletableFuture<JavaCallback> install(boolean once) {
     return whenBrowser
         .thenAccept(browser -> {
           browserFunction = new BrowserFunction(browser, name) {
@@ -83,9 +83,9 @@ public class JavaScriptCallback implements IDisposable {
   }
 
   /**
-   * Adds this {@link JavaScriptCallback} to the passed collection.
+   * Adds this {@link JavaCallback} to the passed collection.
    */
-  public JavaScriptCallback addTo(Collection<IDisposable> disposables) {
+  public JavaCallback addTo(Collection<IDisposable> disposables) {
     disposables.add(this);
     return this;
   }
