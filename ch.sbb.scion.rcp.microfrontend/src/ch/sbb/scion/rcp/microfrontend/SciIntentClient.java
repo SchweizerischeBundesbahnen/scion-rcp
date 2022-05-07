@@ -7,13 +7,13 @@ import java.util.concurrent.CompletableFuture;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 
-import ch.sbb.scion.rcp.microfrontend.browser.RxJsObservable;
-import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
 import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptCallback;
+import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
+import ch.sbb.scion.rcp.microfrontend.browser.RxJsObservable;
 import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost;
+import ch.sbb.scion.rcp.microfrontend.internal.GsonFactory;
 import ch.sbb.scion.rcp.microfrontend.internal.ParameterizedType;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscriber;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscription;
@@ -23,6 +23,7 @@ import ch.sbb.scion.rcp.microfrontend.model.Qualifier;
 import ch.sbb.scion.rcp.microfrontend.model.TopicMessage;
 import ch.sbb.scion.rcp.microfrontend.script.Script;
 import ch.sbb.scion.rcp.microfrontend.script.Script.Flags;
+import ch.sbb.scion.rcp.microfrontend.script.Scripts.Helpers;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
 
 /**
@@ -45,7 +46,7 @@ public class SciIntentClient {
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish
    */
   public CompletableFuture<Void> publish(Intent intent, Object body) {
-    return publishJson(intent, new Gson().toJson(body), null);
+    return publishJson(intent, GsonFactory.create().toJson(body), null);
   }
 
   /**
@@ -59,16 +60,19 @@ public class SciIntentClient {
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish
    */
   public CompletableFuture<Void> publish(Intent intent, Object body, IntentOptions options) {
-    return publishJson(intent, new Gson().toJson(body), options);
+    return publishJson(intent, GsonFactory.create().toJson(body), options);
   }
 
   /**
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish
    */
   public CompletableFuture<Void> publish(Intent intent, JsonElement jsonElement, IntentOptions options) {
-    return publishJson(intent, new Gson().toJson(jsonElement), options);
+    return publishJson(intent, GsonFactory.create().toJson(jsonElement), options);
   }
 
+  /**
+   * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish
+   */
   public ISubscription subscribe(IntentSelector selector, ISubscriber<IntentMessage<Void>> subscriber) {
     return subscribe(selector, Void.class, subscriber);
   }
@@ -80,14 +84,14 @@ public class SciIntentClient {
     selector = Optional.ofNullable(selector).orElse(new IntentSelector());
     var observeIIFE = new Script("""
         (() => ${refs.IntentClient}.observe$({
-          type: JSON.parse('${selector.type}') ?? undefined,
-          qualifier: JSON.parse('${selector.qualifier}') ?? undefined,
+          type: ${helpers.fromJson}('${selector.type}') ?? undefined,
+          qualifier: ${helpers.fromJson}('${selector.qualifier}') ?? undefined,
         }))()
         """)
         .replacePlaceholder("refs.IntentClient", Refs.IntentClient)
         .replacePlaceholder("selector.type", selector.type, Flags.ToJson)
         .replacePlaceholder("selector.qualifier", selector.qualifier, Flags.ToJson)
-        .replacePlaceholder("selector", selector, Flags.ToJson | Flags.UndefinedIfNull)
+        .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
         .substitute();
 
     var observable = new RxJsObservable<IntentMessage<T>>(microfrontendPlatformRcpHost.whenHostBrowser, observeIIFE, new ParameterizedType(IntentMessage.class, clazz));
@@ -105,7 +109,7 @@ public class SciIntentClient {
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#request_
    */
   public <T> ISubscription request(Intent intent, Object body, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
-    return requestJson(intent, new Gson().toJson(body), null, clazz, subscriber);
+    return requestJson(intent, GsonFactory.create().toJson(body), null, clazz, subscriber);
   }
 
   /**
@@ -119,14 +123,14 @@ public class SciIntentClient {
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#request_
    */
   public <T> ISubscription request(Intent intent, Object body, IntentOptions options, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
-    return requestJson(intent, new Gson().toJson(body), options, clazz, subscriber);
+    return requestJson(intent, GsonFactory.create().toJson(body), options, clazz, subscriber);
   }
 
   /**
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish
    */
   public <T> ISubscription request(Intent intent, JsonElement jsonElement, IntentOptions options, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
-    return requestJson(intent, new Gson().toJson(jsonElement), options, clazz, subscriber);
+    return requestJson(intent, GsonFactory.create().toJson(jsonElement), options, clazz, subscriber);
   }
 
   /**
@@ -136,18 +140,19 @@ public class SciIntentClient {
     options = Optional.ofNullable(options).orElse(new IntentOptions());
     var requestIIFE = new Script("""
         (() => {
-          const intent = JSON.parse('${intent}');
-          const body = JSON.parse('${body}') ?? null;
+          const intent = ${helpers.fromJson}('${intent}');
+          const body = ${helpers.fromJson}('${body}') ?? null;
           const options = {
-            headers: JSON.parse('${options.headers}') ?? undefined,
+            headers: ${helpers.fromJson}('${options.headers}') ?? undefined,
           };
           return ${refs.IntentClient}.request$(intent, body, options);
-        }()
+        })()
         """)
         .replacePlaceholder("refs.IntentClient", Refs.IntentClient)
         .replacePlaceholder("intent", intent, Flags.ToJson)
         .replacePlaceholder("body", json)
         .replacePlaceholder("options.headers", options.headers, Flags.ToJson)
+        .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
         .substitute();
 
     var observable = new RxJsObservable<TopicMessage<T>>(microfrontendPlatformRcpHost.whenHostBrowser, requestIIFE, new ParameterizedType(TopicMessage.class, clazz));
@@ -173,8 +178,8 @@ public class SciIntentClient {
         .thenAccept(callback -> {
           new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, """
               try {
-                await ${refs.IntentClient}.publish(JSON.parse('${intent}'), JSON.parse('${body}') ?? null, {
-                  headers: JSON.parse('${options.headers}') ?? undefined
+                await ${refs.IntentClient}.publish(${helpers.fromJson}('${intent}'), ${helpers.fromJson}('${body}') ?? null, {
+                  headers: ${helpers.fromJson}('${options.headers}') ?? undefined
                 });
                 window['${callback}'](null);
               }
@@ -187,6 +192,7 @@ public class SciIntentClient {
               .replacePlaceholder("body", json)
               .replacePlaceholder("options.headers", options.headers, Flags.ToJson)
               .replacePlaceholder("refs.IntentClient", Refs.IntentClient)
+              .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
               .runInsideAsyncFunction()
               .execute();
         });

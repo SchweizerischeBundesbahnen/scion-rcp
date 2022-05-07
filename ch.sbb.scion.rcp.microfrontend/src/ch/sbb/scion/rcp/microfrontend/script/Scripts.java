@@ -12,8 +12,8 @@ public interface Scripts {
     public static final String ManifestService = "window['__SCION_RCP'].refs.ManifestService";
   }
 
-  public static class JsonHelpers {
-    public static final String stringify = "window['__SCION_RCP'].helpers.JSON.stringify";
-    public static final String parse = "window['__SCION_RCP'].helpers.JSON.parse";
+  public static class Helpers {
+    public static final String toJson = "window['__SCION_RCP'].helpers.toJson";
+    public static final String fromJson = "window['__SCION_RCP'].helpers.fromJson";
   }
 }

@@ -32,7 +32,7 @@ import ch.sbb.scion.rcp.microfrontend.model.IDisposable;
 import ch.sbb.scion.rcp.microfrontend.model.MessageHeaders;
 import ch.sbb.scion.rcp.microfrontend.proxy.RouterOutletProxy;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts;
-import ch.sbb.scion.rcp.microfrontend.script.Scripts.JsonHelpers;
+import ch.sbb.scion.rcp.microfrontend.script.Scripts.Helpers;
 
 /**
  * Widget to display a microfrontend.
@@ -176,7 +176,7 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
    * 
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/SciRouterOutletElement.html#setContextValue
    */
-  public CompletableFuture<Void> setContextValue(String name, Object value){
+  public CompletableFuture<Void> setContextValue(String name, Object value) {
     return routerOutletProxy.setContextValue(name, value);
   }
 
@@ -193,7 +193,7 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
   public CompletableFuture<Boolean> removeContextValue(String name) {
     return routerOutletProxy.removeContextValue(name);
   }
-  
+
   /**
    * Taps messages from the client and dispatches them to the <sci-router-outlet>.
    */
@@ -238,7 +238,7 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
                 const onmessage = event => {
                   if (event.data?.transport === 'sci://microfrontend-platform/client-to-broker' || event.data?.transport === 'sci://microfrontend-platform/microfrontend-to-outlet') {
                     const sender = event.data.message?.headers?.get('${headers.AppSymbolicName}');
-                    const envelope = ${helpers.stringify}(event.data, 'Map=>MapObject', 'Set=>SetObject');
+                    const envelope= ${helpers.toJson}(event.data);
                     window['${callback}'](envelope, event.origin, sender);
                   }
                 };
@@ -247,7 +247,7 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
                 ${storage}['${callback}_dispose'] = () => window.removeEventListener('message', onmessage);
                 """)
                 .replacePlaceholder("callback", callback.name)
-                .replacePlaceholder("helpers.stringify", JsonHelpers.stringify)
+                .replacePlaceholder("helpers.toJson", Helpers.toJson)
                 .replacePlaceholder("headers.AppSymbolicName", MessageHeaders.AppSymbolicName)
                 .replacePlaceholder("storage", Scripts.Storage)
                 .execute();
@@ -271,12 +271,12 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
   private IDisposable installSciRouterOutletToClientMessageDispatcher() {
     return routerOutletProxy.onMessage(json -> {
       if (bridgeLoggerEnabled) {
-        Platform.getLog(SciRouterOutlet.class).info("[SciBridge] [client=>host] " + json);
+        Platform.getLog(SciRouterOutlet.class).info("[SciBridge] [host=>client] " + json);
       }
 
-      new JavaScriptExecutor(browser, "window.postMessage(${helpers.parse}('${json}'));")
-          .replacePlaceholder("json", json.replace("'", "\\'"))
-          .replacePlaceholder("helpers.parse", JsonHelpers.parse)
+      new JavaScriptExecutor(browser, "window.postMessage(${helpers.fromJson}('${json}'));")
+          .replacePlaceholder("json", json)
+          .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
           .execute();
     });
   }
@@ -284,7 +284,7 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
   /**
    * Creates a {@link Map} with the origins of the passed applications.
    */
-  private Map<String, String> getTrustedOrigins(Set<Application> applications) {
+  private Map<String, String> getTrustedOrigins(List<Application> applications) {
     return applications
         .stream()
         .collect(Collectors.toMap(app -> app.symbolicName, app -> {

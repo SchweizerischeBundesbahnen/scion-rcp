@@ -17,7 +17,7 @@ public class MicrofrontendPlatform {
 
   @Reference
   private MicrofrontendPlatformRcpHost microfrontendPlatformRcpHost;
-  
+
   /**
    * Starts the SCION Microfrontend Platform host.
    * 

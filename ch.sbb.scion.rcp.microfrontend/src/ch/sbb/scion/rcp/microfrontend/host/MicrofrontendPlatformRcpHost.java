@@ -22,6 +22,7 @@ import ch.sbb.scion.rcp.microfrontend.host.Webserver.Resource;
 import ch.sbb.scion.rcp.microfrontend.internal.Resources;
 import ch.sbb.scion.rcp.microfrontend.model.MicrofrontendPlatformConfig;
 import ch.sbb.scion.rcp.microfrontend.script.Script.Flags;
+import ch.sbb.scion.rcp.microfrontend.script.Scripts.Helpers;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
 
 /**
@@ -98,7 +99,7 @@ public class MicrofrontendPlatformRcpHost {
         .thenAccept(callback -> {
           new JavaScriptExecutor(browser, """
               try {
-                const config = JSON.parse('${platformConfig}');
+                const config = ${helpers.fromJson}('${platformConfig}');
 
                 // Overwrite message origin as we forward messages from the client to the host under the host's origin and vice versa.
                 config.applications.forEach(application => {
@@ -118,6 +119,7 @@ public class MicrofrontendPlatformRcpHost {
               .replacePlaceholder("callback", callback.name)
               .replacePlaceholder("MicrofrontendPlatform", Refs.MicrofrontendPlatform)
               .replacePlaceholder("platformConfig", config, Flags.ToJson)
+              .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
               .runInsideAsyncFunction()
               .execute();
         });

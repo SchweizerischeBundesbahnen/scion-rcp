@@ -21,7 +21,7 @@ import ch.sbb.scion.rcp.microfrontend.keyboard.JavaScriptKeyboardEvent;
 import ch.sbb.scion.rcp.microfrontend.keyboard.KeyboardEventMapper;
 import ch.sbb.scion.rcp.microfrontend.model.IDisposable;
 import ch.sbb.scion.rcp.microfrontend.script.Script.Flags;
-import ch.sbb.scion.rcp.microfrontend.script.Scripts.JsonHelpers;
+import ch.sbb.scion.rcp.microfrontend.script.Scripts.Helpers;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
 
 /**
@@ -78,7 +78,7 @@ public class RouterOutletProxy {
                 // Dispatch messages from the host
                 window.addEventListener('message', event => {
                   if (event.data?.transport === 'sci://microfrontend-platform/broker-to-client') {
-                    window.parent['${outletToProxyMessageCallback}']?.(${helpers.stringify}(event.data, 'Map=>MapObject', 'Set=>SetObject'));
+                    window.parent['${outletToProxyMessageCallback}']?.(${helpers.toJson}(event.data));
                   }
                 });
               </script>
@@ -104,7 +104,7 @@ public class RouterOutletProxy {
           .replacePlaceholder("outletToProxyKeystrokeCallback", outletToProxyKeystrokeCallback.name)
           .replacePlaceholder("outletId", outletId)
           .replacePlaceholder("refs.OutletRouter", Refs.OutletRouter)
-          .replacePlaceholder("helpers.stringify", JsonHelpers.stringify)
+          .replacePlaceholder("helpers.toJson", Helpers.toJson)
           .execute()
           .thenRun(() -> whenOutlet.complete(microfrontendPlatformRcpHost.hostBrowser));
     });
@@ -117,21 +117,23 @@ public class RouterOutletProxy {
   public CompletableFuture<Void> registerKeystrokes(Set<String> keystrokes) {
     return new JavaScriptExecutor(whenOutlet, """
         const sciRouterOutlet = document.querySelector('sci-router-outlet[name="${outletId}"]');
-        sciRouterOutlet.keystrokes = JSON.parse('${keystrokes}') || [];
+        sciRouterOutlet.keystrokes = ${helpers.fromJson}('${keystrokes}');
         """)
         .replacePlaceholder("outletId", outletId)
-        .replacePlaceholder("keystrokes", keystrokes, Flags.ToJson)
+        .replacePlaceholder("keystrokes", new ArrayList<>(keystrokes), Flags.ToJson)
+        .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
         .execute();
   }
 
   public CompletableFuture<Void> setContextValue(String name, Object value) {
     return new JavaScriptExecutor(whenOutlet, """
         const sciRouterOutlet = document.querySelector('sci-router-outlet[name="${outletId}"]');
-        sciRouterOutlet.setContextValue('${name}', JSON.parse('${value}'));
+        sciRouterOutlet.setContextValue('${name}', ${helpers.fromJson}('${value}'));
         """)
         .replacePlaceholder("outletId", outletId)
         .replacePlaceholder("name", name)
         .replacePlaceholder("value", value, Flags.ToJson)
+        .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
         .execute();
   }
 
@@ -164,7 +166,7 @@ public class RouterOutletProxy {
         const sciRouterOutlet = document.querySelector('sci-router-outlet[name="${outletId}"]');
 
         try {
-          const envelope = ${helpers.parse}('${json}');
+          const envelope = ${helpers.fromJson}('${json}');
           sciRouterOutlet.iframe.contentWindow.__scion_rcp_postMessageToParentWindow(envelope);
         }
         catch (error) {
@@ -172,8 +174,8 @@ public class RouterOutletProxy {
         }
         """)
         .replacePlaceholder("outletId", outletId)
-        .replacePlaceholder("json", jsonMessage.replace("'", "\\'"))
-        .replacePlaceholder("helpers.parse", JsonHelpers.parse)
+        .replacePlaceholder("json", jsonMessage)
+        .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
         .execute();
   }
 

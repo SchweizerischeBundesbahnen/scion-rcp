@@ -7,15 +7,14 @@ import java.util.concurrent.CompletableFuture;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.browser.Browser;
 
-import com.google.gson.Gson;
-
 import ch.sbb.scion.rcp.microfrontend.SciMessageClient;
+import ch.sbb.scion.rcp.microfrontend.internal.GsonFactory;
 import ch.sbb.scion.rcp.microfrontend.internal.ParameterizedType;
 import ch.sbb.scion.rcp.microfrontend.model.IDisposable;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscriber;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscription;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts;
-import ch.sbb.scion.rcp.microfrontend.script.Scripts.JsonHelpers;
+import ch.sbb.scion.rcp.microfrontend.script.Scripts.Helpers;
 
 /**
  * Subscribes to an RxJS Observable in the browser.
@@ -41,7 +40,7 @@ public class RxJsObservable<T> {
 
     new JavaScriptCallback(whenBrowser, args -> {
       try {
-        var emission = new Gson().<Emission<T>>fromJson((String) args[0], new ParameterizedType(Emission.class, clazz));
+        var emission = GsonFactory.create().<Emission<T>>fromJson((String) args[0], new ParameterizedType(Emission.class, clazz));
         switch (emission.type) {
           case Next: {
             observer.onNext(emission.next);
@@ -69,9 +68,9 @@ public class RxJsObservable<T> {
           new JavaScriptExecutor(whenBrowser, """
               try {
                 const subscription = ${rxjsObservableIIFE}.subscribe({
-                  next: (next) => window['${callback}'](${helpers.stringify}({type: 'Next', next})),
-                  error: (error) => window['${callback}'](${helpers.stringify}({type: 'Error', error: error.message || `${error}` || 'ERROR'})),
-                  complete: () => window['${callback}'](${helpers.stringify}({type: 'Complete'})),
+                  next: (next) => window['${callback}'](${helpers.toJson}({type: 'Next', next})),
+                  error: (error) => window['${callback}'](${helpers.toJson}({type: 'Error', error: error.message || `${error}` || 'ERROR'})),
+                  complete: () => window['${callback}'](${helpers.toJson}({type: 'Complete'})),
                 });
                 ${storage}['${callback}_subscription'] = subscription;
               }
@@ -81,7 +80,7 @@ public class RxJsObservable<T> {
               }
               """)
               .replacePlaceholder("callback", callback.name)
-              .replacePlaceholder("helpers.stringify", JsonHelpers.stringify)
+              .replacePlaceholder("helpers.toJson", Helpers.toJson)
               .replacePlaceholder("storage", Scripts.Storage)
               .replacePlaceholder("rxjsObservableIIFE", rxjsObservableIIFE)
               .execute();
