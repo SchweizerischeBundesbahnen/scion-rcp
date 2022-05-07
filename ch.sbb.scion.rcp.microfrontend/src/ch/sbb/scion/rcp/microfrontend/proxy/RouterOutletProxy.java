@@ -78,7 +78,10 @@ public class RouterOutletProxy {
                 // Dispatch messages from the host
                 window.addEventListener('message', event => {
                   if (event.data?.transport === 'sci://microfrontend-platform/broker-to-client') {
-                    window.parent['${outletToProxyMessageCallback}']?.(${helpers.toJson}(event.data));
+                    // Encode as base64 so it can be safely inserted into a script as a string literal.
+                    // For example, the apostrophe character (U+0027) would terminate the string literal.                    
+                    const base64json = ${helpers.toJson}(event.data, {encode: true});
+                    window.parent['${outletToProxyMessageCallback}']?.(base64json);
                   }
                 });
               </script>
@@ -161,12 +164,12 @@ public class RouterOutletProxy {
    * Posts given JSON message to the host in the name of the web application
    * loaded into the the {@link SciRouterOutlet outlet proxy}.
    */
-  public void postJsonMessage(String jsonMessage) {
+  public void postJsonMessage(String base64json) {
     new JavaScriptExecutor(whenOutlet, """
         const sciRouterOutlet = document.querySelector('sci-router-outlet[name="${outletId}"]');
 
         try {
-          const envelope = ${helpers.fromJson}('${json}');
+          const envelope = ${helpers.fromJson}('${base64json}', {decode: true});
           sciRouterOutlet.iframe.contentWindow.__scion_rcp_postMessageToParentWindow(envelope);
         }
         catch (error) {
@@ -174,7 +177,7 @@ public class RouterOutletProxy {
         }
         """)
         .replacePlaceholder("outletId", outletId)
-        .replacePlaceholder("json", jsonMessage)
+        .replacePlaceholder("base64json", base64json)
         .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
         .execute();
   }
