@@ -19,6 +19,7 @@ import ch.sbb.scion.rcp.microfrontend.model.ISubscriber;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscription;
 import ch.sbb.scion.rcp.microfrontend.model.Intent;
 import ch.sbb.scion.rcp.microfrontend.model.IntentMessage;
+import ch.sbb.scion.rcp.microfrontend.model.Qualifier;
 import ch.sbb.scion.rcp.microfrontend.model.TopicMessage;
 import ch.sbb.scion.rcp.microfrontend.script.Script;
 import ch.sbb.scion.rcp.microfrontend.script.Script.Flags;
@@ -213,7 +214,7 @@ public class SciIntentClient {
   public static class IntentSelector {
 
     private String type;
-    private Map<String, Object> qualifier;
+    private Qualifier qualifier;
 
     public String getType() {
       return type;
@@ -224,11 +225,11 @@ public class SciIntentClient {
       return this;
     }
 
-    public Map<String, Object> getQualifier() {
+    public Qualifier getQualifier() {
       return qualifier;
     }
 
-    public IntentSelector qualifier(Map<String, Object> qualifier) {
+    public IntentSelector qualifier(Qualifier qualifier) {
       this.qualifier = qualifier;
       return this;
     }
