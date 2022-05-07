@@ -22,11 +22,14 @@ import org.osgi.service.component.annotations.Reference;
 import ch.sbb.scion.rcp.microfrontend.SciRouterOutlet;
 import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptCallback;
 import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
+import ch.sbb.scion.rcp.microfrontend.host.IntentInterceptorInstaller.IntentInterceptorDescriptor;
 import ch.sbb.scion.rcp.microfrontend.host.MessageInterceptorInstaller.MessageInterceptorDescriptor;
 import ch.sbb.scion.rcp.microfrontend.host.Webserver.Resource;
+import ch.sbb.scion.rcp.microfrontend.interceptor.IntentInterceptor;
 import ch.sbb.scion.rcp.microfrontend.interceptor.MessageInterceptor;
 import ch.sbb.scion.rcp.microfrontend.internal.Resources;
 import ch.sbb.scion.rcp.microfrontend.model.MicrofrontendPlatformConfig;
+import ch.sbb.scion.rcp.microfrontend.model.Qualifier;
 import ch.sbb.scion.rcp.microfrontend.script.Script.Flags;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Helpers;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
@@ -49,12 +52,16 @@ public class MicrofrontendPlatformRcpHost {
   private Shell shell;
   private Webserver webserver;
   private List<MessageInterceptorDescriptor<?>> messageInterceptors = new ArrayList<>();
+  private List<IntentInterceptorDescriptor<?>> intentInterceptors = new ArrayList<>();
 
   public Browser hostBrowser;
   public CompletableFuture<Browser> whenHostBrowser = new CompletableFuture<>();
 
   @Reference
   private MessageInterceptorInstaller messageInterceptorInstaller;
+
+  @Reference
+  private IntentInterceptorInstaller intentInterceptorInstaller;
 
   /**
    * Starts the SCION Microfrontend Platform host.
@@ -96,6 +103,8 @@ public class MicrofrontendPlatformRcpHost {
 
   private void start(MicrofrontendPlatformConfig config, Browser browser) {
     messageInterceptors.forEach(interceptor -> messageInterceptorInstaller.install(interceptor, hostBrowser));
+    intentInterceptors.forEach(interceptor -> intentInterceptorInstaller.install(interceptor, hostBrowser));
+
     new JavaScriptCallback(browser, args -> {
       var error = args[0];
       if (error == null) {
@@ -141,6 +150,13 @@ public class MicrofrontendPlatformRcpHost {
       throw new IllegalStateException("Host already started. Message interceptors must be registered prior to host startup.");
     }
     messageInterceptors.add(new MessageInterceptorDescriptor<T>(topic, interceptor, payloadClazz));
+  }
+
+  public <T> void registerIntentInterceptor(String type, Qualifier qualifier, IntentInterceptor<T> interceptor, Type payloadClazz) {
+    if (isHostStarted()) {
+      throw new IllegalStateException("Host already started. Intent interceptors must be registered prior to host startup.");
+    }
+    intentInterceptors.add(new IntentInterceptorDescriptor<T>(type, qualifier, interceptor, payloadClazz));
   }
 
   @Deactivate
