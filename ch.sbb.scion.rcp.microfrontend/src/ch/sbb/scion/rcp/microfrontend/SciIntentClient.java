@@ -94,7 +94,8 @@ public class SciIntentClient {
         .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
         .substitute();
 
-    var observable = new RxJsObservable<IntentMessage<T>>(microfrontendPlatformRcpHost.whenHostBrowser, observeIIFE, new ParameterizedType(IntentMessage.class, clazz));
+    var type = (Void.class.equals(clazz) ? IntentMessage.class : new ParameterizedType(IntentMessage.class, clazz));
+    var observable = new RxJsObservable<IntentMessage<T>>(microfrontendPlatformRcpHost.whenHostBrowser, observeIIFE, type);
     return observable.subscribe(subscriber);
   }
 
