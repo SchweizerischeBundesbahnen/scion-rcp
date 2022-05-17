@@ -185,7 +185,7 @@ public class SciIntentClient {
                 window['${callback}'](null);
               }
               catch (error) {
-                window['${callback}'](error.message ?? `${error}` ?? 'ERROR');
+                window['${callback}'](error.message || `${error}` || 'ERROR');
               }
               """)
               .replacePlaceholder("callback", callback.name)

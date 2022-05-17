@@ -116,7 +116,7 @@ public class SciMessageClient {
                 window['${callback}'](null);
               }
               catch (error) {
-                window['${callback}'](error.message ?? `${error}` ?? 'ERROR');
+                window['${callback}'](error.message || `${error}` || 'ERROR');
               }
               """)
               .replacePlaceholder("callback", callback.name)
@@ -137,14 +137,14 @@ public class SciMessageClient {
    * @see https://scion-microfrontend-platform-api.vercel.app/interfaces/PublishOptions.html
    */
   public static class PublishOptions {
-    private Map<String, Object> headers;
+    private Map<String, ?> headers;
     private Boolean retain;
 
-    public Map<String, Object> getHeaders() {
+    public Map<String, ?> getHeaders() {
       return headers;
     }
 
-    public PublishOptions headers(Map<String, Object> headers) {
+    public PublishOptions headers(Map<String, ?> headers) {
       this.headers = headers;
       return this;
     }
