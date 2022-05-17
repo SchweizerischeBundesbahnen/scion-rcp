@@ -33,10 +33,6 @@ public class Intent {
     return params;
   }
 
-  public void setParams(Map<String, Object> params) {
-    this.params = params;
-  }
-
   public Intent params(Map<String, Object> params) {
     this.params = params;
     return this;

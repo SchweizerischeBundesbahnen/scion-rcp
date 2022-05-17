@@ -8,6 +8,7 @@ public enum MessageHeaders {
   AppSymbolicName("ɵAPP_SYMBOLIC_NAME"),
   MessageId("ɵMESSAGE_ID"),
   ReplyTo("ɵREPLY_TO"),
+  Status("ɵSTATUS"),
   Timestamp("ɵTIMESTAMP");
 
   public final String value;
