@@ -99,11 +99,11 @@ public class Capability {
     /**
      * Unique identity of this intent declaration.
      */
-    String id;
+    public String id;
     /**
      * Symbolic name of the application which declares this intention.
      */
-    String appSymbolicName;
+    public String appSymbolicName;
   }
 
   /**
