@@ -95,9 +95,7 @@ public class MicrofrontendPlatformRcpHost {
       shell.open();
     }
 
-    webserver.whenStarted().thenRun(() -> {
-      hostBrowser.setUrl(String.format("http://localhost:%d/host.html", webserver.getPort()));
-    });
+    hostBrowser.setUrl(String.format("http://localhost:%d/host.html", webserver.getPort()));
     return whenHostBrowser;
   }
 
@@ -152,7 +150,8 @@ public class MicrofrontendPlatformRcpHost {
     messageInterceptors.add(new MessageInterceptorDescriptor<T>(topic, interceptor, payloadClazz));
   }
 
-  public <T> void registerIntentInterceptor(String type, Qualifier qualifier, IntentInterceptor<T> interceptor, Type payloadClazz) {
+  public <T> void registerIntentInterceptor(String type, Qualifier qualifier, IntentInterceptor<T> interceptor,
+      Type payloadClazz) {
     if (isHostStarted()) {
       throw new IllegalStateException("Host already started. Intent interceptors must be registered prior to host startup.");
     }

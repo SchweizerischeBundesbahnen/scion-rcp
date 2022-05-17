@@ -61,8 +61,19 @@ public class RouterOutletProxy {
       var swtEvent = keyboardEventMapper.mapKeyboardEvent(webEvent);
       outletToProxyKeystrokeListeners.forEach(listener -> listener.accept(swtEvent));
     });
+    
+    // Callback to signal when loaded the outlet.
+    var outletLoadedCallback = new JavaCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
+      whenOutlet.complete(microfrontendPlatformRcpHost.hostBrowser);
+    });
 
-    CompletableFuture.allOf(outletToProxyMessageCallback.addTo(disposables).install(), outletToProxyKeystrokeCallback.addTo(disposables).install()).thenRun(() -> {
+    var whenCallbacksInstalled = CompletableFuture.allOf(
+        outletToProxyMessageCallback.addTo(disposables).install(),
+        outletToProxyKeystrokeCallback.addTo(disposables).install(),
+        outletLoadedCallback.installOnce()
+    );
+
+    whenCallbacksInstalled.thenRun(() -> {
       new JavaScriptExecutor(microfrontendPlatformRcpHost.whenHostBrowser, """
           const sciRouterOutlet = document.body.appendChild(document.createElement('sci-router-outlet'));
 
@@ -84,6 +95,7 @@ public class RouterOutletProxy {
                     window.parent['${outletToProxyMessageCallback}']?.(base64json);
                   }
                 });
+                window.parent['${outletLoadedCallback}']();
               </script>
             </head>
             <body>${outletId}</body>
@@ -105,11 +117,11 @@ public class RouterOutletProxy {
           """)
           .replacePlaceholder("outletToProxyMessageCallback", outletToProxyMessageCallback.name)
           .replacePlaceholder("outletToProxyKeystrokeCallback", outletToProxyKeystrokeCallback.name)
+          .replacePlaceholder("outletLoadedCallback", outletLoadedCallback.name)          
           .replacePlaceholder("outletId", outletId)
           .replacePlaceholder("refs.OutletRouter", Refs.OutletRouter)
           .replacePlaceholder("helpers.toJson", Helpers.toJson)
-          .execute()
-          .thenRun(() -> whenOutlet.complete(microfrontendPlatformRcpHost.hostBrowser));
+          .execute();
     });
   }
 

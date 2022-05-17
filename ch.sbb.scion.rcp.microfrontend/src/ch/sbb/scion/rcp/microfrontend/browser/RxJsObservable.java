@@ -76,7 +76,7 @@ public class RxJsObservable<T> {
               }
               catch (error) {
                 console.error(error);
-                window['${callback}']({type: 'Error', message: error.message ?? `${error}` ?? 'ERROR'});
+                window['${callback}']({type: 'Error', message: error.message || `${error}` || 'ERROR'});
               }
               """)
               .replacePlaceholder("callback", callback.name)
