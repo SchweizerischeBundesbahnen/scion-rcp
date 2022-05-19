@@ -23,6 +23,15 @@ public class JavaScriptExecutor {
     this.browserScript = new Script(script);
   }
 
+  public JavaScriptExecutor(Browser browser, Class<?> resourcelocation, String scriptresource) {
+    this(CompletableFuture.completedFuture(browser), resourcelocation, scriptresource);
+  }
+
+  public JavaScriptExecutor(CompletableFuture<Browser> browser, Class<?> resourcelocation, String scriptresource) {
+    this.browser = browser;
+    this.browserScript = new Script(resourcelocation, scriptresource);
+  }
+
   public JavaScriptExecutor replacePlaceholder(String name, Object value) {
     return replacePlaceholder(name, value, 0);
   }
