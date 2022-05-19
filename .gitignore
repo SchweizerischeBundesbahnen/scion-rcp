@@ -1,13 +1,9 @@
 **/.idea/
-**/.project
-**/.classpath
 **/.launch
-**/.settings/
 
 **/target/
 **/bin/
 **/*.log
-**/.settings/
 **/.m2/
 **/.metadata/
 **/build.xml
