@@ -28,3 +28,4 @@ Service-Component: OSGI-INF/ch.sbb.scion.rcp.microfrontend.MicrofrontendPlatform
 Import-Package: javax.annotation,
  javax.inject;resolution:=optional,
  org.osgi.service.component.annotations
+Bundle-Vendor: SBB and Contributors
