@@ -22,3 +22,4 @@ Automatic-Module-Name: ch.sbb.scion.rcp.microfrontend.app.demo
 Import-Package: javax.annotation;version="0.0.0",
  javax.inject;version="1.0.0"
 Bundle-ActivationPolicy: lazy
+Bundle-Vendor: SBB and Contributors
