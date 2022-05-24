@@ -51,7 +51,7 @@ public class KeyboardEventMapper {
   }
 
   static char character(JavaScriptKeyboardEvent keyboardEvent) {
-    var key = keyboardEvent.key();
+    String key = keyboardEvent.key();
     switch (key) {
     case "Backspace":
       return SWT.BS;

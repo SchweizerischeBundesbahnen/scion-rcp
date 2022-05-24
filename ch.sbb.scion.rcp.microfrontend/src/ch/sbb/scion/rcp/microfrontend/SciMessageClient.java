@@ -15,6 +15,7 @@ import ch.sbb.scion.rcp.microfrontend.browser.RxJsObservable;
 import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost;
 import ch.sbb.scion.rcp.microfrontend.internal.GsonFactory;
 import ch.sbb.scion.rcp.microfrontend.internal.ParameterizedType;
+import ch.sbb.scion.rcp.microfrontend.internal.Resources;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscriber;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscription;
 import ch.sbb.scion.rcp.microfrontend.model.TopicMessage;
@@ -78,9 +79,7 @@ public class SciMessageClient {
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/MessageClient.html#observe_
    */
   public <T> ISubscription subscribe(String topic, ISubscriber<TopicMessage<T>> subscriber, Class<T> clazz) {
-    var observeIIFE = new Script("""
-        (() => ${refs.MessageClient}.observe$(${helpers.fromJson}('${topic}')))()
-        """)
+    var observeIIFE = new Script(Resources.readString("js/messageClientObserve.js"))
         .replacePlaceholder("refs.MessageClient", Refs.MessageClient)
         .replacePlaceholder("topic", topic, Flags.ToJson)
         .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
@@ -107,18 +106,7 @@ public class SciMessageClient {
     })
         .installOnce()
         .thenAccept(callback -> {
-          new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, """
-              try {
-                await ${refs.MessageClient}.publish(${helpers.fromJson}('${topic}'), ${helpers.fromJson}('${message}') ?? null, {
-                  headers: ${helpers.fromJson}('${options.headers}') ?? undefined,
-                  retain: ${options.retain} ?? undefined,
-                });
-                window['${callback}'](null);
-              }
-              catch (error) {
-                window['${callback}'](error.message || `${error}` || 'ERROR');
-              }
-              """)
+          new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, Resources.readString("js/messageClientPublish.js"))
               .replacePlaceholder("callback", callback.name)
               .replacePlaceholder("topic", topic, Flags.ToJson)
               .replacePlaceholder("message", json)

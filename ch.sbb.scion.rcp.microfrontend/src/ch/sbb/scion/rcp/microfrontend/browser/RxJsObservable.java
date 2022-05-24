@@ -10,6 +10,7 @@ import org.eclipse.swt.browser.Browser;
 import ch.sbb.scion.rcp.microfrontend.SciMessageClient;
 import ch.sbb.scion.rcp.microfrontend.internal.GsonFactory;
 import ch.sbb.scion.rcp.microfrontend.internal.ParameterizedType;
+import ch.sbb.scion.rcp.microfrontend.internal.Resources;
 import ch.sbb.scion.rcp.microfrontend.model.IDisposable;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscriber;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscription;
@@ -40,59 +41,40 @@ public class RxJsObservable<T> {
 
     new JavaCallback(whenBrowser, args -> {
       try {
-        var emission = GsonFactory.create().<Emission<T>>fromJson((String) args[0], new ParameterizedType(Emission.class, clazz));
+        var emission = GsonFactory.create()
+            .<Emission<T>>fromJson((String) args[0], new ParameterizedType(Emission.class, clazz));
         switch (emission.type) {
-          case Next: {
-            observer.onNext(emission.next);
-            break;
-          }
-          case Error: {
-            observer.onError(new RuntimeException(emission.error));
-            disposables.forEach(IDisposable::dispose);
-            break;
-          }
-          case Complete: {
-            observer.onComplete();
-            disposables.forEach(IDisposable::dispose);
-            break;
-          }
+        case Next: {
+          observer.onNext(emission.next);
+          break;
         }
-      }
-      catch (RuntimeException e) {
+        case Error: {
+          observer.onError(new RuntimeException(emission.error));
+          disposables.forEach(IDisposable::dispose);
+          break;
+        }
+        case Complete: {
+          observer.onComplete();
+          disposables.forEach(IDisposable::dispose);
+          break;
+        }
+        }
+      } catch (RuntimeException e) {
         Platform.getLog(SciMessageClient.class).error("Unhandled error in callback", e);
       }
-    })
-        .addTo(disposables)
-        .install()
-        .thenAccept(callback -> {
-          new JavaScriptExecutor(whenBrowser, """
-              try {
-                const subscription = ${rxjsObservableIIFE}.subscribe({
-                  next: (next) => window['${callback}'](${helpers.toJson}({type: 'Next', next})),
-                  error: (error) => window['${callback}'](${helpers.toJson}({type: 'Error', error: error.message || `${error}` || 'ERROR'})),
-                  complete: () => window['${callback}'](${helpers.toJson}({type: 'Complete'})),
-                });
-                ${storage}['${callback}_subscription'] = subscription;
-              }
-              catch (error) {
-                console.error(error);
-                window['${callback}']({type: 'Error', message: error.message || `${error}` || 'ERROR'});
-              }
-              """)
-              .replacePlaceholder("callback", callback.name)
-              .replacePlaceholder("helpers.toJson", Helpers.toJson)
-              .replacePlaceholder("storage", Scripts.Storage)
-              .replacePlaceholder("rxjsObservableIIFE", rxjsObservableIIFE)
-              .execute();
+    }).addTo(disposables).install().thenAccept(callback -> {
+      new JavaScriptExecutor(whenBrowser, Resources.readString("js/rxjsObservableSubscribe.js"))
+          .replacePlaceholder("callback", callback.name)
+          .replacePlaceholder("helpers.toJson", Helpers.toJson)
+          .replacePlaceholder("storage", Scripts.Storage)
+          .replacePlaceholder("rxjsObservableIIFE", rxjsObservableIIFE)
+          .execute();
 
-          disposables.add(() -> new JavaScriptExecutor(whenBrowser, """
-              ${storage}['${callback}_subscription'].unsubscribe();
-              delete ${storage}['${callback}_subscription']
-              """)
-              .replacePlaceholder("callback", callback.name)
-              .replacePlaceholder("storage", Scripts.Storage)
-              .execute());
-        });
+      disposables.add(() -> new JavaScriptExecutor(whenBrowser, Resources.readString("js/rxjsObservableUnsubscribe.js"))
+          .replacePlaceholder("callback", callback.name)
+          .replacePlaceholder("storage", Scripts.Storage)
+          .execute());
+    });
 
     return () -> disposables.forEach(IDisposable::dispose);
   }

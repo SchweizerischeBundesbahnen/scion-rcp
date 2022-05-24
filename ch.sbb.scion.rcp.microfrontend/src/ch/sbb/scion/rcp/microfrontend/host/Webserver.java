@@ -124,6 +124,16 @@ public class Webserver {
     return serverSocket.getLocalPort();
   }
 
-  public static record Resource(URL url, String contentType, String encoding) {
+  public static class Resource {
+    public URL url;
+    public String contentType;
+    public String encoding;
+
+    public Resource(URL url, String contentType, String encoding) {
+      this.url = url;
+      this.contentType = contentType;
+      this.encoding = encoding;
+    }
   }
+
 }

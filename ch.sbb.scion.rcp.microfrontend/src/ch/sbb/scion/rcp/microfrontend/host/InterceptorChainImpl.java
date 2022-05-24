@@ -4,6 +4,7 @@ import org.eclipse.swt.browser.Browser;
 
 import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
 import ch.sbb.scion.rcp.microfrontend.interceptor.InterceptorChain;
+import ch.sbb.scion.rcp.microfrontend.internal.Resources;
 import ch.sbb.scion.rcp.microfrontend.model.Message;
 import ch.sbb.scion.rcp.microfrontend.script.Script.Flags;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts;
@@ -21,10 +22,7 @@ class InterceptorChainImpl implements InterceptorChain {
   
   @Override
   public void doContinue(Message messageOut) {
-    new JavaScriptExecutor(hostBrowser, """
-        const nextCallback = ${storage}['${nextCallbackName}'];
-        nextCallback(${helpers.fromJson}('${messageOut}'));
-        """)
+    new JavaScriptExecutor(hostBrowser,Resources.readString("js/interceptorChainDoContinue.js"))
         .replacePlaceholder("nextCallbackName", nextCallbackName)
         .replacePlaceholder("messageOut", messageOut, Flags.ToJson)
         .replacePlaceholder("storage", Scripts.Storage)
@@ -34,10 +32,7 @@ class InterceptorChainImpl implements InterceptorChain {
 
   @Override
   public void doSwallow() {
-    new JavaScriptExecutor(hostBrowser, """
-        const nextCallback = ${storage}['${nextCallbackName}'];
-        nextCallback(null);
-        """)
+    new JavaScriptExecutor(hostBrowser, Resources.readString("js/interceptorChainDoSwallow.js"))
         .replacePlaceholder("nextCallbackName", nextCallbackName)
         .replacePlaceholder("storage", Scripts.Storage)
         .runInsideAsyncFunction()
@@ -46,10 +41,7 @@ class InterceptorChainImpl implements InterceptorChain {
 
   @Override
   public void doReject(String error) {
-    new JavaScriptExecutor(hostBrowser, """
-        const nextCallback = ${storage}['${nextCallbackName}'];
-        nextCallback(new Error(${helpers.fromJson}('${error}')));
-        """)
+    new JavaScriptExecutor(hostBrowser, Resources.readString("js/interceptorChainDoReject.js"))
         .replacePlaceholder("nextCallbackName", nextCallbackName)
         .replacePlaceholder("storage", Scripts.Storage)
         .replacePlaceholder("error", error, Flags.ToJson)

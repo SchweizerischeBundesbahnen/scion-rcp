@@ -109,14 +109,7 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
         }
 
         var pushStateToSessionHistoryStack = Optional.ofNullable(event.headers.get("ɵPUSH_STATE_TO_SESSION_HISTORY_STACK")).orElse(false);
-        new JavaScriptExecutor(browser, """
-            if (${pushStateToSessionHistoryStack}) {
-               window.location.assign('${url}');
-            }
-            else {
-               window.location.replace('${url}');
-            }
-            """)
+        new JavaScriptExecutor(browser, Resources.readString("js/pushStateToSessionHistoryStack.js"))
             .replacePlaceholder("url", url)
             .replacePlaceholder("pushStateToSessionHistoryStack", pushStateToSessionHistoryStack)
             .execute()
@@ -237,30 +230,14 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
           .addTo(disposables)
           .install()
           .thenAccept(callback -> {
-            new JavaScriptExecutor(browser, """
-                const onmessage = event => {
-                  if (event.data?.transport === 'sci://microfrontend-platform/client-to-broker' || event.data?.transport === 'sci://microfrontend-platform/microfrontend-to-outlet') {
-                    const sender = event.data.message?.headers?.get('${headers.AppSymbolicName}');
-                    // Encode as base64 so it can be safely inserted into a script as a string literal.
-                    // For example, the apostrophe character (U+0027) would terminate the string literal.
-                    const base64json = ${helpers.toJson}(event.data, {encode: true});
-                    window['${callback}'](base64json, event.origin, sender);
-                  }
-                };
-
-                window.addEventListener('message', onmessage);
-                ${storage}['${callback}_dispose'] = () => window.removeEventListener('message', onmessage);
-                """)
+            new JavaScriptExecutor(browser, Resources.readString("js/messageDispatcher.js"))
                 .replacePlaceholder("callback", callback.name)
                 .replacePlaceholder("helpers.toJson", Helpers.toJson)
                 .replacePlaceholder("headers.AppSymbolicName", MessageHeaders.AppSymbolicName)
                 .replacePlaceholder("storage", Scripts.Storage)
                 .execute();
 
-            disposables.add(() -> new JavaScriptExecutor(browser, """
-                ${storage}['${callback}_dispose']();
-                delete ${storage}['${callback}_dispose'];
-                """)
+            disposables.add(() -> new JavaScriptExecutor(browser, Resources.readString("js/storageDispose.js"))
                 .replacePlaceholder("storage", Scripts.Storage)
                 .replacePlaceholder("callback", callback.name)
                 .execute());

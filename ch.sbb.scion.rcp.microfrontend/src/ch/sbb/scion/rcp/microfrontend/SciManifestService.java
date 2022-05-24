@@ -13,6 +13,7 @@ import ch.sbb.scion.rcp.microfrontend.browser.RxJsObservable;
 import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost;
 import ch.sbb.scion.rcp.microfrontend.internal.GsonFactory;
 import ch.sbb.scion.rcp.microfrontend.internal.ParameterizedType;
+import ch.sbb.scion.rcp.microfrontend.internal.Resources;
 import ch.sbb.scion.rcp.microfrontend.model.Application;
 import ch.sbb.scion.rcp.microfrontend.model.Capability;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscriber;
@@ -43,10 +44,7 @@ public class SciManifestService {
     })
         .installOnce()
         .thenAccept(callback -> {
-          new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, """
-              const applications = ${refs.ManifestService}.applications;
-              window['${callback}'](${helpers.toJson}(applications));
-              """)
+          new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, Resources.readString("js/getApplications.js"))
               .replacePlaceholder("callback", callback.name)
               .replacePlaceholder("refs.ManifestService", Refs.ManifestService)
               .replacePlaceholder("helpers.toJson", Helpers.toJson)

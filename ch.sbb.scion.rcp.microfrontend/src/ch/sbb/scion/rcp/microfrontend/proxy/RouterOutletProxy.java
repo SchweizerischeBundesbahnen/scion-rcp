@@ -17,6 +17,7 @@ import ch.sbb.scion.rcp.microfrontend.browser.JavaCallback;
 import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
 import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost;
 import ch.sbb.scion.rcp.microfrontend.internal.ContextInjectors;
+import ch.sbb.scion.rcp.microfrontend.internal.Resources;
 import ch.sbb.scion.rcp.microfrontend.keyboard.JavaScriptKeyboardEvent;
 import ch.sbb.scion.rcp.microfrontend.keyboard.KeyboardEventMapper;
 import ch.sbb.scion.rcp.microfrontend.model.IDisposable;
@@ -124,16 +125,12 @@ public class RouterOutletProxy {
           .execute();
     });
   }
-
   /**
    * Instructs the web application loaded into the {@link SciRouterOutlet outlet
    * proxy} to dispatch given keystrokes.
    */
   public CompletableFuture<Void> registerKeystrokes(Set<String> keystrokes) {
-    return new JavaScriptExecutor(whenOutlet, """
-        const sciRouterOutlet = document.querySelector('sci-router-outlet[name="${outletId}"]');
-        sciRouterOutlet.keystrokes = ${helpers.fromJson}('${keystrokes}');
-        """)
+    return new JavaScriptExecutor(whenOutlet, Resources.readString("js/registerKeystrokes.js"))
         .replacePlaceholder("outletId", outletId)
         .replacePlaceholder("keystrokes", new ArrayList<>(keystrokes), Flags.ToJson)
         .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
@@ -141,10 +138,7 @@ public class RouterOutletProxy {
   }
 
   public CompletableFuture<Void> setContextValue(String name, Object value) {
-    return new JavaScriptExecutor(whenOutlet, """
-        const sciRouterOutlet = document.querySelector('sci-router-outlet[name="${outletId}"]');
-        sciRouterOutlet.setContextValue('${name}', ${helpers.fromJson}('${value}'));
-        """)
+    return new JavaScriptExecutor(whenOutlet, Resources.readString("js/startHost.js"))
         .replacePlaceholder("outletId", outletId)
         .replacePlaceholder("name", name)
         .replacePlaceholder("value", value, Flags.ToJson)
@@ -159,11 +153,7 @@ public class RouterOutletProxy {
     })
         .installOnce()
         .thenAccept(callback -> {
-          new JavaScriptExecutor(whenOutlet, """
-              const sciRouterOutlet = document.querySelector('sci-router-outlet[name="${outletId}"]');
-              const removed = sciRouterOutlet.removeContextValue('${name}');
-              window['${callback}'](removed);
-              """)
+           new JavaScriptExecutor(whenOutlet, Resources.readString("js/removeContextValue.js"))
               .replacePlaceholder("callback", callback.name)
               .replacePlaceholder("outletId", outletId)
               .replacePlaceholder("name", name)
@@ -177,17 +167,7 @@ public class RouterOutletProxy {
    * loaded into the the {@link SciRouterOutlet outlet proxy}.
    */
   public void postJsonMessage(String base64json) {
-    new JavaScriptExecutor(whenOutlet, """
-        const sciRouterOutlet = document.querySelector('sci-router-outlet[name="${outletId}"]');
-
-        try {
-          const envelope = ${helpers.fromJson}('${base64json}', {decode: true});
-          sciRouterOutlet.iframe.contentWindow.__scion_rcp_postMessageToParentWindow(envelope);
-        }
-        catch (error) {
-          console.error('[MessageDispatchError] Failed to dispatch message to outlet window. [outlet=${outletId}]', error);
-        }
-        """)
+    new JavaScriptExecutor(whenOutlet, Resources.readString("js/postJsonMessageToHost.js"))
         .replacePlaceholder("outletId", outletId)
         .replacePlaceholder("base64json", base64json)
         .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
@@ -217,10 +197,7 @@ public class RouterOutletProxy {
   }
 
   public void dispose() {
-    new JavaScriptExecutor(whenOutlet, """
-        const sciRouterOutlet = document.querySelector('sci-router-outlet[name="${outletId}"]');
-        sciRouterOutlet.remove();
-        """)
+    new JavaScriptExecutor(whenOutlet, Resources.readString("js/disposeRouterOutlet.js"))
         .replacePlaceholder("outletId", outletId)
         .execute();
 

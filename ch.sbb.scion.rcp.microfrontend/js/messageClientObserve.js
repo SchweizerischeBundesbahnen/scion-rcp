@@ -1,0 +1,1 @@
+(() => ${ refs.MessageClient }.observe$(${ helpers.fromJson }('${topic}'))) ()
