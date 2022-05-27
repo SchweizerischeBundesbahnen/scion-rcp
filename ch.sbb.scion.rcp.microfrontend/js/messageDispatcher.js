@@ -3,10 +3,10 @@ const onmessage = event => {
     const sender = event.data.message?.headers?.get('${headers.AppSymbolicName}');
     // Encode as base64 so it can be safely inserted into a script as a string literal.
     // For example, the apostrophe character (U+0027) would terminate the string literal.
-    const base64json = ${ helpers.toJson }(event.data, { encode: true });
+    const base64json = ${helpers.toJson}(event.data, { encode: true });
     window['${callback}'](base64json, event.origin, sender);
   }
 };
 
 window.addEventListener('message', onmessage);
-${ storage } ['${callback}_dispose'] = () => window.removeEventListener('message', onmessage);
+${storage} ['${callback}_dispose'] = () => window.removeEventListener('message', onmessage);

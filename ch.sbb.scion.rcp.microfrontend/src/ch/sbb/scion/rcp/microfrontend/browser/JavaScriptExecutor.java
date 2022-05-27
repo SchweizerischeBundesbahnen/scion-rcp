@@ -56,7 +56,7 @@ public class JavaScriptExecutor {
     var asyncToken = asyncFunction ? " async " : "";
     var iife = "(" + asyncToken + "() => { " + script + " })();";
 
-    if (logToConsole) {
+    if (!logToConsole) {
       Platform.getLog(JavaScriptExecutor.class).info(iife);
     }
 

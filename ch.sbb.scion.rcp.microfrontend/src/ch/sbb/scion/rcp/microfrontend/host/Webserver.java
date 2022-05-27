@@ -73,7 +73,7 @@ public class Webserver {
 
   private ServerSocket createServerSocket() {
     try {
-      return new ServerSocket(0);
+      return new ServerSocket(0, 200, InetAddress.getLoopbackAddress());
     } catch (IOException e) {
       throw new RuntimeException("Failed to start HTTP server.", e);
     }

@@ -5,7 +5,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.sbb.scion.rcp.microfrontend.host.Webserver.Resource;
 import ch.sbb.scion.rcp.microfrontend.internal.GsonFactory;
 
 public class Script {

@@ -1,4 +1,4 @@
-if (${ pushStateToSessionHistoryStack }) {
+if (${pushStateToSessionHistoryStack}) {
   window.location.assign('${url}');
 }
 else {

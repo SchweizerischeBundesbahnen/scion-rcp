@@ -1,2 +1,2 @@
-const nextCallback = ${ storage }['${nextCallbackName}'];
+const nextCallback = ${storage}['${nextCallbackName}'];
 nextCallback(null);

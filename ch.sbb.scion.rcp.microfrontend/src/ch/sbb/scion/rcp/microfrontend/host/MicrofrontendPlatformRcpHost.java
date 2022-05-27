@@ -112,17 +112,15 @@ public class MicrofrontendPlatformRcpHost {
         Platform.getLog(JavaScriptExecutor.class).error("Failed to start Microfrontend Platform: " + error);
         whenHostBrowser.completeExceptionally(new RuntimeException((String) error));
       }
-    })
-        .installOnce()
-        .thenAccept(callback -> {
-          new JavaScriptExecutor(hostBrowser, Resources.readString("js/startHost.js"))
-              .replacePlaceholder("callback", callback.name)
-              .replacePlaceholder("MicrofrontendPlatform", Refs.MicrofrontendPlatform)
-              .replacePlaceholder("platformConfig", config, Flags.ToJson)
-              .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
-              .runInsideAsyncFunction()
-              .execute();
-        });
+    }).installOnce().thenAccept(callback -> {
+      new JavaScriptExecutor(hostBrowser, Resources.readString("js/startHost.js"))
+          .replacePlaceholder("callback", callback.name)
+          .replacePlaceholder("MicrofrontendPlatform", Refs.MicrofrontendPlatform)
+          .replacePlaceholder("platformConfig", config, Flags.ToJson)
+          .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
+          .runInsideAsyncFunction()
+          .execute();
+    });
   }
 
   public <T> void registerMessageInterceptor(String topic, MessageInterceptor<T> interceptor, Type payloadClazz) {

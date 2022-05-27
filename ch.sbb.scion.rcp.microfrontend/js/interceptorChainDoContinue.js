@@ -1,2 +1,2 @@
-const nextCallback = ${ storage }['${nextCallbackName}'];
-nextCallback(${ helpers.fromJson }('${messageOut}'));
+const nextCallback = ${storage}['${nextCallbackName}'];
+nextCallback(${helpers.fromJson}('${messageOut}'));

@@ -66,14 +66,7 @@ public class SciManifestService {
    */
   public ISubscription lookupCapabilities(ManifestObjectFilter filter, ISubscriber<List<Capability>> listener) {
     var manifestObjectFilter = Optional.ofNullable(filter).orElse(new ManifestObjectFilter());
-    var observeIIFE = new Script("""
-        (() => ${refs.ManifestService}.lookupCapabilities$({
-          id: ${helpers.fromJson}('${filter.id}') ?? undefined,
-          type: ${helpers.fromJson}('${filter.type}') ?? undefined,
-          qualifier: ${helpers.fromJson}('${filter.qualifier}') ?? undefined,
-          appSymbolicName: ${helpers.fromJson}('${filter.appSymbolicName}') ?? undefined
-        }))()
-        """)
+    var observeIIFE = new Script(Resources.readString("js/lookupCapabilities.js"))
         .replacePlaceholder("refs.ManifestService", Refs.ManifestService)
         .replacePlaceholder("filter.id", manifestObjectFilter.id, Flags.ToJson)
         .replacePlaceholder("filter.type", manifestObjectFilter.type, Flags.ToJson)
@@ -102,15 +95,7 @@ public class SciManifestService {
     })
         .installOnce()
         .thenAccept(callback -> {
-          new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, """
-              try {
-                const id = await ${refs.ManifestService}.registerCapability(${helpers.fromJson}('${capability}'));
-                window['${callback}'](null, id);
-              }
-              catch (error) {
-                window['${callback}'](error.message || `${error}` || 'ERROR');
-              }
-              """)
+          new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, Resources.readString("js/registerCapability.js"))
               .replacePlaceholder("callback", callback.name)
               .replacePlaceholder("capability", capability, Flags.ToJson)
               .replacePlaceholder("refs.ManifestService", Refs.ManifestService)
@@ -145,20 +130,7 @@ public class SciManifestService {
     })
         .installOnce()
         .thenAccept(callback -> {
-          new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, """
-              try {
-                await ${refs.ManifestService}.unregisterCapabilities({
-                  id: ${helpers.fromJson}('${filter.id}') ?? undefined,
-                  type: ${helpers.fromJson}('${filter.type}') ?? undefined,
-                  qualifier: ${helpers.fromJson}('${filter.qualifier}') ?? undefined,
-                  appSymbolicName: ${helpers.fromJson}('${filter.appSymbolicName}') ?? undefined
-                });
-                window['${callback}'](null);
-              }
-              catch (error) {
-                window['${callback}'](error.message || `${error}` || 'ERROR');
-              }
-              """)
+          new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, Resources.readString("js/unregisterCapabilities.js"))
               .replacePlaceholder("callback", callback.name)
               .replacePlaceholder("refs.ManifestService", Refs.ManifestService)
               .replacePlaceholder("filter.id", manifestObjectFilter.id, Flags.ToJson)

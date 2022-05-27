@@ -1,2 +1,2 @@
-${ storage } ['${callback}_dispose']();
-delete ${ storage } ['${callback}_dispose'];
+${storage} ['${callback}_dispose']();
+delete ${storage} ['${callback}_dispose'];

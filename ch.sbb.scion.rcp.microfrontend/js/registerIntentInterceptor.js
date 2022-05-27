@@ -1,9 +1,9 @@
-const type = ${ helpers.fromJson }('${type}');
-const qualifier = ${ helpers.fromJson }('${qualifier}');
-const qualifierMatcher = qualifier && new ${ QualifierMatcher }(qualifier, { evalAsterisk: true, evalOptional: true });
+const type = ${helpers.fromJson}('${type}');
+const qualifier = ${helpers.fromJson}('${qualifier}');
+const qualifierMatcher = qualifier && new ${QualifierMatcher }(qualifier, { evalAsterisk: true, evalOptional: true });
 
         // Register the interceptor in the SCION Microfrontend Platform.
-        ${ Beans }.register(${ IntentInterceptor }, {
+        ${Beans}.register(${IntentInterceptor}, {
   useValue: new class {
     intercept(message, next) {
       // Test intent type
@@ -20,8 +20,8 @@ const qualifierMatcher = qualifier && new ${ QualifierMatcher }(qualifier, { eva
 
       new Promise(resolve => {
         const nextCallbackName = '${interceptorCallback}_nextCallback';
-              ${ storage } [nextCallbackName] = resolve;
-        window['${interceptorCallback}'](${ helpers.toJson }(message), nextCallbackName);
+              ${storage} [nextCallbackName] = resolve;
+        window['${interceptorCallback}'](${helpers.toJson}(message), nextCallbackName);
       })
         .then(result => {
           if (result instanceof Error) {
