@@ -122,17 +122,6 @@ public class Capability {
      * Specifies whether the parameter must be passed along with the intent.
      */
     public Boolean required;
-    /**
-     * Allows deprecating the parameter.
-     *
-     * It is good practice to explain the deprecation, provide the date of removal,
-     * and how to migrate. If renaming the parameter, you can set the
-     * {@link ParamDefinition.deprecated.useInstead useInstead} property to specify
-     * which parameter to use instead. At runtime, this will map the parameter to
-     * the specified replacement, allowing for straightforward migration on the
-     * provider side.
-     */
-    public Object deprecated;
 
     public ParamDefinition name(String name) {
       this.name = name;
@@ -149,29 +138,6 @@ public class Capability {
       return this;
     }
 
-    public ParamDefinition deprecated(ParamDeprecation deprecated) {
-      this.deprecated = deprecated;
-      return this;
-    }
-
-    public ParamDefinition deprecated(Boolean deprecated) {
-      this.deprecated = deprecated;
-      return this;
-    }
   }
 
-  public static class ParamDeprecation {
-    public String message;
-    public String useInstead;
-
-    public ParamDeprecation message(String message) {
-      this.message = message;
-      return this;
-    }
-
-    public ParamDeprecation useInstead(String useInstead) {
-      this.useInstead = useInstead;
-      return this;
-    }
-  }
 }
