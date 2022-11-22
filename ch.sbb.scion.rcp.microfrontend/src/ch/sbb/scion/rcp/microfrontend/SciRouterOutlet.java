@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -109,14 +110,7 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
         }
 
         var pushStateToSessionHistoryStack = Optional.ofNullable(event.headers.get("ɵPUSH_STATE_TO_SESSION_HISTORY_STACK")).orElse(false);
-        new JavaScriptExecutor(browser, """
-            if (${pushStateToSessionHistoryStack}) {
-               window.location.assign('${url}');
-            }
-            else {
-               window.location.replace('${url}');
-            }
-            """)
+        new JavaScriptExecutor(browser, Resources.readString("js/sci-router-outlet/navigate.js"))
             .replacePlaceholder("url", url)
             .replacePlaceholder("pushStateToSessionHistoryStack", pushStateToSessionHistoryStack)
             .execute()
@@ -237,32 +231,18 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
           .addTo(disposables)
           .install()
           .thenAccept(callback -> {
-            new JavaScriptExecutor(browser, """
-                const onmessage = event => {
-                  if (event.data?.transport === 'sci://microfrontend-platform/client-to-broker' || event.data?.transport === 'sci://microfrontend-platform/microfrontend-to-outlet') {
-                    const sender = event.data.message?.headers?.get('${headers.AppSymbolicName}');
-                    // Encode as base64 so it can be safely inserted into a script as a string literal.
-                    // For example, the apostrophe character (U+0027) would terminate the string literal.
-                    const base64json = ${helpers.toJson}(event.data, {encode: true});
-                    window['${callback}'](base64json, event.origin, sender);
-                  }
-                };
-
-                window.addEventListener('message', onmessage);
-                ${storage}['${callback}_dispose'] = () => window.removeEventListener('message', onmessage);
-                """)
+            var uuid = UUID.randomUUID();
+            new JavaScriptExecutor(browser, Resources.readString("js/sci-router-outlet/install-client-message-dispatcher.js"))
                 .replacePlaceholder("callback", callback.name)
                 .replacePlaceholder("helpers.toJson", Helpers.toJson)
                 .replacePlaceholder("headers.AppSymbolicName", MessageHeaders.AppSymbolicName)
                 .replacePlaceholder("storage", Scripts.Storage)
+                .replacePlaceholder("uninstallStorageKey", uuid)
                 .execute();
 
-            disposables.add(() -> new JavaScriptExecutor(browser, """
-                ${storage}['${callback}_dispose']();
-                delete ${storage}['${callback}_dispose'];
-                """)
+            disposables.add(() -> new JavaScriptExecutor(browser, Resources.readString("js/sci-router-outlet/uninstall-client-message-dispatcher.js"))
                 .replacePlaceholder("storage", Scripts.Storage)
-                .replacePlaceholder("callback", callback.name)
+                .replacePlaceholder("uninstallStorageKey", uuid)
                 .execute());
           });
     });
@@ -279,7 +259,7 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
         Platform.getLog(SciRouterOutlet.class).info("[SciBridge] [host=>client] " + decodeBase64(base64json));
       }
 
-      new JavaScriptExecutor(browser, "window.postMessage(${helpers.fromJson}('${base64json}', {decode: true}));")
+      new JavaScriptExecutor(browser, "window.postMessage(/@@helpers.fromJson@@/('/@@base64json@@/', {decode: true}));")
           .replacePlaceholder("base64json", base64json)
           .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
           .execute();

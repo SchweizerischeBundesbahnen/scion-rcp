@@ -225,8 +225,7 @@ public class ManifestServicePart {
       public void widgetSelected(final SelectionEvent e) {
         capabilityModel.getParams()
             .add(new ParamDefinition().name(paramNameText.getText())
-                .required(isRequired.getSelection())
-                .deprecated(Boolean.FALSE));
+                .required(isRequired.getSelection()));
         paramNameText.setText("");
         isRequired.setSelection(true);
       }

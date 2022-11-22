@@ -25,7 +25,7 @@ public class Script {
 
   public String substitute() {
     return placeholders.entrySet().stream().reduce(script, (acc, placeholder) -> {
-      return acc.replace("${" + placeholder.getKey() + "}", placeholder.getValue());
+      return acc.replace("/@@" + placeholder.getKey() + "@@/", placeholder.getValue());
     }, String::concat);
   }
 

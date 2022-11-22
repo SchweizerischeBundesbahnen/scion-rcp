@@ -10,6 +10,7 @@ import org.osgi.service.component.annotations.Reference;
 import ch.sbb.scion.rcp.microfrontend.browser.JavaCallback;
 import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
 import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost;
+import ch.sbb.scion.rcp.microfrontend.internal.Resources;
 import ch.sbb.scion.rcp.microfrontend.script.Script.Flags;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Helpers;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
@@ -55,20 +56,7 @@ public class SciOutletRouter {
     })
         .installOnce()
         .thenAccept(callback -> {
-          new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, """
-              try {
-                await ${refs.OutletRouter}.navigate(${helpers.fromJson}('${url}') ?? undefined, {
-                  outlet: ${helpers.fromJson}('${options.outlet}') ?? undefined,
-                  relativeTo: ${helpers.fromJson}('${options.relativeTo}') ?? undefined,
-                  params: ${helpers.fromJson}('${options.params}') ?? undefined,
-                  pushStateToSessionHistoryStack: ${options.pushStateToSessionHistoryStack} ?? undefined,
-                });
-                window['${callback}'](null);
-              }
-              catch (error) {
-                window['${callback}'](error.message || `${error}` || 'ERROR');
-              }
-              """)
+          new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, Resources.readString("js/sci-outlet-router/navigate.js"))
               .replacePlaceholder("callback", callback.name)
               .replacePlaceholder("url", url, Flags.ToJson)
               .replacePlaceholder("options.outlet", options.outlet, Flags.ToJson)

@@ -13,9 +13,9 @@ public interface Resources {
   }
 
   public static String readString(String filename) {
-    try {
-      var url = Activator.getDefault().getBundle().getResource(filename);
-      return new String(url.openStream().readAllBytes(), StandardCharsets.UTF_8);
+    var url = Activator.getDefault().getBundle().getResource(filename);
+    try (var in = url.openStream()) {
+      return new String(in.readAllBytes(), StandardCharsets.UTF_8);
     }
     catch (IOException e) {
       throw new RuntimeException(e);

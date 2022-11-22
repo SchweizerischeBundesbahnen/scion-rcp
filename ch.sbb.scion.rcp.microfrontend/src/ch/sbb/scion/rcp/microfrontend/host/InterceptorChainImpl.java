@@ -21,10 +21,7 @@ class InterceptorChainImpl implements InterceptorChain {
   
   @Override
   public void doContinue(Message messageOut) {
-    new JavaScriptExecutor(hostBrowser, """
-        const nextCallback = ${storage}['${nextCallbackName}'];
-        nextCallback(${helpers.fromJson}('${messageOut}'));
-        """)
+    new JavaScriptExecutor(hostBrowser, "/@@storage@@/['/@@nextCallbackName@@/'](/@@helpers.fromJson@@/('/@@messageOut@@/'));")
         .replacePlaceholder("nextCallbackName", nextCallbackName)
         .replacePlaceholder("messageOut", messageOut, Flags.ToJson)
         .replacePlaceholder("storage", Scripts.Storage)
@@ -34,10 +31,7 @@ class InterceptorChainImpl implements InterceptorChain {
 
   @Override
   public void doSwallow() {
-    new JavaScriptExecutor(hostBrowser, """
-        const nextCallback = ${storage}['${nextCallbackName}'];
-        nextCallback(null);
-        """)
+    new JavaScriptExecutor(hostBrowser, "/@@storage@@/['/@@nextCallbackName@@/'](null);")
         .replacePlaceholder("nextCallbackName", nextCallbackName)
         .replacePlaceholder("storage", Scripts.Storage)
         .runInsideAsyncFunction()
@@ -46,10 +40,7 @@ class InterceptorChainImpl implements InterceptorChain {
 
   @Override
   public void doReject(String error) {
-    new JavaScriptExecutor(hostBrowser, """
-        const nextCallback = ${storage}['${nextCallbackName}'];
-        nextCallback(new Error(${helpers.fromJson}('${error}')));
-        """)
+    new JavaScriptExecutor(hostBrowser, "/@@storage@@/['/@@nextCallbackName@@/'](new Error(/@@helpers.fromJson@@/('/@@error@@/')));")
         .replacePlaceholder("nextCallbackName", nextCallbackName)
         .replacePlaceholder("storage", Scripts.Storage)
         .replacePlaceholder("error", error, Flags.ToJson)

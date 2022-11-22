@@ -73,7 +73,7 @@ public class Webserver {
 
   private ServerSocket createServerSocket() {
     try {
-      return new ServerSocket(0);
+      return new ServerSocket(0, 200, InetAddress.getLoopbackAddress());
     } catch (IOException e) {
       throw new RuntimeException("Failed to start HTTP server.", e);
     }
@@ -124,6 +124,15 @@ public class Webserver {
     return serverSocket.getLocalPort();
   }
 
-  public static record Resource(URL url, String contentType, String encoding) {
+  public static class Resource {
+    public URL url;
+    public String contentType;
+    public String encoding;
+
+    public Resource(URL url, String contentType, String encoding) {
+      this.url = url;
+      this.contentType = contentType;
+      this.encoding = encoding;
+    }
   }
 }

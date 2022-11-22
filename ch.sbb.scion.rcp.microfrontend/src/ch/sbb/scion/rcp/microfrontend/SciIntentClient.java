@@ -15,6 +15,7 @@ import ch.sbb.scion.rcp.microfrontend.browser.RxJsObservable;
 import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost;
 import ch.sbb.scion.rcp.microfrontend.internal.GsonFactory;
 import ch.sbb.scion.rcp.microfrontend.internal.ParameterizedType;
+import ch.sbb.scion.rcp.microfrontend.internal.Resources;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscriber;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscription;
 import ch.sbb.scion.rcp.microfrontend.model.Intent;
@@ -82,12 +83,7 @@ public class SciIntentClient {
    */
   public <T> ISubscription subscribe(IntentSelector selector, Class<T> clazz, ISubscriber<IntentMessage<T>> subscriber) {
     selector = Optional.ofNullable(selector).orElse(new IntentSelector());
-    var observeIIFE = new Script("""
-        (() => ${refs.IntentClient}.observe$({
-          type: ${helpers.fromJson}('${selector.type}') ?? undefined,
-          qualifier: ${helpers.fromJson}('${selector.qualifier}') ?? undefined,
-        }))()
-        """)
+    var observeIIFE = new Script(Resources.readString("js/sci-intent-client/observe.iife.js"))
         .replacePlaceholder("refs.IntentClient", Refs.IntentClient)
         .replacePlaceholder("selector.type", selector.type, Flags.ToJson)
         .replacePlaceholder("selector.qualifier", selector.qualifier, Flags.ToJson)
@@ -139,16 +135,7 @@ public class SciIntentClient {
    */
   private <T> ISubscription requestJson(Intent intent, String json, IntentOptions options, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
     options = Optional.ofNullable(options).orElse(new IntentOptions());
-    var requestIIFE = new Script("""
-        (() => {
-          const intent = ${helpers.fromJson}('${intent}');
-          const body = ${helpers.fromJson}('${body}') ?? null;
-          const options = {
-            headers: ${helpers.fromJson}('${options.headers}') ?? undefined,
-          };
-          return ${refs.IntentClient}.request$(intent, body, options);
-        })()
-        """)
+    var requestIIFE = new Script(Resources.readString("js/sci-intent-client/request.iife.js"))
         .replacePlaceholder("refs.IntentClient", Refs.IntentClient)
         .replacePlaceholder("intent", intent, Flags.ToJson)
         .replacePlaceholder("body", json)
@@ -177,17 +164,7 @@ public class SciIntentClient {
     })
         .installOnce()
         .thenAccept(callback -> {
-          new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, """
-              try {
-                await ${refs.IntentClient}.publish(${helpers.fromJson}('${intent}'), ${helpers.fromJson}('${body}') ?? null, {
-                  headers: ${helpers.fromJson}('${options.headers}') ?? undefined
-                });
-                window['${callback}'](null);
-              }
-              catch (error) {
-                window['${callback}'](error.message || `${error}` || 'ERROR');
-              }
-              """)
+          new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, Resources.readString("js/sci-intent-client/publish.js"))
               .replacePlaceholder("callback", callback.name)
               .replacePlaceholder("intent", intent, Flags.ToJson)
               .replacePlaceholder("body", json)
