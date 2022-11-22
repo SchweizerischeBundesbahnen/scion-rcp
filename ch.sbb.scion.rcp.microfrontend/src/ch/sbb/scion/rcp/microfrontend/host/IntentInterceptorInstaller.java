@@ -10,6 +10,7 @@ import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
 import ch.sbb.scion.rcp.microfrontend.interceptor.IntentInterceptor;
 import ch.sbb.scion.rcp.microfrontend.internal.GsonFactory;
 import ch.sbb.scion.rcp.microfrontend.internal.ParameterizedType;
+import ch.sbb.scion.rcp.microfrontend.internal.Resources;
 import ch.sbb.scion.rcp.microfrontend.model.IntentMessage;
 import ch.sbb.scion.rcp.microfrontend.model.Qualifier;
 import ch.sbb.scion.rcp.microfrontend.script.Script.Flags;
@@ -31,55 +32,18 @@ public class IntentInterceptorInstaller {
 
   /**
    * Registers the passed interceptor in the SCION Microfrontend Platform.
-   * 
+   *
    * Intercepted messages are delegated to the passed callback.
    */
   private <T> void registerInterceptor(JavaCallback interceptorCallback, IntentInterceptorDescriptor<T> interceptorDescriptor, Browser hostBrowser) {
-    new JavaScriptExecutor(hostBrowser, """
-        const type = ${helpers.fromJson}('${type}');
-        const qualifier = ${helpers.fromJson}('${qualifier}');
-        const qualifierMatcher = qualifier && new ${QualifierMatcher}(qualifier, {evalAsterisk: true, evalOptional: true});
-
-        // Register the interceptor in the SCION Microfrontend Platform.
-        ${Beans}.register(${IntentInterceptor}, {useValue: new class {
-          intercept(message, next) {
-            // Test intent type
-            if (message.intent.type !== type) {
-              next.handle(message); // continue the chain of interceptors
-              return;
-            }
-
-            // Test intent qualifier, but only if passed a qualifier
-            if (qualifierMatcher && !qualifierMatcher.matches(message.intent.qualifier)) {
-              next.handle(message); // continue the chain of interceptors
-              return;
-            }
-
-            new Promise(resolve => {
-              const nextCallbackName = '${interceptorCallback}_nextCallback';
-              ${storage}[nextCallbackName] = resolve;
-              window['${interceptorCallback}'](${helpers.toJson}(message), nextCallbackName);
-            })
-            .then(result => {
-              if (result instanceof Error) {
-                // TODO: https://github.com/SchweizerischeBundesbahnen/scion-microfrontend-platform/issues/147
-                //       Error is not reported back to the caller.
-                throw result;
-              }
-              else if (result !== null) {
-                next.handle(result); // continue the chain of interceptors
-              }
-            });
-          }
-        }, multi: true});
-
-        """)
+    new JavaScriptExecutor(hostBrowser, Resources.readString("js/host/register-intent-interceptor.js"))
         .replacePlaceholder("interceptorCallback", interceptorCallback.name)
         .replacePlaceholder("type", interceptorDescriptor.type, Flags.ToJson)
         .replacePlaceholder("qualifier", interceptorDescriptor.qualifier, Flags.ToJson)
-        .replacePlaceholder("Beans", Refs.Beans)
-        .replacePlaceholder("IntentInterceptor", Refs.IntentInterceptor)
-        .replacePlaceholder("QualifierMatcher", Refs.QualifierMatcher)
+        .replacePlaceholder("refs.Beans", Refs.Beans)
+        .replacePlaceholder("refs.IntentInterceptor", Refs.IntentInterceptor)
+        .replacePlaceholder("refs.QualifierMatcher", Refs.QualifierMatcher)
+        .replacePlaceholder("refs.UUID", Refs.UUID)
         .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
         .replacePlaceholder("helpers.toJson", Helpers.toJson)
         .replacePlaceholder("storage", Scripts.Storage)
@@ -96,6 +60,17 @@ public class IntentInterceptorInstaller {
     });
   }
 
-  public record IntentInterceptorDescriptor<T> (String type, Qualifier qualifier, IntentInterceptor<T> interceptor, Type payloadClazz) {
+  public static class IntentInterceptorDescriptor<T> {
+    public String type;
+    public Qualifier qualifier;
+    public IntentInterceptor<T> interceptor;
+    public Type payloadClazz;
+
+    public IntentInterceptorDescriptor(String type, Qualifier qualifier, IntentInterceptor<T> interceptor, Type payloadClazz) {
+      this.type = type;
+      this.qualifier = qualifier;
+      this.interceptor = interceptor;
+      this.payloadClazz = payloadClazz;
+    }
   }
 }

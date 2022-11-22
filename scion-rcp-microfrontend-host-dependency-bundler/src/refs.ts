@@ -1,5 +1,6 @@
 import {IntentClient, IntentInterceptor, ManifestService, MessageClient, MessageInterceptor, MicrofrontendPlatform, OutletRouter, QualifierMatcher, TopicMatcher} from '@scion/microfrontend-platform';
 import {Beans} from '@scion/toolkit/bean-manager';
+import {UUID} from '@scion/toolkit/uuid';
 
 window['__SCION_RCP'] = window['__SCION_RCP'] || {};
 window['__SCION_RCP'].refs = {
@@ -32,6 +33,9 @@ window['__SCION_RCP'].refs = {
   },
   get QualifierMatcher() {
     return QualifierMatcher;
+  },
+  get UUID() {
+    return UUID;
   },
 };
 

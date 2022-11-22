@@ -13,6 +13,7 @@ import ch.sbb.scion.rcp.microfrontend.browser.RxJsObservable;
 import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost;
 import ch.sbb.scion.rcp.microfrontend.internal.GsonFactory;
 import ch.sbb.scion.rcp.microfrontend.internal.ParameterizedType;
+import ch.sbb.scion.rcp.microfrontend.internal.Resources;
 import ch.sbb.scion.rcp.microfrontend.model.Application;
 import ch.sbb.scion.rcp.microfrontend.model.Capability;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscriber;
@@ -38,15 +39,11 @@ public class SciManifestService {
   public CompletableFuture<List<Application>> getApplications() {
     var applications = new CompletableFuture<List<Application>>();
     new JavaCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
-      applications.complete(
-          GsonFactory.create().fromJson((String) args[0], new ParameterizedType(List.class, Application.class)));
+      applications.complete(GsonFactory.create().fromJson((String) args[0], new ParameterizedType(List.class, Application.class)));
     })
         .installOnce()
         .thenAccept(callback -> {
-          new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, """
-              const applications = ${refs.ManifestService}.applications;
-              window['${callback}'](${helpers.toJson}(applications));
-              """)
+          new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, Resources.readString("js/sci-manifest-service/lookup-applications.js"))
               .replacePlaceholder("callback", callback.name)
               .replacePlaceholder("refs.ManifestService", Refs.ManifestService)
               .replacePlaceholder("helpers.toJson", Helpers.toJson)
@@ -68,14 +65,7 @@ public class SciManifestService {
    */
   public ISubscription lookupCapabilities(ManifestObjectFilter filter, ISubscriber<List<Capability>> listener) {
     var manifestObjectFilter = Optional.ofNullable(filter).orElse(new ManifestObjectFilter());
-    var observeIIFE = new Script("""
-        (() => ${refs.ManifestService}.lookupCapabilities$({
-          id: ${helpers.fromJson}('${filter.id}') ?? undefined,
-          type: ${helpers.fromJson}('${filter.type}') ?? undefined,
-          qualifier: ${helpers.fromJson}('${filter.qualifier}') ?? undefined,
-          appSymbolicName: ${helpers.fromJson}('${filter.appSymbolicName}') ?? undefined
-        }))()
-        """)
+    var observeIIFE = new Script(Resources.readString("js/sci-manifest-service/lookup-capabilities.iife.js"))
         .replacePlaceholder("refs.ManifestService", Refs.ManifestService)
         .replacePlaceholder("filter.id", manifestObjectFilter.id, Flags.ToJson)
         .replacePlaceholder("filter.type", manifestObjectFilter.type, Flags.ToJson)
@@ -98,25 +88,18 @@ public class SciManifestService {
       var error = args[0];
       if (error == null) {
         registered.complete((String) args[1]);
-      } else {
+      }
+      else {
         registered.completeExceptionally(new RuntimeException((String) error));
       }
     })
         .installOnce()
         .thenAccept(callback -> {
-          new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, """
-              try {
-                const id = await ${refs.ManifestService}.registerCapability(${helpers.fromJson}('${capability}'));
-                window['${callback}'](null, id);
-              }
-              catch (error) {
-                window['${callback}'](error.message || `${error}` || 'ERROR');
-              }
-              """)
+          new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, Resources.readString("js/sci-manifest-service/register-capability.js"))
               .replacePlaceholder("callback", callback.name)
               .replacePlaceholder("capability", capability, Flags.ToJson)
               .replacePlaceholder("refs.ManifestService", Refs.ManifestService)
-              .replacePlaceholder("helpers.fromJson", Helpers.fromJson)              
+              .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
               .runInsideAsyncFunction()
               .execute();
         });
@@ -141,26 +124,14 @@ public class SciManifestService {
       var error = args[0];
       if (error == null) {
         unregistered.complete(null);
-      } else {
+      }
+      else {
         unregistered.completeExceptionally(new RuntimeException((String) error));
       }
     })
         .installOnce()
         .thenAccept(callback -> {
-          new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, """
-              try {
-                await ${refs.ManifestService}.unregisterCapabilities({
-                  id: ${helpers.fromJson}('${filter.id}') ?? undefined,
-                  type: ${helpers.fromJson}('${filter.type}') ?? undefined,
-                  qualifier: ${helpers.fromJson}('${filter.qualifier}') ?? undefined,
-                  appSymbolicName: ${helpers.fromJson}('${filter.appSymbolicName}') ?? undefined
-                });
-                window['${callback}'](null);
-              }
-              catch (error) {
-                window['${callback}'](error.message || `${error}` || 'ERROR');
-              }
-              """)
+          new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, Resources.readString("js/sci-manifest-service/unregister-capabilities.js"))
               .replacePlaceholder("callback", callback.name)
               .replacePlaceholder("refs.ManifestService", Refs.ManifestService)
               .replacePlaceholder("filter.id", manifestObjectFilter.id, Flags.ToJson)
@@ -176,7 +147,7 @@ public class SciManifestService {
   }
 
   /**
-   *  @see  https://scion-microfrontend-platform-api.vercel.app/interfaces/ManifestObjectFilter.html
+   * @see https://scion-microfrontend-platform-api.vercel.app/interfaces/ManifestObjectFilter.html
    */
   public static class ManifestObjectFilter {
 

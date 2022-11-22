@@ -37,7 +37,7 @@ import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
 /**
  * Represents the RCP host for the SCION Microfrontend Platform that is started
  * in an invisible shell in a web browser.
- * 
+ *
  * When instantiating the {@link SciRouterOutlet} SWT component, an
  * <sci-router-outlet> web component is added to the DOM of the RCP host
  * application. From the perspective of the SCION Microfrontend Platform Host,
@@ -65,7 +65,7 @@ public class MicrofrontendPlatformRcpHost {
 
   /**
    * Starts the SCION Microfrontend Platform host.
-   * 
+   *
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/MicrofrontendPlatform.html#startHost
    */
   public CompletableFuture<Browser> start(MicrofrontendPlatformConfig config) {
@@ -87,7 +87,7 @@ public class MicrofrontendPlatformRcpHost {
     hostBrowser = new Browser(shell, SWT.EDGE);
     hostBrowser.addProgressListener(new ProgressAdapter() {
       public void completed(ProgressEvent event) {
-        start(config, hostBrowser);
+        startHost(config);
       };
     });
 
@@ -99,14 +99,14 @@ public class MicrofrontendPlatformRcpHost {
     return whenHostBrowser;
   }
 
-  private void start(MicrofrontendPlatformConfig config, Browser browser) {
+  private void startHost(MicrofrontendPlatformConfig config) {
     messageInterceptors.forEach(interceptor -> messageInterceptorInstaller.install(interceptor, hostBrowser));
     intentInterceptors.forEach(interceptor -> intentInterceptorInstaller.install(interceptor, hostBrowser));
 
-    new JavaCallback(browser, args -> {
+    new JavaCallback(hostBrowser, args -> {
       var error = args[0];
       if (error == null) {
-        whenHostBrowser.complete(browser);
+        whenHostBrowser.complete(hostBrowser);
       }
       else {
         Platform.getLog(JavaScriptExecutor.class).error("Failed to start Microfrontend Platform: " + error);
@@ -115,27 +115,9 @@ public class MicrofrontendPlatformRcpHost {
     })
         .installOnce()
         .thenAccept(callback -> {
-          new JavaScriptExecutor(browser, """
-              try {
-                const config = ${helpers.fromJson}('${platformConfig}');
-
-                // Overwrite message origin as we forward messages from the client to the host under the host's origin and vice versa.
-                config.applications.forEach(application => {
-                  application.messageOrigin = window.location.origin;
-                });
-
-                // Start the platform host.
-                await ${MicrofrontendPlatform}.startHost(config);
-
-                window['${callback}'](null);
-              }
-              catch (error) {
-                console.log('Failed to start Microfrontend Platform', error);
-                window['${callback}'](error.message ?? `${error}` ?? 'Failed to start Microfrontend Platform');
-              }
-              """)
+          new JavaScriptExecutor(hostBrowser, Resources.readString("js/host/start-host.js"))
               .replacePlaceholder("callback", callback.name)
-              .replacePlaceholder("MicrofrontendPlatform", Refs.MicrofrontendPlatform)
+              .replacePlaceholder("refs.MicrofrontendPlatform", Refs.MicrofrontendPlatform)
               .replacePlaceholder("platformConfig", config, Flags.ToJson)
               .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
               .runInsideAsyncFunction()
@@ -147,7 +129,7 @@ public class MicrofrontendPlatformRcpHost {
     if (isHostStarted()) {
       throw new IllegalStateException("Host already started. Message interceptors must be registered prior to host startup.");
     }
-    messageInterceptors.add(new MessageInterceptorDescriptor<T>(topic, interceptor, payloadClazz));
+    messageInterceptors.add(new MessageInterceptorDescriptor<>(topic, interceptor, payloadClazz));
   }
 
   public <T> void registerIntentInterceptor(String type, Qualifier qualifier, IntentInterceptor<T> interceptor,

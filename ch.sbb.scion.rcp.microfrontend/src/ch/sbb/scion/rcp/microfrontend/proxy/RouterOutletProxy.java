@@ -17,6 +17,7 @@ import ch.sbb.scion.rcp.microfrontend.browser.JavaCallback;
 import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
 import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost;
 import ch.sbb.scion.rcp.microfrontend.internal.ContextInjectors;
+import ch.sbb.scion.rcp.microfrontend.internal.Resources;
 import ch.sbb.scion.rcp.microfrontend.keyboard.JavaScriptKeyboardEvent;
 import ch.sbb.scion.rcp.microfrontend.keyboard.KeyboardEventMapper;
 import ch.sbb.scion.rcp.microfrontend.model.IDisposable;
@@ -74,47 +75,7 @@ public class RouterOutletProxy {
     );
 
     whenCallbacksInstalled.thenRun(() -> {
-      new JavaScriptExecutor(microfrontendPlatformRcpHost.whenHostBrowser, """
-          const sciRouterOutlet = document.body.appendChild(document.createElement('sci-router-outlet'));
-
-          const outletContent= `<html>
-            <head>
-              <script src="${location.origin}/js/helpers.js"></script>
-              <script>
-                // Dispatch message to the host
-                function __scion_rcp_postMessageToParentWindow(envelope) {
-                  window.parent.postMessage(envelope, location.origin);
-                }
-
-                // Dispatch messages from the host
-                window.addEventListener('message', event => {
-                  if (event.data?.transport === 'sci://microfrontend-platform/broker-to-client') {
-                    // Encode as base64 so it can be safely inserted into a script as a string literal.
-                    // For example, the apostrophe character (U+0027) would terminate the string literal.                    
-                    const base64json = ${helpers.toJson}(event.data, {encode: true});
-                    window.parent['${outletToProxyMessageCallback}']?.(base64json);
-                  }
-                });
-                window.parent['${outletLoadedCallback}']();
-              </script>
-            </head>
-            <body>${outletId}</body>
-          </html>`;
-
-          // Load outlet content
-          const outletUrl = URL.createObjectURL(new Blob([outletContent], {type: 'text/html'}));
-          window.addEventListener('unload', () => URL.revokeObjectURL(outletUrl), {once: true});
-          sciRouterOutlet.name = '${outletId}';
-          ${refs.OutletRouter}.navigate(outletUrl, {outlet: '${outletId}'});
-
-          // Install keystroke dispatcher
-          sciRouterOutlet.addEventListener('keydown', event => {
-            window['${outletToProxyKeystrokeCallback}']('keydown', event.key, event.ctrlKey, event.shiftKey, event.altKey, event.metaKey);
-          });
-          sciRouterOutlet.addEventListener('keyup', event => {
-            window['${outletToProxyKeystrokeCallback}']('keyup', event.key, event.ctrlKey, event.shiftKey, event.altKey, event.metaKey);
-          });
-          """)
+      new JavaScriptExecutor(microfrontendPlatformRcpHost.whenHostBrowser, Resources.readString("js/router-outlet-proxy/install-sci-router-outlet.js"))
           .replacePlaceholder("outletToProxyMessageCallback", outletToProxyMessageCallback.name)
           .replacePlaceholder("outletToProxyKeystrokeCallback", outletToProxyKeystrokeCallback.name)
           .replacePlaceholder("outletLoadedCallback", outletLoadedCallback.name)          
@@ -130,10 +91,7 @@ public class RouterOutletProxy {
    * proxy} to dispatch given keystrokes.
    */
   public CompletableFuture<Void> registerKeystrokes(Set<String> keystrokes) {
-    return new JavaScriptExecutor(whenOutlet, """
-        const sciRouterOutlet = document.querySelector('sci-router-outlet[name="${outletId}"]');
-        sciRouterOutlet.keystrokes = ${helpers.fromJson}('${keystrokes}');
-        """)
+    return new JavaScriptExecutor(whenOutlet, Resources.readString("js/router-outlet-proxy/register-keystrokes.js"))
         .replacePlaceholder("outletId", outletId)
         .replacePlaceholder("keystrokes", new ArrayList<>(keystrokes), Flags.ToJson)
         .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
@@ -141,10 +99,7 @@ public class RouterOutletProxy {
   }
 
   public CompletableFuture<Void> setContextValue(String name, Object value) {
-    return new JavaScriptExecutor(whenOutlet, """
-        const sciRouterOutlet = document.querySelector('sci-router-outlet[name="${outletId}"]');
-        sciRouterOutlet.setContextValue('${name}', ${helpers.fromJson}('${value}'));
-        """)
+    return new JavaScriptExecutor(whenOutlet, Resources.readString("js/router-outlet-proxy/set-context-value.js"))
         .replacePlaceholder("outletId", outletId)
         .replacePlaceholder("name", name)
         .replacePlaceholder("value", value, Flags.ToJson)
@@ -159,11 +114,7 @@ public class RouterOutletProxy {
     })
         .installOnce()
         .thenAccept(callback -> {
-          new JavaScriptExecutor(whenOutlet, """
-              const sciRouterOutlet = document.querySelector('sci-router-outlet[name="${outletId}"]');
-              const removed = sciRouterOutlet.removeContextValue('${name}');
-              window['${callback}'](removed);
-              """)
+           new JavaScriptExecutor(whenOutlet, Resources.readString("js/router-outlet-proxy/remove-context-value.js"))
               .replacePlaceholder("callback", callback.name)
               .replacePlaceholder("outletId", outletId)
               .replacePlaceholder("name", name)
@@ -177,17 +128,7 @@ public class RouterOutletProxy {
    * loaded into the the {@link SciRouterOutlet outlet proxy}.
    */
   public void postJsonMessage(String base64json) {
-    new JavaScriptExecutor(whenOutlet, """
-        const sciRouterOutlet = document.querySelector('sci-router-outlet[name="${outletId}"]');
-
-        try {
-          const envelope = ${helpers.fromJson}('${base64json}', {decode: true});
-          sciRouterOutlet.iframe.contentWindow.__scion_rcp_postMessageToParentWindow(envelope);
-        }
-        catch (error) {
-          console.error('[MessageDispatchError] Failed to dispatch message to outlet window. [outlet=${outletId}]', error);
-        }
-        """)
+    new JavaScriptExecutor(whenOutlet, Resources.readString("js/router-outlet-proxy/post-message-to-host.js"))
         .replacePlaceholder("outletId", outletId)
         .replacePlaceholder("base64json", base64json)
         .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
@@ -217,10 +158,7 @@ public class RouterOutletProxy {
   }
 
   public void dispose() {
-    new JavaScriptExecutor(whenOutlet, """
-        const sciRouterOutlet = document.querySelector('sci-router-outlet[name="${outletId}"]');
-        sciRouterOutlet.remove();
-        """)
+    new JavaScriptExecutor(whenOutlet, Resources.readString("js/router-outlet-proxy/dispose.js"))
         .replacePlaceholder("outletId", outletId)
         .execute();
 

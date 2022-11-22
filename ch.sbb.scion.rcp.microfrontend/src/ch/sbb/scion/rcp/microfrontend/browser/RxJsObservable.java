@@ -2,6 +2,7 @@ package ch.sbb.scion.rcp.microfrontend.browser;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.core.runtime.Platform;
@@ -10,6 +11,7 @@ import org.eclipse.swt.browser.Browser;
 import ch.sbb.scion.rcp.microfrontend.SciMessageClient;
 import ch.sbb.scion.rcp.microfrontend.internal.GsonFactory;
 import ch.sbb.scion.rcp.microfrontend.internal.ParameterizedType;
+import ch.sbb.scion.rcp.microfrontend.internal.Resources;
 import ch.sbb.scion.rcp.microfrontend.model.IDisposable;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscriber;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscription;
@@ -24,10 +26,6 @@ public class RxJsObservable<T> {
   private CompletableFuture<Browser> whenBrowser;
   private Type clazz;
   private String rxjsObservableIIFE;
-
-  public RxJsObservable(Browser browser, String observableScript, Type clazz) {
-    this(CompletableFuture.completedFuture(browser), observableScript, clazz);
-  }
 
   public RxJsObservable(CompletableFuture<Browser> browser, String rxjsObservableIIFE, Type clazz) {
     this.whenBrowser = browser;
@@ -65,31 +63,17 @@ public class RxJsObservable<T> {
         .addTo(disposables)
         .install()
         .thenAccept(callback -> {
-          new JavaScriptExecutor(whenBrowser, """
-              try {
-                const subscription = ${rxjsObservableIIFE}.subscribe({
-                  next: (next) => window['${callback}'](${helpers.toJson}({type: 'Next', next})),
-                  error: (error) => window['${callback}'](${helpers.toJson}({type: 'Error', error: error.message || `${error}` || 'ERROR'})),
-                  complete: () => window['${callback}'](${helpers.toJson}({type: 'Complete'})),
-                });
-                ${storage}['${callback}_subscription'] = subscription;
-              }
-              catch (error) {
-                console.error(error);
-                window['${callback}']({type: 'Error', message: error.message || `${error}` || 'ERROR'});
-              }
-              """)
+          var uuid = UUID.randomUUID();
+          new JavaScriptExecutor(whenBrowser, Resources.readString("js/rxjs-observable/subscribe.js"))
               .replacePlaceholder("callback", callback.name)
+              .replacePlaceholder("subscriptionStorageKey", uuid)
               .replacePlaceholder("helpers.toJson", Helpers.toJson)
               .replacePlaceholder("storage", Scripts.Storage)
               .replacePlaceholder("rxjsObservableIIFE", rxjsObservableIIFE)
               .execute();
 
-          disposables.add(() -> new JavaScriptExecutor(whenBrowser, """
-              ${storage}['${callback}_subscription'].unsubscribe();
-              delete ${storage}['${callback}_subscription']
-              """)
-              .replacePlaceholder("callback", callback.name)
+          disposables.add(() -> new JavaScriptExecutor(whenBrowser, Resources.readString("js/rxjs-observable/unsubscribe.js"))
+              .replacePlaceholder("subscriptionStorageKey", uuid)
               .replacePlaceholder("storage", Scripts.Storage)
               .execute());
         });

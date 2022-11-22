@@ -1,20 +1,12 @@
 package ch.sbb.scion.rcp.microfrontend;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import com.google.gson.JsonElement;
-
 import ch.sbb.scion.rcp.microfrontend.browser.JavaCallback;
 import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
 import ch.sbb.scion.rcp.microfrontend.browser.RxJsObservable;
 import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost;
 import ch.sbb.scion.rcp.microfrontend.internal.GsonFactory;
 import ch.sbb.scion.rcp.microfrontend.internal.ParameterizedType;
+import ch.sbb.scion.rcp.microfrontend.internal.Resources;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscriber;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscription;
 import ch.sbb.scion.rcp.microfrontend.model.TopicMessage;
@@ -22,6 +14,13 @@ import ch.sbb.scion.rcp.microfrontend.script.Script;
 import ch.sbb.scion.rcp.microfrontend.script.Script.Flags;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Helpers;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
+import com.google.gson.JsonElement;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @see https://scion-microfrontend-platform-api.vercel.app/classes/MessageClient.html
@@ -68,6 +67,58 @@ public class SciMessageClient {
   }
 
   /**
+   * @see https://scion-microfrontend-platform-api.vercel.app/classes/MessageClient.html#request_
+   */
+  public <T> ISubscription request(String topic, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
+    return requestJson(topic, null, null, clazz, subscriber);
+  }
+
+  /**
+   * @see https://scion-microfrontend-platform-api.vercel.app/classes/MessageClient.html#request_
+   */
+  public <T> ISubscription request(String topic, Object body, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
+    return requestJson(topic, GsonFactory.create().toJson(body), null, clazz, subscriber);
+  }
+
+  /**
+   * @see https://scion-microfrontend-platform-api.vercel.app/classes/MessageClient.html#request_
+   */
+  public <T> ISubscription request(String topic, SciMessageClient.RequestOptions options, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
+    return requestJson(topic, null, options, clazz, subscriber);
+  }
+
+  /**
+   * @see https://scion-microfrontend-platform-api.vercel.app/classes/MessageClient.html#request_
+   */
+  public <T> ISubscription request(String topic, Object body, SciMessageClient.RequestOptions options, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
+    return requestJson(topic, GsonFactory.create().toJson(body), options, clazz, subscriber);
+  }
+
+  /**
+   * @see https://scion-microfrontend-platform-api.vercel.app/classes/MessageClient.html#publish
+   */
+  public <T> ISubscription request(String topic, JsonElement jsonElement, SciMessageClient.RequestOptions options, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
+    return requestJson(topic, GsonFactory.create().toJson(jsonElement), options, clazz, subscriber);
+  }
+
+  /**
+   * @see https://scion-microfrontend-platform-api.vercel.app/classes/MessageClient.html#observe_
+   */
+  private <T> ISubscription requestJson(String topic, String json, SciMessageClient.RequestOptions options, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
+    options = Optional.ofNullable(options).orElse(new SciMessageClient.RequestOptions());
+    var requestIIFE = new Script(Resources.readString("js/sci-message-client/request.iife.js"))
+            .replacePlaceholder("refs.MessageClient", Refs.MessageClient)
+            .replacePlaceholder("topic", topic)
+            .replacePlaceholder("request", json)
+            .replacePlaceholder("options.headers", options.headers, Flags.ToJson)
+            .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
+            .substitute();
+
+    var observable = new RxJsObservable<TopicMessage<T>>(microfrontendPlatformRcpHost.whenHostBrowser, requestIIFE, new ParameterizedType(TopicMessage.class, clazz));
+    return observable.subscribe(subscriber);
+  }
+
+  /**
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/MessageClient.html#observe_
    */
   public ISubscription subscribe(String topic, ISubscriber<TopicMessage<String>> listener) {
@@ -78,9 +129,7 @@ public class SciMessageClient {
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/MessageClient.html#observe_
    */
   public <T> ISubscription subscribe(String topic, ISubscriber<TopicMessage<T>> subscriber, Class<T> clazz) {
-    var observeIIFE = new Script("""
-        (() => ${refs.MessageClient}.observe$(${helpers.fromJson}('${topic}')))()
-        """)
+    var observeIIFE = new Script(Resources.readString("js/sci-message-client/observe.iife.js"))
         .replacePlaceholder("refs.MessageClient", Refs.MessageClient)
         .replacePlaceholder("topic", topic, Flags.ToJson)
         .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
@@ -107,18 +156,7 @@ public class SciMessageClient {
     })
         .installOnce()
         .thenAccept(callback -> {
-          new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, """
-              try {
-                await ${refs.MessageClient}.publish(${helpers.fromJson}('${topic}'), ${helpers.fromJson}('${message}') ?? null, {
-                  headers: ${helpers.fromJson}('${options.headers}') ?? undefined,
-                  retain: ${options.retain} ?? undefined,
-                });
-                window['${callback}'](null);
-              }
-              catch (error) {
-                window['${callback}'](error.message || `${error}` || 'ERROR');
-              }
-              """)
+          new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, Resources.readString("js/sci-message-client/publish.js"))
               .replacePlaceholder("callback", callback.name)
               .replacePlaceholder("topic", topic, Flags.ToJson)
               .replacePlaceholder("message", json)
@@ -156,6 +194,22 @@ public class SciMessageClient {
 
     public PublishOptions retain() {
       retain(true);
+      return this;
+    }
+  }
+
+  /**
+   * @see https://scion-microfrontend-platform-api.vercel.app/interfaces/RequestOptions.html
+   */
+  public static class RequestOptions {
+    private Map<String, ?> headers;
+
+    public Map<String, ?> getHeaders() {
+      return headers;
+    }
+
+    public RequestOptions headers(Map<String, ?> headers) {
+      this.headers = headers;
       return this;
     }
   }
