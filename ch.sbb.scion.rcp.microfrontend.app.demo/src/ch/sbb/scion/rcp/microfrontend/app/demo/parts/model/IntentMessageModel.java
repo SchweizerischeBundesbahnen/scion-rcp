@@ -25,6 +25,8 @@ public class IntentMessageModel {
 
   private final IObservableValue<Boolean> requestReply = new WritableValue<>(Boolean.FALSE, Boolean.class);
 
+  private final IObservableValue<Boolean> retain = new WritableValue<>(Boolean.FALSE, Boolean.class);
+
   public IObservableValue<String> getType() {
     return type;
   }
@@ -33,8 +35,12 @@ public class IntentMessageModel {
     return message;
   }
 
-  public IObservableValue<Boolean> getRequestReply() {
+  public IObservableValue<Boolean> isRequestReply() {
     return requestReply;
+  }
+  
+  public IObservableValue<Boolean> isRetain() {
+    return retain;
   }
 
   public IObservableList<Entry<String, String>> getQualifiers() {

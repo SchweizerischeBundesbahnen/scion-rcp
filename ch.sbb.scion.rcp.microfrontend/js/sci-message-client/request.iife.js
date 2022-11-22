@@ -6,10 +6,12 @@
   const request = helpers.fromJson('/@@request@@/');
   const options = {
     headers: helpers.fromJson('/@@options.headers@@/'),
+    retain: /@@options.retain@@/,
   };
   // ======= SCRIPT PLACEHOLDERS END =======
 
   return refs.MessageClient.request$(topic, request ?? null, {
     headers: options.headers ?? undefined,
+    retain: options.retain ?? undefined,
   });
 })()

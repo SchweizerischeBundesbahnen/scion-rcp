@@ -1,6 +1,5 @@
 package ch.sbb.scion.rcp.microfrontend;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -20,7 +19,9 @@ import ch.sbb.scion.rcp.microfrontend.model.ISubscriber;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscription;
 import ch.sbb.scion.rcp.microfrontend.model.Intent;
 import ch.sbb.scion.rcp.microfrontend.model.IntentMessage;
+import ch.sbb.scion.rcp.microfrontend.model.PublishOptions;
 import ch.sbb.scion.rcp.microfrontend.model.Qualifier;
+import ch.sbb.scion.rcp.microfrontend.model.RequestOptions;
 import ch.sbb.scion.rcp.microfrontend.model.TopicMessage;
 import ch.sbb.scion.rcp.microfrontend.script.Script;
 import ch.sbb.scion.rcp.microfrontend.script.Script.Flags;
@@ -53,21 +54,21 @@ public class SciIntentClient {
   /**
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish
    */
-  public CompletableFuture<Void> publish(Intent intent, IntentOptions options) {
+  public CompletableFuture<Void> publish(Intent intent, PublishOptions options) {
     return publishJson(intent, null, options);
   }
 
   /**
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish
    */
-  public CompletableFuture<Void> publish(Intent intent, Object body, IntentOptions options) {
+  public CompletableFuture<Void> publish(Intent intent, Object body, PublishOptions options) {
     return publishJson(intent, GsonFactory.create().toJson(body), options);
   }
 
   /**
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish
    */
-  public CompletableFuture<Void> publish(Intent intent, JsonElement jsonElement, IntentOptions options) {
+  public CompletableFuture<Void> publish(Intent intent, JsonElement jsonElement, PublishOptions options) {
     return publishJson(intent, GsonFactory.create().toJson(jsonElement), options);
   }
 
@@ -112,34 +113,35 @@ public class SciIntentClient {
   /**
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#request_
    */
-  public <T> ISubscription request(Intent intent, IntentOptions options, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
+  public <T> ISubscription request(Intent intent, RequestOptions options, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
     return requestJson(intent, null, options, clazz, subscriber);
   }
 
   /**
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#request_
    */
-  public <T> ISubscription request(Intent intent, Object body, IntentOptions options, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
+  public <T> ISubscription request(Intent intent, Object body, RequestOptions options, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
     return requestJson(intent, GsonFactory.create().toJson(body), options, clazz, subscriber);
   }
 
   /**
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish
    */
-  public <T> ISubscription request(Intent intent, JsonElement jsonElement, IntentOptions options, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
+  public <T> ISubscription request(Intent intent, JsonElement jsonElement, RequestOptions options, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
     return requestJson(intent, GsonFactory.create().toJson(jsonElement), options, clazz, subscriber);
   }
 
   /**
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#observe_
    */
-  private <T> ISubscription requestJson(Intent intent, String json, IntentOptions options, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
-    options = Optional.ofNullable(options).orElse(new IntentOptions());
+  private <T> ISubscription requestJson(Intent intent, String json, RequestOptions options, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
+    options = Optional.ofNullable(options).orElse(new RequestOptions());
     var requestIIFE = new Script(Resources.readString("js/sci-intent-client/request.iife.js"))
         .replacePlaceholder("refs.IntentClient", Refs.IntentClient)
         .replacePlaceholder("intent", intent, Flags.ToJson)
         .replacePlaceholder("body", json)
-        .replacePlaceholder("options.headers", options.headers, Flags.ToJson)
+        .replacePlaceholder("options.headers", options.getHeaders(), Flags.ToJson)
+        .replacePlaceholder("options.retain", options.isRetain())
         .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
         .substitute();
 
@@ -150,8 +152,8 @@ public class SciIntentClient {
   /**
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish
    */
-  private CompletableFuture<Void> publishJson(Intent intent, String json, IntentOptions intentOptions) {
-    var options = Optional.ofNullable(intentOptions).orElse(new IntentOptions());
+  private CompletableFuture<Void> publishJson(Intent intent, String json, PublishOptions intentOptions) {
+    var options = Optional.ofNullable(intentOptions).orElse(new PublishOptions());
     var published = new CompletableFuture<Void>();
     new JavaCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
       var error = args[0];
@@ -168,7 +170,8 @@ public class SciIntentClient {
               .replacePlaceholder("callback", callback.name)
               .replacePlaceholder("intent", intent, Flags.ToJson)
               .replacePlaceholder("body", json)
-              .replacePlaceholder("options.headers", options.headers, Flags.ToJson)
+              .replacePlaceholder("options.headers", options.getHeaders(), Flags.ToJson)
+              .replacePlaceholder("options.retain", options.isRetain())
               .replacePlaceholder("refs.IntentClient", Refs.IntentClient)
               .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
               .runInsideAsyncFunction()
@@ -176,23 +179,6 @@ public class SciIntentClient {
         });
 
     return published;
-  }
-
-  /**
-   * @see https://scion-microfrontend-platform-api.vercel.app/interfaces/IntentOptions.html
-   */
-  public static class IntentOptions {
-
-    private Map<String, Object> headers;
-
-    public Map<String, Object> getHeaders() {
-      return headers;
-    }
-
-    public IntentOptions headers(Map<String, Object> headers) {
-      this.headers = headers;
-      return this;
-    }
   }
 
   public static class IntentSelector {

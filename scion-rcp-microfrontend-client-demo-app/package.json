@@ -4,21 +4,22 @@
     "start": "cpy src/*.json dist && parcel src/*.html --port 4201 --no-cache --open"
   },
   "dependencies": {
-    "@scion/microfrontend-platform": "1.0.0-rc.3",
-    "@scion/toolkit": "13.0.0-beta.2",
-    "rxjs": "7.5.5"
+    "@scion/microfrontend-platform": "1.0.0-rc.10",
+    "@scion/toolkit": "1.3.1",
+    "rxjs": "7.5.7"
   },
   "devDependencies": {
-    "@parcel/transformer-sass": "2.4.0",
-    "@types/node": "^15.6.1",
-    "cpy-cli": "^3.1.1",
-    "parcel": "2.4.0",
-    "typescript": "^4.6.0"
+    "@parcel/transformer-sass": "^2.7.0",
+    "@types/node": "^16.0.0",
+    "cpy-cli": "^4.2.0",
+    "parcel": "^2.7.0",
+    "typescript": "^4.8.4"
   },
   "browserslist": [
     "last 2 Chrome versions"
   ],
   "alias": {
-    "process": false
+    "process": false,
+    "@scion/toolkit/*": "./node_modules/@scion/toolkit/fesm2020/scion-toolkit-$1.mjs"
   }
 }

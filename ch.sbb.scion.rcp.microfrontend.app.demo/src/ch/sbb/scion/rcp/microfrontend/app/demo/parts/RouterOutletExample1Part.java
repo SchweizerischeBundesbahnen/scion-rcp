@@ -9,6 +9,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
 import ch.sbb.scion.rcp.microfrontend.SciOutletRouter;
+import ch.sbb.scion.rcp.microfrontend.SciOutletRouter.NavigationOptions;
 import ch.sbb.scion.rcp.microfrontend.SciRouterOutlet;
 
 public class RouterOutletExample1Part {
@@ -22,8 +23,8 @@ public class RouterOutletExample1Part {
   public void createComposite(Composite parent) {
     var routerOutlet = new SciRouterOutlet(parent, SWT.NONE, PART_ID);
     routerOutlet.registerKeystrokes(Set.of("keydown.m", "keydown.O", "keydown.escape", "keydown.control.alt.enter", "keydown.control.space"));
-   
-    outletRouter.navigate("http://localhost:4201", PART_ID);
+
+    outletRouter.navigate("http://localhost:4201", new NavigationOptions().outlet(PART_ID));
 
     routerOutlet.addListener(SWT.KeyDown, (e) -> {
       var isCtrlPressed = ((e.stateMask & SWT.CTRL) != 0);

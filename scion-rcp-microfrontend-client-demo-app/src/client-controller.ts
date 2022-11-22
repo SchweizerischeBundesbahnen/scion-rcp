@@ -15,15 +15,6 @@ class ClientController {
     try {
       await MicrofrontendPlatform.connectToHost('client-app');
       connectStatus.classList.add('connected');
-
-      // Hot code replacement does not work when using 'unload' trigger.
-      // TODO Analyze why and fix in SCION
-      Beans.register(MicrofrontendPlatformStopper, new class implements MicrofrontendPlatformStopper {
-
-        constructor() {
-          window.addEventListener('beforeunload', () => MicrofrontendPlatform.destroy(), {once: true});
-        }
-      });
     }
     catch (error) {
       console.error(error);

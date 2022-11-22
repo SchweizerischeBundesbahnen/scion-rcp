@@ -6,10 +6,12 @@
   const body = helpers.fromJson('/@@body@@/');
   const options = {
     headers: helpers.fromJson('/@@options.headers@@/'),
+    retain: /@@options.retain@@/,
   };
   // ======= SCRIPT PLACEHOLDERS END =======
 
   return refs.IntentClient.request$(intent, body ?? null, {
     headers: options.headers ?? undefined,
+    retain: options.retain ?? undefined,
   });
 })()
