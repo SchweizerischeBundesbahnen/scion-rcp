@@ -6,12 +6,14 @@ const intent = helpers.fromJson('/@@intent@@/');
 const body = helpers.fromJson('/@@body@@/');
 const options = {
   headers: helpers.fromJson('/@@options.headers@@/'),
+  retain: /@@options.retain@@/,
 };
 // ======= SCRIPT PLACEHOLDERS END =======
 
 try {
   await refs.IntentClient.publish(intent, body ?? null, {
     headers: options.headers ?? undefined,
+    retain: options.retain ?? undefined,
   });
   callback(null);
 }

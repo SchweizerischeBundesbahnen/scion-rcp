@@ -15,23 +15,23 @@ refs.Beans.register(refs.MessageInterceptor, {
     intercept(message, next) {
       const topicMatch = topicMatcher.match(message.topic);
       if (!topicMatch.matches) {
-        next.handle(message); // continue the chain of interceptors
-        return;
+        return next.handle(message); // continue the chain of interceptors
       }
 
-      new Promise(resolve => {
+      return new Promise(resolve => {
         const nextCallbackName = `${refs.UUID.randomUUID()}-next`;
         storage[nextCallbackName] = resolve;
         interceptorCallback(helpers.toJson({...message, params: topicMatch.params}), nextCallbackName);
       })
       .then(result => {
         if (result instanceof Error) {
-          // TODO: https://github.com/SchweizerischeBundesbahnen/scion-microfrontend-platform/issues/147
-          //       Error is not reported back to the caller.
-          throw result;
+          return Promise.reject(result);
         }
         else if (result !== null) {
-          next.handle(result); // continue the chain of interceptors
+          return next.handle(result); // continue the chain of interceptors
+        }
+        else {
+          return Promise.resolve();
         }
       });
     }

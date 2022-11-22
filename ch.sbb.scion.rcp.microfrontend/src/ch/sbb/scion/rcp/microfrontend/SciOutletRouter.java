@@ -11,6 +11,7 @@ import ch.sbb.scion.rcp.microfrontend.browser.JavaCallback;
 import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
 import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost;
 import ch.sbb.scion.rcp.microfrontend.internal.Resources;
+import ch.sbb.scion.rcp.microfrontend.model.Qualifier;
 import ch.sbb.scion.rcp.microfrontend.script.Script.Flags;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Helpers;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
@@ -28,20 +29,31 @@ public class SciOutletRouter {
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/OutletRouter.html#navigate
    */
   public CompletableFuture<Void> navigate(String url) {
-    return navigate(url, new NavigationOptions());
-  }
-
-  /**
-   * @see https://scion-microfrontend-platform-api.vercel.app/classes/OutletRouter.html#navigate
-   */
-  public CompletableFuture<Void> navigate(String url, String outlet) {
-    return navigate(url, new NavigationOptions().outlet(outlet));
+    return navigateInternal(url, null);
   }
 
   /**
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/OutletRouter.html#navigate
    */
   public CompletableFuture<Void> navigate(String url, NavigationOptions navigationOptions) {
+    return navigateInternal(url, navigationOptions);
+  }
+
+  /**
+   * @see https://scion-microfrontend-platform-api.vercel.app/classes/OutletRouter.html#navigate
+   */
+  public CompletableFuture<Void> navigate(Qualifier qualifier) {
+    return navigateInternal(qualifier, null);
+  }
+
+  /**
+   * @see https://scion-microfrontend-platform-api.vercel.app/classes/OutletRouter.html#navigate
+   */
+  public CompletableFuture<Void> navigate(Qualifier qualifier, NavigationOptions navigationOptions) {
+    return navigateInternal(qualifier, navigationOptions);
+  }
+
+  private CompletableFuture<Void> navigateInternal(Object target, NavigationOptions navigationOptions) {
     var options = Optional.ofNullable(navigationOptions).orElse(new NavigationOptions());
 
     var navigated = new CompletableFuture<Void>();
@@ -58,7 +70,7 @@ public class SciOutletRouter {
         .thenAccept(callback -> {
           new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, Resources.readString("js/sci-outlet-router/navigate.js"))
               .replacePlaceholder("callback", callback.name)
-              .replacePlaceholder("url", url, Flags.ToJson)
+              .replacePlaceholder("target", target, Flags.ToJson)
               .replacePlaceholder("options.outlet", options.outlet, Flags.ToJson)
               .replacePlaceholder("options.relativeTo", options.relativeTo, Flags.ToJson)
               .replacePlaceholder("options.params", options.params, Flags.ToJson)

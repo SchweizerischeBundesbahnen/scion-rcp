@@ -55,9 +55,7 @@ import org.eclipse.swt.widgets.Text;
 import com.google.gson.Gson;
 
 import ch.sbb.scion.rcp.microfrontend.SciIntentClient;
-import ch.sbb.scion.rcp.microfrontend.SciIntentClient.IntentOptions;
 import ch.sbb.scion.rcp.microfrontend.SciMessageClient;
-import ch.sbb.scion.rcp.microfrontend.SciMessageClient.PublishOptions;
 import ch.sbb.scion.rcp.microfrontend.app.demo.parts.model.IntentMessageModel;
 import ch.sbb.scion.rcp.microfrontend.app.demo.parts.model.IntentSelectorModel;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscriber;
@@ -65,6 +63,8 @@ import ch.sbb.scion.rcp.microfrontend.model.ISubscription;
 import ch.sbb.scion.rcp.microfrontend.model.Intent;
 import ch.sbb.scion.rcp.microfrontend.model.IntentMessage;
 import ch.sbb.scion.rcp.microfrontend.model.MessageHeaders;
+import ch.sbb.scion.rcp.microfrontend.model.PublishOptions;
+import ch.sbb.scion.rcp.microfrontend.model.RequestOptions;
 import ch.sbb.scion.rcp.microfrontend.model.ResponseStatusCodes;
 import ch.sbb.scion.rcp.microfrontend.model.TopicMessage;
 
@@ -80,7 +80,7 @@ public class IntentClientPart {
 
   private Button publishButton;
 
-  private AtomicReference<ISubscription> subscriptionToReply;
+  private ISubscription requestSubscription;
 
   private Text validationLabel;
 
@@ -166,6 +166,18 @@ public class IntentClientPart {
         .grab(true, false)
         .applyTo(headersComposite);
 
+    // Retain
+    LabelFactory.newLabel(SWT.NONE)
+        .text("Retain:")
+        .layoutData(GridDataFactory.fillDefaults()
+            .hint(SWT.DEFAULT, SWT.DEFAULT)
+            .align(SWT.BEGINNING, SWT.TOP)
+            .create())
+        .create(group);
+    var retain = ButtonFactory.newButton(SWT.CHECK)
+        .layoutData(GridDataFactory.fillDefaults().span(4, 1).grab(true, false).create())
+        .create(group);
+    
     // Request-Reply
     LabelFactory.newLabel(SWT.NONE)
         .text("Request-Reply:")
@@ -184,26 +196,25 @@ public class IntentClientPart {
         .layoutData(GridDataFactory.fillDefaults().span(5, 1).create())
         .create(group);
 
-    subscriptionToReply = new AtomicReference<ISubscription>();
     publishButton.addSelectionListener(new SelectionAdapter() {
       @Override
       public void widgetSelected(SelectionEvent e) {
         var body = intentModel.getMessage().getValue().isEmpty() ? null : intentModel.getMessage().getValue();
-        var intentOptions = intentModel.getHeaders().isEmpty() ? null :
-            new IntentOptions().headers(intentModel.getHeaders()
-                .stream()
-                .collect(Collectors.toMap(x -> x.getKey(), x -> (Object) x.getValue())));
-        var replyRequested = intentModel.getRequestReply().getValue();
-        if (replyRequested) {
-          if (subscriptionToReply.get() == null) {
-            publishButton.setText("Cancel");
-          }
-          else {
-            cancelReplyRequest();
-          }
+        var headers = intentModel.getHeaders()
+            .stream()
+            .collect(Collectors.toMap(x -> x.getKey(), x -> (Object) x.getValue()));
+        if (requestSubscription != null) {
+          cancelRequest();
         }
-
-        publishIntent(intentModel.getIntent(), body, intentOptions, replyRequested, subscriptionToReply);
+        else if (intentModel.isRequestReply().getValue()) {
+          publishButton.setText("Cancel");
+          var options = new RequestOptions().headers(headers).retain(intentModel.isRetain().getValue());
+          requestSubscription = request(intentModel.getIntent(), body, options);
+        }
+        else {
+          var options = new PublishOptions().headers(headers).retain(intentModel.isRetain().getValue());
+          publish(intentModel.getIntent(), body, options);
+        }
       }
     });
 
@@ -223,7 +234,8 @@ public class IntentClientPart {
     // add bindings
     ctx.bindValue(WidgetProperties.text(SWT.Modify).observe(typeText), intentModel.getType());
     ctx.bindValue(WidgetProperties.text(SWT.Modify).observe(messageText), intentModel.getMessage());
-    ctx.bindValue(WidgetProperties.buttonSelection().observe(requestReply), intentModel.getRequestReply());
+    ctx.bindValue(WidgetProperties.buttonSelection().observe(retain), intentModel.isRetain());
+    ctx.bindValue(WidgetProperties.buttonSelection().observe(requestReply), intentModel.isRequestReply());
 
     var strategy = new UpdateValueStrategy<String, String>();
     strategy.setBeforeSetValidator(validator);
@@ -240,8 +252,9 @@ public class IntentClientPart {
     return group;
   }
 
-  private void cancelReplyRequest() {
-    subscriptionToReply.getAndSet(null).unsubscribe();
+  private void cancelRequest() {
+    requestSubscription.unsubscribe();
+    requestSubscription = null;
     publishButton.setText("Publish");
   }
 
@@ -309,43 +322,40 @@ public class IntentClientPart {
     return composite;
   }
 
-  private void publishIntent(final Intent newIntent, final String body, final IntentOptions intentOptions,
-      final boolean requestReply, AtomicReference<ISubscription> subscription) {
-    if (requestReply) {
-      subscription.set(intentClient
-          .request(newIntent, body, intentOptions, String.class, new ISubscriber<TopicMessage<String>>() {
+  private void publish(final Intent intent, final String body, final PublishOptions publishOptions) {
+    var whenPublished = intentClient.publish(intent, body, publishOptions);
+    whenPublished.exceptionally(ex -> {
+      validationMessage.setValue(ex.getMessage());
+      validationLabel.getParent().setBackground(new Color(245, 182, 182));
+      return null;
+    });
 
-            @Override
-            public void onNext(TopicMessage<String> next) {
-              var replyBox = new MessageBox(validationLabel.getShell(), SWT.ICON_INFORMATION | SWT.OK);
-              replyBox.setText("Reply from application: " + next.headers.get(MessageHeaders.AppSymbolicName.value));
-              replyBox.setMessage(next.body);
-              if (replyBox.open() == SWT.OK) {
-                cancelReplyRequest();
-              }
-            }
+    whenPublished.thenAccept(s -> {
+      validationMessage.setValue("Intent published.");
+      validationLabel.getParent().setBackground(new Color(202, 255, 230));
+    });
+  }
 
-            @Override
-            public void onError(Exception e) {
-              validationMessage.setValue(e.getMessage());
-              validationLabel.getParent().setBackground(new Color(245, 182, 182));
-              cancelReplyRequest();
-            }
-          }));
-    }
-    else {
-      var whenPublished = intentClient.publish(newIntent, body, intentOptions);
-      whenPublished.exceptionally(ex -> {
-        validationMessage.setValue(ex.getMessage());
+  private ISubscription request(final Intent intent, final String body, final RequestOptions requestOptions) {
+    return intentClient.request(intent, body, requestOptions, String.class, new ISubscriber<TopicMessage<String>>() {
+
+      @Override
+      public void onNext(TopicMessage<String> next) {
+        var replyBox = new MessageBox(validationLabel.getShell(), SWT.ICON_INFORMATION | SWT.OK);
+        replyBox.setText("Reply from application: " + next.headers.get(MessageHeaders.AppSymbolicName.value));
+        replyBox.setMessage(next.body);
+        if (replyBox.open() == SWT.OK) {
+          cancelRequest();
+        }
+      }
+
+      @Override
+      public void onError(Exception e) {
+        validationMessage.setValue(e.getMessage());
         validationLabel.getParent().setBackground(new Color(245, 182, 182));
-        return null;
-      });
-
-      whenPublished.thenAccept(s -> {
-        validationMessage.setValue("Intent published.");
-        validationLabel.getParent().setBackground(new Color(202, 255, 230));
-      });
-    }
+        cancelRequest();
+      }
+    });
   }
 
   private TableViewer createTableViewer(Composite parent) {

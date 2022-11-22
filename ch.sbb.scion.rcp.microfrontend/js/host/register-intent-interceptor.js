@@ -16,29 +16,28 @@ refs.Beans.register(refs.IntentInterceptor, {
     intercept(message, next) {
       // Test intent type
       if (message.intent.type !== type) {
-        next.handle(message); // continue the chain of interceptors
-        return;
+        return next.handle(message); // continue the chain of interceptors
       }
 
       // Test intent qualifier, but only if passed a qualifier
       if (qualifierMatcher && !qualifierMatcher.matches(message.intent.qualifier)) {
-        next.handle(message); // continue the chain of interceptors
-        return;
+        return next.handle(message); // continue the chain of interceptors
       }
 
-      new Promise(resolve => {
+      return new Promise(resolve => {
         const nextCallbackName = `${refs.UUID.randomUUID()}-next`;
         storage[nextCallbackName] = resolve;
         interceptorCallback(helpers.toJson(message), nextCallbackName);
       })
       .then(result => {
         if (result instanceof Error) {
-          // TODO: https://github.com/SchweizerischeBundesbahnen/scion-microfrontend-platform/issues/147
-          //       Error is not reported back to the caller.
-          throw result;
+          return Promise.reject(result);
         }
         else if (result !== null) {
-          next.handle(result); // continue the chain of interceptors
+          return next.handle(result); // continue the chain of interceptors
+        }
+        else {
+          return Promise.resolve();
         }
       });
     }

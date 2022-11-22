@@ -1,7 +1,7 @@
 // ======= SCRIPT PLACEHOLDERS BEGIN =======
 const helpers = {fromJson: /@@helpers.fromJson@@/};
 const callback = window['/@@callback@@/'];
-const url = helpers.fromJson('/@@url@@/');
+const target = helpers.fromJson('/@@target@@/');
 const options = {
   outlet: helpers.fromJson('/@@options.outlet@@/'),
   relativeTo: helpers.fromJson('/@@options.relativeTo@@/'),
@@ -12,7 +12,7 @@ const refs = {OutletRouter: /@@refs.OutletRouter@@/};
 // ======= SCRIPT PLACEHOLDERS END =======
 
 try {
-  await refs.OutletRouter.navigate(url ?? undefined, {
+  await refs.OutletRouter.navigate(target ?? undefined, {
     outlet: options.outlet ?? undefined,
     relativeTo: options.relativeTo ?? undefined,
     params: options.params ?? undefined,

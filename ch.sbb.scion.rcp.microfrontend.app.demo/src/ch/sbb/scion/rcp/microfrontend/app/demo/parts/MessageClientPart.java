@@ -26,9 +26,9 @@ import org.eclipse.swt.widgets.Composite;
 import com.google.gson.Gson;
 
 import ch.sbb.scion.rcp.microfrontend.SciMessageClient;
-import ch.sbb.scion.rcp.microfrontend.SciMessageClient.PublishOptions;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscription;
 import ch.sbb.scion.rcp.microfrontend.model.MessageHeaders;
+import ch.sbb.scion.rcp.microfrontend.model.PublishOptions;
 import ch.sbb.scion.rcp.microfrontend.model.TopicMessage;
 
 public class MessageClientPart {
