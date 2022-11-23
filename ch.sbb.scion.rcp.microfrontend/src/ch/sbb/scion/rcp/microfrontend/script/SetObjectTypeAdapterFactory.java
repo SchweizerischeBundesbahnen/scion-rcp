@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Set;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
@@ -12,17 +13,13 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
 /**
- * Custom GSON adapter to convert a Java {@link Set} to a JavaScript object
- * literal of the following form: `{__type: 'Set', __value: [...values]}`.
+ * Custom GSON adapter to convert a Java `Set` to a JSON object literal and vice versa,
+ * which is necessary because JSON has no representation for the Set data type.
  * 
- * This custom conversion allows the {@link Set} to be restored in JavaScript
- * when unmarshalling JSON, which is necessary because JSON does not have a Set
- * representation.
+ * By default, GSON converts a Java `Set` to a JSON array, so there is no way
+ * to determine in JavaScript whether it is an array or a Set.
  * 
- * GSON would convert a Java {@link Set} to an array, so there is no way to
- * determine in JavaScript whether it is an Array or Set.
- * 
- * Use in conjunction with {@link helpers.js#fromJson} and {@link helpers.js#toJson} in JavaScript.
+ * Format of the JSON object literal: `{__type: 'Set', __value: [...values]}`
  * 
  * @see CollectionTypeAdapterFactory
  * @see helpers.js#fromJson
@@ -30,12 +27,19 @@ import com.google.gson.stream.JsonWriter;
  */
 public class SetObjectTypeAdapterFactory implements TypeAdapterFactory {
 
+  private static final String CUSTOM_OBJECT_TYPE_FIELD = "__type";
+  private static final String CUSTOM_OBJECT_VALUE_FIELD = "__value";
+  private static final String CUSTOM_OBJECT_TYPE = "Set";
+
   @SuppressWarnings("unchecked")
   @Override
   public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
     if (!Set.class.isAssignableFrom(type.getRawType())) {
       return null;
     }
+
+    var jsonElementAdapter = gson.getAdapter(JsonElement.class);
+    var defaultSetAdapter = gson.getDelegateAdapter(this, (TypeToken<Set<?>>) type);
 
     return (TypeAdapter<T>) new TypeAdapter<Set<?>>() {
 
@@ -46,31 +50,15 @@ public class SetObjectTypeAdapterFactory implements TypeAdapterFactory {
           return null;
         }
 
-        Set<?> set = null;
+        var jsonObject = jsonElementAdapter.read(reader).getAsJsonObject();
+        var typeElement = jsonObject.get(CUSTOM_OBJECT_TYPE_FIELD);
 
-        reader.beginObject();
-        while (reader.hasNext()) {
-          var property = reader.nextName();
-          switch (property) {
-            case "__type": {
-              var type = reader.nextString();
-              if (!"Set".equals(type)) {
-                throw new IllegalArgumentException("Expected field '__type' to be 'Set', but was '" + type + "'");
-              }
-              break;
-            }
-            case "__value": {
-              // Let GSON unmarshall the JSON using {@link CollectionTypeAdapterFactory}.
-              set = getDefaultAdapter().read(reader);
-              break;
-            }
-            default:
-              throw new IllegalArgumentException("Expected property to be '__type' or '__value', but was '" + property + "'");
-          }
+        if (typeElement != null && typeElement.isJsonPrimitive() && CUSTOM_OBJECT_TYPE.equals(typeElement.getAsString())) {
+          return defaultSetAdapter.fromJsonTree(jsonObject.get(CUSTOM_OBJECT_VALUE_FIELD));
         }
-        reader.endObject();
-
-        return set;
+        else {
+          return defaultSetAdapter.fromJsonTree(jsonObject);
+        }
       }
 
       @Override
@@ -82,10 +70,10 @@ public class SetObjectTypeAdapterFactory implements TypeAdapterFactory {
 
         writer.beginObject();
 
-        writer.name("__type");
-        writer.value("Set");
+        writer.name(CUSTOM_OBJECT_TYPE_FIELD);
+        writer.value(CUSTOM_OBJECT_TYPE);
 
-        writer.name("__value");
+        writer.name(CUSTOM_OBJECT_VALUE_FIELD);
         writer.beginArray();
         for (var element : set) {
           var valueClazz = (Class<Object>) element.getClass();
@@ -93,10 +81,6 @@ public class SetObjectTypeAdapterFactory implements TypeAdapterFactory {
         }
         writer.endArray();
         writer.endObject();
-      }
-
-      private TypeAdapter<Set<?>> getDefaultAdapter() {
-        return gson.getDelegateAdapter(SetObjectTypeAdapterFactory.this, (TypeToken<Set<?>>) type);
       }
     };
   }

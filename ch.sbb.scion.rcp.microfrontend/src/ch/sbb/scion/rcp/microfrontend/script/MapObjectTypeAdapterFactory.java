@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
@@ -12,15 +13,13 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
 /**
- * Custom GSON adapter to convert a Java {@link Map} to a JavaScript object
- * literal of the following form: `{__type: 'Map', __value: [...[key, value]]}`.
+ * Custom GSON adapter to convert a Java `Map` to a JSON object literal and vice versa,
+ * which is necessary because JSON has no representation for the Map data type.
  * 
- * This custom conversion allows the {@link Map} to be restored in JavaScript
- * when unmarshalling JSON, which is necessary because JSON does not have a Map
- * representation.
+ * By default, GSON converts a Java `Map` to a JSON object literal, so there is no way
+ * to determine in JavaScript whether it is a Map or a dictionary.
  * 
- * GSON would convert a Java {@link Map} to an object literal, so there is no
- * way to determine in JavaScript whether it is a Map or an object literal.
+ * Format of the JSON object literal: `{__type: 'Map', __value: [...[key, value]]}`
  * 
  * This adapter is to be used together with {@link helpers.js#fromJson} and {@link helpers.js#toJson}
  * in JavaScript.
@@ -31,12 +30,19 @@ import com.google.gson.stream.JsonWriter;
  */
 public class MapObjectTypeAdapterFactory implements TypeAdapterFactory {
 
+  private static final String CUSTOM_OBJECT_TYPE_FIELD = "__type";
+  private static final String CUSTOM_OBJECT_VALUE_FIELD = "__value";
+  private static final String CUSTOM_OBJECT_TYPE = "Map";
+
   @SuppressWarnings("unchecked")
   @Override
   public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
     if (!Map.class.isAssignableFrom(type.getRawType())) {
       return null;
     }
+
+    var jsonElementAdapter = gson.getAdapter(JsonElement.class);
+    var defaultMapAdapter = gson.getDelegateAdapter(this, (TypeToken<Map<?, ?>>) type);
 
     return (TypeAdapter<T>) new TypeAdapter<Map<?, ?>>() {
 
@@ -47,31 +53,15 @@ public class MapObjectTypeAdapterFactory implements TypeAdapterFactory {
           return null;
         }
 
-        Map<?, ?> map = null;
+        var jsonObject = jsonElementAdapter.read(reader).getAsJsonObject();
+        var typeElement = jsonObject.get(CUSTOM_OBJECT_TYPE_FIELD);
 
-        reader.beginObject();
-        while (reader.hasNext()) {
-          var property = reader.nextName();
-          switch (property) {
-            case "__type": {
-              var type = reader.nextString();
-              if (!"Map".equals(type)) {
-                throw new IllegalArgumentException("Expected field '__type' to be 'Map', but was '" + type + "'");
-              }
-              break;
-            }
-            case "__value": {
-              // Let GSON unmarshall the JSON using {@link MapTypeAdapterFactory}.
-              map = getDefaultAdapter().read(reader);
-              break;
-            }
-            default:
-              throw new IllegalArgumentException("Expected property to be '__type' or '__value', but was '" + property + "'");
-          }
+        if (typeElement != null && typeElement.isJsonPrimitive() && CUSTOM_OBJECT_TYPE.equals(typeElement.getAsString())) {
+          return defaultMapAdapter.fromJsonTree(jsonObject.get(CUSTOM_OBJECT_VALUE_FIELD));
         }
-        reader.endObject();
-
-        return map;
+        else {
+          return defaultMapAdapter.fromJsonTree(jsonObject);
+        }
       }
 
       @Override
@@ -83,10 +73,10 @@ public class MapObjectTypeAdapterFactory implements TypeAdapterFactory {
 
         writer.beginObject();
 
-        writer.name("__type");
-        writer.value("Map");
+        writer.name(CUSTOM_OBJECT_TYPE_FIELD);
+        writer.value(CUSTOM_OBJECT_TYPE);
 
-        writer.name("__value");
+        writer.name(CUSTOM_OBJECT_VALUE_FIELD);
         writer.beginArray();
         for (var entry : map.entrySet()) {
           writer.beginArray();
@@ -99,10 +89,6 @@ public class MapObjectTypeAdapterFactory implements TypeAdapterFactory {
         }
         writer.endArray();
         writer.endObject();
-      }
-
-      private TypeAdapter<Map<?, ?>> getDefaultAdapter() {
-        return gson.getDelegateAdapter(MapObjectTypeAdapterFactory.this, (TypeToken<Map<?, ?>>) type);
       }
     };
   }

@@ -584,13 +584,14 @@ public class ManifestServicePart {
     var capabilitiesTableViewer = new TableViewer(group);
     capabilitiesTableViewer.getTable().setHeaderVisible(true);
     capabilitiesTableViewer.setContentProvider(ArrayContentProvider.getInstance());
+    createIdColumn(capabilitiesTableViewer);
     createTypeColumn(capabilitiesTableViewer);
     createQualifierColumn(capabilitiesTableViewer);
     createAccessibilityColumn(capabilitiesTableViewer);
     createDescriptionColumn(capabilitiesTableViewer);
     createParamsColumn(capabilitiesTableViewer);
+    createPropertiesColumn(capabilitiesTableViewer);
     createApplicationColumn(capabilitiesTableViewer);
-    createIdColumn(capabilitiesTableViewer);
     GridDataFactory.swtDefaults()
         .span(2, 1)
         .align(SWT.FILL, SWT.FILL)
@@ -650,7 +651,21 @@ public class ManifestServicePart {
       }
     });
   }
-
+  
+  private void createPropertiesColumn(TableViewer messagesTableViewer) {
+    var paramsColumn = new TableViewerColumn(messagesTableViewer, SWT.NONE);
+    paramsColumn.getColumn().setText("Properties");
+    paramsColumn.getColumn().setWidth(100);
+    paramsColumn.setLabelProvider(new ColumnLabelProvider() {
+      
+      @Override
+      public String getText(Object message) {
+        var params = ((Capability) message).properties;
+        return new Gson().toJson(params);
+      }
+    });
+  }
+  
   private void createQualifierColumn(TableViewer messagesTableViewer) {
     var qualifierColumn = new TableViewerColumn(messagesTableViewer, SWT.NONE);
     qualifierColumn.getColumn().setText("Qualifier");
