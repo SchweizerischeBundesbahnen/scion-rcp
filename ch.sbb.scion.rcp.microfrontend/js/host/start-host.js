@@ -10,7 +10,7 @@ try {
 
   // Overwrite message origin as we forward messages from the client to the host under the host's origin and vice versa.
   config.applications.forEach(application => {
-    application.messageOrigin = window.location.origin;
+    application.secondaryOrigin = window.location.origin;
   });
 
   // Start the platform host.
