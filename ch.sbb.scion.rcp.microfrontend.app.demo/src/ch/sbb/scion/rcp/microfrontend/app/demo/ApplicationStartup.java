@@ -33,6 +33,7 @@ public class ApplicationStartup {
                 .manifestUrl("https://scion-microfrontend-platform-devtools-v1-0-0-rc-11.vercel.app/assets/manifest.json")
                 .intentionCheckDisabled(true)
                 .scopeCheckDisabled(true)))
-        .manifestLoadTimeout(2000L));
+        .manifestLoadTimeout(2000L)
+        .activatorLoadTimeout(5000L));
   }
 }
