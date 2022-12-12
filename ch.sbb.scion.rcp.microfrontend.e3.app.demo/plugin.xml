@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         id="application"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run
+               class="ch.sbb.scion.rcp.microfrontend.e3.app.demo.Application">
+         </run>
+      </application>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="ch.sbb.scion.rcp.microfrontend.e3.app.demo.Perspective"
+            name="Perspective"
+            id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.perspective">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <e4view
+            class="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.DevToolsPart"
+            id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.DevTools"
+            name="SCION DevTools"
+            restorable="true">
+      </e4view>
+      <e4view
+            class="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.MessageClientPart"
+            id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.MessageClient"
+            name="Message Client"
+            restorable="true">
+      </e4view>
+      <e4view
+            class="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.IntentClientPart"
+            id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.IntentClient"
+            name="Intent Client"
+            restorable="true">
+      </e4view>
+      <e4view
+            class="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.ManifestServicePart"
+            id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.ManifestService"
+            name="Manifest Service"
+            restorable="true">
+      </e4view>
+      <e4view
+            class="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.OutletRouterPart"
+            id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.OutletRouter"
+            name="Outlet Router"
+            restorable="true">
+      </e4view>
+      <e4view
+            class="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.RouterOutletExample1Part"
+            id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.RouterOutletExample1"
+            name="Router Outlet Example 1"
+            restorable="true">
+      </e4view>
+      <e4view
+            class="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.RouterOutletExample2Part"
+            id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.RouterOutletExample2"
+            name="Router Outlet Example 2"
+            restorable="true">
+      </e4view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension targetID="*">
+         <view
+               id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.DevTools"
+               minimized="false"
+               relationship="stack"
+               relative="org.eclipse.ui.editorss">
+         </view>
+         <view
+               id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.MessageClient"
+               minimized="false"
+               relationship="stack"
+               relative="org.eclipse.ui.editorss">
+         </view>
+         <view
+               id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.IntentClient"
+               minimized="false"
+               relationship="stack"
+               relative="org.eclipse.ui.editorss">
+         </view>
+         <view
+               id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.ManifestService"
+               minimized="false"
+               relationship="stack"
+               relative="org.eclipse.ui.editorss">
+         </view>
+         <view
+               id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.OutletRouter"
+               minimized="false"
+               relationship="stack"
+               relative="org.eclipse.ui.editorss">
+         </view>
+         <view
+               id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.RouterOutletExample1"
+               minimized="false"
+               relationship="stack"
+               relative="org.eclipse.ui.editorss">
+         </view>
+         <view
+               id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.RouterOutletExample2"
+               minimized="false"
+               relationship="stack"
+               relative="org.eclipse.ui.editorss">
+         </view>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:org.eclipse.ui.main.menu">
+         <menu
+               label="File">
+            <command
+                  commandId="org.eclipse.ui.file.exit"
+                  label="Exit">
+            </command>
+         </menu>
+      </menuContribution>
+   </extension>
+   <extension
+         id="product"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="ch.sbb.scion.rcp.microfrontend.e3.app.demo.application"
+            name="SCION RCP Demo Application">
+         <property
+               name="appName"
+               value="SCION RCP Demo Application">
+         </property>
+         <property
+               name="lifeCycleURI"
+               value="bundleclass://ch.sbb.scion.rcp.microfrontend.e3.app.demo/ch.sbb.scion.rcp.microfrontend.e3.app.demo.ApplicationStartup">
+         </property>
+      </product>
+   </extension>
+
+</plugin>
