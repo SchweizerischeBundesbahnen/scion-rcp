@@ -11,7 +11,7 @@ const options = {
 // ======= SCRIPT PLACEHOLDERS END =======
 
 try {
-  await refs.MessageClient.publish(topic, message ?? null, {
+  await refs.MessageClient.publish(topic, message ?? undefined, {
     headers: options.headers ?? undefined,
     retain: options.retain ?? undefined,
   });
