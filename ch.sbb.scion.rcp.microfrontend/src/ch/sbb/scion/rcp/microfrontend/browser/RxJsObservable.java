@@ -9,9 +9,9 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.browser.Browser;
 
 import ch.sbb.scion.rcp.microfrontend.SciMessageClient;
-import ch.sbb.scion.rcp.microfrontend.internal.GsonFactory;
 import ch.sbb.scion.rcp.microfrontend.internal.ParameterizedType;
 import ch.sbb.scion.rcp.microfrontend.internal.Resources;
+import ch.sbb.scion.rcp.microfrontend.internal.gson.GsonFactory;
 import ch.sbb.scion.rcp.microfrontend.model.IDisposable;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscriber;
 import ch.sbb.scion.rcp.microfrontend.model.ISubscription;

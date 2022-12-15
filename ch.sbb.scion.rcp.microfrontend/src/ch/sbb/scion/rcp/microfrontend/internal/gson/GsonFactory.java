@@ -1,11 +1,7 @@
-package ch.sbb.scion.rcp.microfrontend.internal;
+package ch.sbb.scion.rcp.microfrontend.internal.gson;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
-import ch.sbb.scion.rcp.microfrontend.script.MapObjectTypeAdapterFactory;
-import ch.sbb.scion.rcp.microfrontend.script.QualifierTypeAdapterFactory;
-import ch.sbb.scion.rcp.microfrontend.script.SetObjectTypeAdapterFactory;
 
 /**
  * Use to obtain a {@link Gson} instance configured with library-specific

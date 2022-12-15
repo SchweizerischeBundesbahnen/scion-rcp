@@ -1,4 +1,4 @@
-package ch.sbb.scion.rcp.microfrontend.script;
+package ch.sbb.scion.rcp.microfrontend.internal.gson;
 
 import java.io.IOException;
 
@@ -40,13 +40,13 @@ public class QualifierTypeAdapterFactory implements TypeAdapterFactory {
 
           var token = reader.peek();
           if (token.equals(JsonToken.STRING)) {
-            qualifier.add(key, reader.nextString());
+            qualifier.set(key, reader.nextString());
           }
           else if (token.equals(JsonToken.NUMBER)) {
-            qualifier.add(key, reader.nextInt());
+            qualifier.set(key, reader.nextInt());
           }
           else if (token.equals(JsonToken.BOOLEAN)) {
-            qualifier.add(key, reader.nextBoolean());
+            qualifier.set(key, reader.nextBoolean());
           }
         }
         reader.endObject();
