@@ -90,7 +90,7 @@ public class SciOutletRouter {
   public static class NavigationOptions {
     private String outlet;
     private String relativeTo;
-    private Map<String, Object> params;
+    private Map<String, ?> params;
     private Boolean pushStateToSessionHistoryStack;
 
     public NavigationOptions outlet(String outlet) {
@@ -103,7 +103,7 @@ public class SciOutletRouter {
       return this;
     }
 
-    public NavigationOptions params(Map<String, Object> params) {
+    public NavigationOptions params(Map<String, ?> params) {
       this.params = params;
       return this;
     }
