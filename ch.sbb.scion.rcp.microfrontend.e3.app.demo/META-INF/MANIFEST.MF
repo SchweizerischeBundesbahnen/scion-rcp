@@ -9,6 +9,7 @@ Require-Bundle: org.eclipse.ui,
  org.apache.felix.scr,
  org.eclipse.equinox.event,
  ch.sbb.scion.rcp.microfrontend,
+ ch.sbb.scion.rcp.workbench,
  org.eclipse.e4.ui.workbench,
  org.eclipse.e4.ui.model.workbench,
  org.eclipse.e4.core.di.annotations,
@@ -16,7 +17,11 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.databinding,
  org.eclipse.jface.databinding,
  com.google.gson,
- org.eclipse.core.databinding.property
+ org.eclipse.core.databinding.property,
+ org.eclipse.core.expressions,
+ org.eclipse.e4.core.services,
+ org.eclipse.e4.core.contexts,
+ org.eclipse.e4.core.di
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: ch.sbb.scion.rcp.microfrontend.e3.app.demo
 Import-Package: javax.annotation,

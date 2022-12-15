@@ -651,13 +651,13 @@ public class ManifestServicePart {
       }
     });
   }
-  
+
   private void createPropertiesColumn(TableViewer messagesTableViewer) {
     var paramsColumn = new TableViewerColumn(messagesTableViewer, SWT.NONE);
     paramsColumn.getColumn().setText("Properties");
     paramsColumn.getColumn().setWidth(100);
     paramsColumn.setLabelProvider(new ColumnLabelProvider() {
-      
+
       @Override
       public String getText(Object message) {
         var params = ((Capability) message).properties;
@@ -665,7 +665,7 @@ public class ManifestServicePart {
       }
     });
   }
-  
+
   private void createQualifierColumn(TableViewer messagesTableViewer) {
     var qualifierColumn = new TableViewerColumn(messagesTableViewer, SWT.NONE);
     qualifierColumn.getColumn().setText("Qualifier");
