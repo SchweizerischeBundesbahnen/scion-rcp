@@ -68,7 +68,8 @@ public class JavaCallback implements IDisposable {
             @Override
             public Boolean function(Object[] arguments) {
               try {
-                callback.accept(arguments);
+                // TODO [ISW] Otherwise creating another browser would block if created within a browser function
+                browser.getDisplay().asyncExec(() -> callback.accept(arguments));   
               }
               finally {
                 if (once) {
