@@ -1,4 +1,4 @@
-package ch.sbb.scion.rcp.microfrontend.script;
+package ch.sbb.scion.rcp.microfrontend.internal.gson;
 
 import java.io.IOException;
 import java.util.Map;

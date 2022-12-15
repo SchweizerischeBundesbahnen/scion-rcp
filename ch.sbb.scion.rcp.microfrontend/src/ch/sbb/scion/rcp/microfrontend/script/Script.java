@@ -3,7 +3,7 @@ package ch.sbb.scion.rcp.microfrontend.script;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.sbb.scion.rcp.microfrontend.internal.GsonFactory;
+import ch.sbb.scion.rcp.microfrontend.internal.gson.GsonFactory;
 
 public class Script {
 
