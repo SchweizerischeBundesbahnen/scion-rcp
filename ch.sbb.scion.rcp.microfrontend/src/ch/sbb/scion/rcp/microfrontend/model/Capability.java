@@ -1,7 +1,6 @@
 package ch.sbb.scion.rcp.microfrontend.model;
 
 import java.util.List;
-import java.util.Map;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -56,7 +55,7 @@ public class Capability {
   /**
    * Arbitrary metadata to be associated with the capability.
    */
-  public Map<String, ?> properties;
+  public Properties properties;
   /**
    * Metadata about the capability (read-only, exclusively managed by the
    * platform).
@@ -90,7 +89,7 @@ public class Capability {
     return this;
   }
 
-  public Capability properties(Map<String, ?> properties) {
+  public Capability properties(Properties properties) {
     this.properties = properties;
     return this;
   }

@@ -12,19 +12,26 @@ import com.google.gson.GsonBuilder;
  * <li>{@link MapObjectTypeAdapterFactory}</li>
  * <li>{@link SetObjectTypeAdapterFactory}</li>
  * <li>{@link QualifierTypeAdapterFactory}</li>
+ * <li>{@link PropertiesTypeAdapterFactory}</li>
  * </ul>
  */
 public interface GsonFactory {
 
+  public static final MapObjectTypeAdapterFactory MAP_OBJECT_TYPE_ADAPTER_FACTORY = new MapObjectTypeAdapterFactory();
+  public static final SetObjectTypeAdapterFactory SET_OBJECT_TYPE_ADAPTER_FACTORY = new SetObjectTypeAdapterFactory();
+  public static final QualifierTypeAdapterFactory QUALIFIER_TYPE_ADAPTER_FACTORY = new QualifierTypeAdapterFactory();
+  public static final PropertiesTypeAdapterFactory PROPERTIES_TYPE_ADAPTER_FACTORY = new PropertiesTypeAdapterFactory();
+  
   /**
    * Use to create a {@link Gson} instance to be used in conjunction with
    * {@link helpers.js#fromJson} and {@link helpers.js#toJson} in JavaScript.
    */
   public static Gson create() {
     return new GsonBuilder()
-        .registerTypeAdapterFactory(new MapObjectTypeAdapterFactory())
-        .registerTypeAdapterFactory(new SetObjectTypeAdapterFactory())
-        .registerTypeAdapterFactory(new QualifierTypeAdapterFactory())
+        .registerTypeAdapterFactory(MAP_OBJECT_TYPE_ADAPTER_FACTORY)
+        .registerTypeAdapterFactory(SET_OBJECT_TYPE_ADAPTER_FACTORY)
+        .registerTypeAdapterFactory(QUALIFIER_TYPE_ADAPTER_FACTORY)
+        .registerTypeAdapterFactory(PROPERTIES_TYPE_ADAPTER_FACTORY)
         .serializeNulls()
         .create();
   }
