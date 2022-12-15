@@ -24,8 +24,8 @@ public class DevToolsPart {
     new SciRouterOutlet(parent, SWT.NONE, PART_ID);
     var navigation = outletRouter.navigate(
         new Qualifier()
-            .add("component", "devtools")
-            .add("vendor", "scion"),
+            .set("component", "devtools")
+            .set("vendor", "scion"),
         new NavigationOptions().outlet(PART_ID));
 
     navigation.exceptionally(e -> {
