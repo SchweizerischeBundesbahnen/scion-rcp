@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="ch.sbb.scion.rcp.workbench.view.MicrofrontendViewEditorPart"
+            default="false"
+            id="ch.sbb.scion.rcp.workbench.editors.MicrofrontendViewEditor"
+            name="SCION Workbench View">
+      </editor>
+   </extension>
+</plugin>

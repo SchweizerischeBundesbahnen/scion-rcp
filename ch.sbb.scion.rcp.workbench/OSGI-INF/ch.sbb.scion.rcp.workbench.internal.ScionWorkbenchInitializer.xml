@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.3.0" activate="activate" immediate="true" name="ch.sbb.scion.rcp.workbench.internal.ScionWorkbenchInitializer">
+   <service>
+      <provide interface="ch.sbb.scion.rcp.workbench.internal.ScionWorkbenchInitializer"/>
+   </service>
+   <reference cardinality="1..1" field="messageClient" interface="ch.sbb.scion.rcp.microfrontend.SciMessageClient" name="messageClient"/>
+   <reference cardinality="1..1" field="microfrontendPlatform" interface="ch.sbb.scion.rcp.microfrontend.MicrofrontendPlatform" name="microfrontendPlatform"/>
+   <implementation class="ch.sbb.scion.rcp.workbench.internal.ScionWorkbenchInitializer"/>
+</scr:component>
