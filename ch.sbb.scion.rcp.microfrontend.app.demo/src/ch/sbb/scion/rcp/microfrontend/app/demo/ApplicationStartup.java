@@ -23,7 +23,7 @@ public class ApplicationStartup {
                 .name("RCP Application")
                 .intentions(List.of(new Intention()
                     .type("microfrontend")
-                    .qualifier(new Qualifier().add("component", "devtools").add("vendor", "scion"))))))
+                    .qualifier(new Qualifier().set("component", "devtools").set("vendor", "scion"))))))
         .applications(List.of(
             new ApplicationConfig()
                 .symbolicName("client-app")

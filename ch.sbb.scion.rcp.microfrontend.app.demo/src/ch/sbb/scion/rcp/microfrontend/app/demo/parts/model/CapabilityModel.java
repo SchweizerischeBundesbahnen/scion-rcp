@@ -59,7 +59,7 @@ public class CapabilityModel {
     capability.isPrivate(isPrivate.getValue());
     if (!qualifiers.isEmpty()) {
       var qualifier = new Qualifier();
-      qualifiers.stream().forEach(x -> qualifier.add(x.getKey(), x.getValue()));
+      qualifiers.stream().forEach(x -> qualifier.set(x.getKey(), x.getValue()));
       capability.qualifier(qualifier);
     }
     if (!params.isEmpty()) {

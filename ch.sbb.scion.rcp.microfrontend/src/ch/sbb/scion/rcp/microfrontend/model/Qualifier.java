@@ -10,17 +10,17 @@ public class Qualifier {
 
   public Map<String, Object> entries = new HashMap<>();
 
-  public Qualifier add(String key, String value) {
+  public Qualifier set(String key, String value) {
     entries.put(key, value);
     return this;
   }
 
-  public Qualifier add(String key, int value) {
+  public Qualifier set(String key, int value) {
     entries.put(key, value);
     return this;
   }
 
-  public Qualifier add(String key, boolean value) {
+  public Qualifier set(String key, boolean value) {
     entries.put(key, value);
     return this;
   }

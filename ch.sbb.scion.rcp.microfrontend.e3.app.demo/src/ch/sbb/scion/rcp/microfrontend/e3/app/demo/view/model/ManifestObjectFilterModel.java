@@ -53,7 +53,7 @@ public class ManifestObjectFilterModel {
     }
     if(!qualifiers.isEmpty()) {
       var qualifier = new Qualifier();
-      qualifiers.stream().forEach(x -> qualifier.add(x.getKey(), x.getValue()));
+      qualifiers.stream().forEach(x -> qualifier.set(x.getKey(), x.getValue()));
       filter.qualifier(qualifier);
     }
     if(!appSymbolicName.getValue().isEmpty()) {
