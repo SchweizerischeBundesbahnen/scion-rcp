@@ -27,6 +27,7 @@
       <plugin id="ch.qos.logback.slf4j" fragment="true"/>
       <plugin id="ch.sbb.scion.rcp.microfrontend"/>
       <plugin id="ch.sbb.scion.rcp.microfrontend.e3.app.demo"/>
+      <plugin id="ch.sbb.scion.rcp.workbench"/>
       <plugin id="com.google.gson"/>
       <plugin id="com.google.guava"/>
       <plugin id="com.ibm.icu"/>

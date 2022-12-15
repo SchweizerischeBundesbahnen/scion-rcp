@@ -22,45 +22,33 @@
    <extension
          point="org.eclipse.ui.views">
       <e4view
-            class="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.DevToolsPart"
-            id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.DevTools"
-            name="SCION DevTools"
-            restorable="true">
-      </e4view>
-      <e4view
             class="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.MessageClientPart"
-            id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.MessageClient"
+            id="ch.sbb.scion.rcp.views.messageClient"
             name="Message Client"
             restorable="true">
       </e4view>
       <e4view
             class="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.IntentClientPart"
-            id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.IntentClient"
+            id="ch.sbb.scion.rcp.views.intentClient"
             name="Intent Client"
             restorable="true">
       </e4view>
       <e4view
             class="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.ManifestServicePart"
-            id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.ManifestService"
+            id="ch.sbb.scion.rcp.views.manifestService"
             name="Manifest Service"
             restorable="true">
       </e4view>
       <e4view
             class="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.OutletRouterPart"
-            id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.OutletRouter"
+            id="ch.sbb.scion.rcp.views.outletRouter"
             name="Outlet Router"
             restorable="true">
       </e4view>
       <e4view
-            class="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.RouterOutletExample1Part"
-            id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.RouterOutletExample1"
-            name="Router Outlet Example 1"
-            restorable="true">
-      </e4view>
-      <e4view
-            class="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.RouterOutletExample2Part"
-            id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.RouterOutletExample2"
-            name="Router Outlet Example 2"
+            class="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.RouterOutletPart"
+            id="ch.sbb.scion.rcp.views.routerOutlet"
+            name="Router Outlet"
             restorable="true">
       </e4view>
    </extension>
@@ -68,43 +56,7 @@
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension targetID="*">
          <view
-               id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.DevTools"
-               minimized="false"
-               relationship="stack"
-               relative="org.eclipse.ui.editorss">
-         </view>
-         <view
-               id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.MessageClient"
-               minimized="false"
-               relationship="stack"
-               relative="org.eclipse.ui.editorss">
-         </view>
-         <view
-               id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.IntentClient"
-               minimized="false"
-               relationship="stack"
-               relative="org.eclipse.ui.editorss">
-         </view>
-         <view
-               id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.ManifestService"
-               minimized="false"
-               relationship="stack"
-               relative="org.eclipse.ui.editorss">
-         </view>
-         <view
-               id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.OutletRouter"
-               minimized="false"
-               relationship="stack"
-               relative="org.eclipse.ui.editorss">
-         </view>
-         <view
-               id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.RouterOutletExample1"
-               minimized="false"
-               relationship="stack"
-               relative="org.eclipse.ui.editorss">
-         </view>
-         <view
-               id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.RouterOutletExample2"
+               id="ch.sbb.scion.rcp.views.messageClient"
                minimized="false"
                relationship="stack"
                relative="org.eclipse.ui.editorss">
@@ -121,6 +73,23 @@
                   commandId="org.eclipse.ui.file.exit"
                   label="Exit">
             </command>
+         </menu>
+         <menu
+               label="Capabilities">
+            <menu
+                  label="Show View">
+               <dynamic
+                     class="ch.sbb.scion.rcp.microfrontend.e3.app.demo.menu.ViewCapabilityMenuContributor"
+                     id="ch.sbb.scion.rcp.menus.viewCapabilities">
+               </dynamic>
+            </menu>
+            <menu
+                  label="Open Tile">
+               <dynamic
+                     class="ch.sbb.scion.rcp.microfrontend.e3.app.demo.menu.TileCapabilityMenuContributor"
+                     id="ch.sbb.scion.rcp.menus.tileCapabilities">
+               </dynamic>
+            </menu>
          </menu>
       </menuContribution>
    </extension>
