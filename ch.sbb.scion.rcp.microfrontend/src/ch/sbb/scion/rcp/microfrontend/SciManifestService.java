@@ -30,6 +30,8 @@ import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
 @Component(service = SciManifestService.class)
 public class SciManifestService {
 
+  private CompletableFuture<List<Application>> applications;
+
   @Reference
   private MicrofrontendPlatformRcpHost microfrontendPlatformRcpHost;
 
@@ -37,19 +39,20 @@ public class SciManifestService {
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/ManifestService.html#applications
    */
   public CompletableFuture<List<Application>> getApplications() {
-    var applications = new CompletableFuture<List<Application>>();
-    new JavaCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
-      applications.complete(GsonFactory.create().fromJson((String) args[0], new ParameterizedType(List.class, Application.class)));
-    })
-        .installOnce()
-        .thenAccept(callback -> {
-          new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, Resources.readString("js/sci-manifest-service/lookup-applications.js"))
-              .replacePlaceholder("callback", callback.name)
-              .replacePlaceholder("refs.ManifestService", Refs.ManifestService)
-              .replacePlaceholder("helpers.toJson", Helpers.toJson)
-              .execute();
-        });
-
+    if (applications == null) {
+      applications = new CompletableFuture<List<Application>>();
+      new JavaCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
+        applications.complete(GsonFactory.create().fromJson((String) args[0], new ParameterizedType(List.class, Application.class)));
+      })
+          .installOnce()
+          .thenAccept(callback -> {
+            new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, Resources.readString("js/sci-manifest-service/lookup-applications.js"))
+                .replacePlaceholder("callback", callback.name)
+                .replacePlaceholder("refs.ManifestService", Refs.ManifestService)
+                .replacePlaceholder("helpers.toJson", Helpers.toJson)
+                .execute();
+          });
+    }
     return applications;
   }
 
