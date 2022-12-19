@@ -116,15 +116,14 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
     }
 
     // Load the microfrontend
-    applications.thenAccept(applications -> {
-      var appSymbolicName = capability.metadata.appSymbolicName;
-      var path = (String) capability.properties.get("path");
-      outletRouter.navigate(path, new NavigationOptions()
-          .outlet(getSciViewId())
-          .relativeTo(applications.get(appSymbolicName).baseUrl)
-          .params(params)
-          .pushStateToSessionHistoryStack(false));
-    });
+    var applications = CompletableFutures.await(this.applications);
+    var appSymbolicName = capability.metadata.appSymbolicName;
+    var path = (String) capability.properties.get("path");
+    outletRouter.navigate(path, new NavigationOptions()
+        .outlet(getSciViewId())
+        .relativeTo(applications.get(appSymbolicName).baseUrl)
+        .params(params)
+        .pushStateToSessionHistoryStack(false));
   }
 
   @Override
