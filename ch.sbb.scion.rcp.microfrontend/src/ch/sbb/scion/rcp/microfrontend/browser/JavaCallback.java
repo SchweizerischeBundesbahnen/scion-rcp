@@ -67,15 +67,12 @@ public class JavaCallback implements IDisposable {
           browserFunction = new BrowserFunction(browser, name) {
             @Override
             public Boolean function(Object[] arguments) {
-              try {
-                // TODO [ISW] Otherwise creating another browser would block if created within a browser function
-                browser.getDisplay().asyncExec(() -> callback.accept(arguments));   
+              if (once) {
+                dispose();
               }
-              finally {
-                if (once) {
-                  dispose();
-                }
-              }
+              // Invoke the callback asynchronously to first complete the invocation of this browser function.
+              // Otherwise, creating a new {@link Browser} instance in the callback would lead to a deadlock.
+              browser.getDisplay().asyncExec(() -> callback.accept(arguments));
               return true;
             }
           };
