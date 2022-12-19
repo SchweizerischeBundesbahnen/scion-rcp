@@ -99,20 +99,19 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
     params.put("ɵViewCapabilityId", capability.metadata.id);
     messageClient.publish(computeViewParamsTopic(), params, new PublishOptions().retain(true));
 
-    // TODO [ISW]
     // When navigating to another view capability of the same app, wait until transported the params to consumers before loading the
     // new microfrontend into the iframe, allowing the currently loaded microfrontend to cleanup subscriptions. Params include the
     // capability id.
-//    if (prevViewCapability
-//        && prevViewCapability.metadata!.appSymbolicName === viewCapability.metadata!.appSymbolicName
-//        && prevViewCapability.metadata!.id !== viewCapability.metadata!.id) {
-//        await this.waitForCapabilityParam(viewCapability.metadata!.id);
-//      }
+    if (prevCapability != null
+        && prevCapability.metadata.appSymbolicName.equals(capability.metadata.appSymbolicName)
+        && !prevCapability.metadata.id.equals(capability.metadata.id)) {
+      waitForCapabilityParam(capability.metadata.id);
+    }
 
     // Signal that the currently loaded microfrontend, if any, is about to be replaced by a microfrontend of another application.
     if (prevCapability != null && !prevCapability.metadata.appSymbolicName.equals(capability.metadata.appSymbolicName)) {
       var topic = String.format("ɵworkbench/views/%s/unloading", getSciViewId());
-      messageClient.publish(topic);
+      CompletableFutures.await(messageClient.publish(topic));
     }
 
     // Load the microfrontend
@@ -212,6 +211,21 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
 
   public String getSciViewId() {
     return getEditorInput().sciViewId;
+  }
+
+  private void waitForCapabilityParam(String capabilityId) {
+    var future = new CompletableFuture<Void>();
+    var subscription = messageClient.subscribe(computeViewParamsTopic(), message -> {
+      if (capabilityId.equals(message.body.get("ɵViewCapabilityId"))) {
+        future.complete(null);
+      }
+    }, Map.class);
+    try {
+      CompletableFutures.await(future);
+    }
+    finally {
+      subscription.unsubscribe();
+    }
   }
 
   @Override
