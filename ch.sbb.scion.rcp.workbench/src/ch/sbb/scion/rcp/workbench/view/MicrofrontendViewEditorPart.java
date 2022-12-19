@@ -64,7 +64,6 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
 
   @Override
   public void init(final IEditorSite site, final IEditorInput input) throws PartInitException {
-    // TODO [ISW] Move to separate service and fetch applications once.
     applications = manifestService.getApplications().thenApply(applications -> {
       return applications.stream().collect(Collectors.toMap(a -> a.symbolicName, Function.identity()));
     });
