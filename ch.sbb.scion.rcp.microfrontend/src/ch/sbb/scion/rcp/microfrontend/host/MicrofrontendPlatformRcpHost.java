@@ -66,7 +66,7 @@ public class MicrofrontendPlatformRcpHost {
   /**
    * Starts the SCION Microfrontend Platform host.
    *
-   * @see https://scion-microfrontend-platform-api.vercel.app/classes/MicrofrontendPlatform.html#startHost
+   * @see https://scion-microfrontend-platform-api.vercel.app/classes/MicrofrontendPlatformHost.html#start
    */
   public CompletableFuture<Browser> start(MicrofrontendPlatformConfig config) {
     // Create the shell
@@ -117,7 +117,7 @@ public class MicrofrontendPlatformRcpHost {
         .thenAccept(callback -> {
           new JavaScriptExecutor(hostBrowser, Resources.readString("js/host/start-host.js"))
               .replacePlaceholder("callback", callback.name)
-              .replacePlaceholder("refs.MicrofrontendPlatform", Refs.MicrofrontendPlatform)
+              .replacePlaceholder("refs.MicrofrontendPlatformHost", Refs.MicrofrontendPlatformHost)
               .replacePlaceholder("platformConfig", config, Flags.ToJson)
               .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
               .runInsideAsyncFunction()

@@ -1,4 +1,4 @@
-import {MessageClient, MessageHeaders, MicrofrontendPlatform, MicrofrontendPlatformStopper} from '@scion/microfrontend-platform';
+import {MessageClient, MessageHeaders, MicrofrontendPlatformClient} from '@scion/microfrontend-platform';
 import {fromEvent, Subscription} from 'rxjs';
 import {Beans} from '@scion/toolkit/bean-manager';
 
@@ -13,7 +13,7 @@ class ClientController {
   private async createConnectSection(): Promise<void> {
     const connectStatus = document.querySelector<HTMLButtonElement>('output#connect-status');
     try {
-      await MicrofrontendPlatform.connectToHost('client-app');
+      await MicrofrontendPlatformClient.connect('client-app');
       connectStatus.classList.add('connected');
     }
     catch (error) {

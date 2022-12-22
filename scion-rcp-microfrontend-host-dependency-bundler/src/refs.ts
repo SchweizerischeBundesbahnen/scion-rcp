@@ -1,4 +1,4 @@
-import {IntentClient, IntentInterceptor, ManifestService, MessageClient, MessageInterceptor, MicrofrontendPlatform, OutletRouter, QualifierMatcher, TopicMatcher} from '@scion/microfrontend-platform';
+import {IntentClient, IntentInterceptor, MicrofrontendPlatform, MicrofrontendPlatformHost, MicrofrontendPlatformClient, ManifestService, MessageClient, MessageInterceptor, OutletRouter, QualifierMatcher, TopicMatcher} from '@scion/microfrontend-platform';
 import {Beans} from '@scion/toolkit/bean-manager';
 import {UUID} from '@scion/toolkit/uuid';
 
@@ -6,6 +6,12 @@ window['__SCION_RCP'] = window['__SCION_RCP'] || {};
 window['__SCION_RCP'].refs = {
   get MicrofrontendPlatform() {
     return MicrofrontendPlatform;
+  },
+  get MicrofrontendPlatformHost() {
+    return MicrofrontendPlatformHost;
+  },
+  get MicrofrontendPlatformClient() {
+    return MicrofrontendPlatformClient;
   },
   get MessageClient() {
     return Beans.get(MessageClient);
