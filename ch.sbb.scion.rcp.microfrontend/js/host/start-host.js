@@ -1,5 +1,5 @@
 // ======= SCRIPT PLACEHOLDERS BEGIN =======
-const refs = {MicrofrontendPlatform: /@@refs.MicrofrontendPlatform@@/};
+const refs = {MicrofrontendPlatformHost: /@@refs.MicrofrontendPlatformHost@@/};
 const helpers = {fromJson: /@@helpers.fromJson@@/};
 const callback = window['/@@callback@@/'];
 const config = helpers.fromJson('/@@platformConfig@@/');
@@ -14,7 +14,7 @@ try {
   });
 
   // Start the platform host.
-  await refs.MicrofrontendPlatform.startHost(config);
+  await refs.MicrofrontendPlatformHost.start(config);
 
   callback(null);
 }

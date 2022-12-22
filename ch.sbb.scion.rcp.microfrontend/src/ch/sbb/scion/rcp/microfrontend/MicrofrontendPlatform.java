@@ -25,7 +25,7 @@ public class MicrofrontendPlatform {
   /**
    * Starts the SCION Microfrontend Platform host.
    * 
-   * @see https://scion-microfrontend-platform-api.vercel.app/classes/MicrofrontendPlatform.html#startHost
+   * @see https://scion-microfrontend-platform-api.vercel.app/classes/MicrofrontendPlatformHost.html#start
    */
   public CompletableFuture<Browser> startHost(MicrofrontendPlatformConfig config) {
     return microfrontendPlatformRcpHost.start(config);

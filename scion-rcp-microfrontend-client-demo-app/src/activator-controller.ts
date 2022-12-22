@@ -1,4 +1,4 @@
-import {MessageClient, MicrofrontendPlatform} from '@scion/microfrontend-platform';
+import {MessageClient, MicrofrontendPlatformClient} from '@scion/microfrontend-platform';
 import {Beans} from '@scion/toolkit/bean-manager';
 
 /**
@@ -7,7 +7,7 @@ import {Beans} from '@scion/toolkit/bean-manager';
 class ActivatorController {
 
   public async init(): Promise<void> {
-    await MicrofrontendPlatform.connectToHost('client-app');
+    await MicrofrontendPlatformClient.connect('client-app');
     await Beans.get(MessageClient).publish('activator/ready');
   }
 }

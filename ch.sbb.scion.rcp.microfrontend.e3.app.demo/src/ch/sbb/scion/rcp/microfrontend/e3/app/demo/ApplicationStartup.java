@@ -80,7 +80,7 @@ public class ApplicationStartup {
                 .manifestUrl("http://localhost:4200/assets/manifest.json"),
             new ApplicationConfig()
                 .symbolicName("devtools")
-                .manifestUrl("https://scion-microfrontend-platform-devtools-v1-0-0-rc-11.vercel.app/assets/manifest.json")
+                .manifestUrl("https://scion-microfrontend-platform-devtools-v1-0-0-rc-12.vercel.app/assets/manifest.json")
                 .intentionCheckDisabled(true)
                 .scopeCheckDisabled(true)))
         .manifestLoadTimeout(2000L)
