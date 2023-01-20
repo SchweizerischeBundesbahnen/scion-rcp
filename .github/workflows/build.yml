@@ -25,4 +25,6 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: bundles
-        path: ch.sbb.scion.rcp.microfrontend/target/*.jar
+        path: |
+            ch.sbb.scion.rcp.microfrontend/target/*.jar
+            ch.sbb.scion.rcp.workbench/target/*.jar

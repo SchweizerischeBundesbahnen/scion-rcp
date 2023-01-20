@@ -19,3 +19,4 @@ Import-Package: javax.annotation,
 Export-Package: ch.sbb.scion.rcp.workbench
 Service-Component: OSGI-INF/ch.sbb.scion.rcp.workbench.internal.ScionWorkbenchInitializer.xml,
  OSGI-INF/ch.sbb.scion.rcp.workbench.view.ViewIntentInterceptor.xml
+Bundle-Vendor: SBB and Contributors

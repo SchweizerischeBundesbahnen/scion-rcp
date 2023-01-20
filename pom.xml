@@ -15,7 +15,9 @@
 
 	<modules>
 		<module>ch.sbb.scion.rcp.microfrontend</module>
+		<module>ch.sbb.scion.rcp.workbench</module>
 		<module>ch.sbb.scion.rcp.microfrontend.app.demo</module>
+		<module>ch.sbb.scion.rcp.microfrontend.e3.app.demo</module>
 		<module>ch.sbb.scion.rcp.microfrontend.targetplatform</module>
 	</modules>
 
