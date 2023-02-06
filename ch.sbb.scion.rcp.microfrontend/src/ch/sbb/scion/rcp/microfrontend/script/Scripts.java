@@ -5,6 +5,7 @@ public interface Scripts {
   public static final String Storage = "window['__SCION_RCP'].storage";
 
   public static class Refs {
+
     public static final String MicrofrontendPlatform = "window['__SCION_RCP'].refs.MicrofrontendPlatform";
     public static final String MicrofrontendPlatformHost = "window['__SCION_RCP'].refs.MicrofrontendPlatformHost";
     public static final String MicrofrontendPlatformClient = "window['__SCION_RCP'].refs.MicrofrontendPlatformClient";
@@ -21,6 +22,7 @@ public interface Scripts {
   }
 
   public static class Helpers {
+
     public static final String toJson = "window['__SCION_RCP'].helpers.toJson";
     public static final String fromJson = "window['__SCION_RCP'].helpers.fromJson";
   }

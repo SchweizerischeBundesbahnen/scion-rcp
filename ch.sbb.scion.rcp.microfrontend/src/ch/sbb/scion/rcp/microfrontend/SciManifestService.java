@@ -43,15 +43,12 @@ public class SciManifestService {
       applications = new CompletableFuture<List<Application>>();
       new JavaCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
         applications.complete(GsonFactory.create().fromJson((String) args[0], new ParameterizedType(List.class, Application.class)));
-      })
-          .installOnce()
-          .thenAccept(callback -> {
-            new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, Resources.readString("js/sci-manifest-service/lookup-applications.js"))
-                .replacePlaceholder("callback", callback.name)
-                .replacePlaceholder("refs.ManifestService", Refs.ManifestService)
-                .replacePlaceholder("helpers.toJson", Helpers.toJson)
+      }).installOnce().thenAccept(callback -> {
+        new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser,
+            Resources.readString("js/sci-manifest-service/lookup-applications.js")).replacePlaceholder("callback", callback.name)
+                .replacePlaceholder("refs.ManifestService", Refs.ManifestService).replacePlaceholder("helpers.toJson", Helpers.toJson)
                 .execute();
-          });
+      });
     }
     return applications;
   }
@@ -74,11 +71,10 @@ public class SciManifestService {
         .replacePlaceholder("filter.type", manifestObjectFilter.type, Flags.ToJson)
         .replacePlaceholder("filter.qualifier", manifestObjectFilter.qualifier, Flags.ToJson)
         .replacePlaceholder("filter.appSymbolicName", manifestObjectFilter.appSymbolicName, Flags.ToJson)
-        .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
-        .substitute();
+        .replacePlaceholder("helpers.fromJson", Helpers.fromJson).substitute();
 
-    var observable = new RxJsObservable<List<Capability>>(microfrontendPlatformRcpHost.whenHostBrowser,
-        observeIIFE, new ParameterizedType(List.class, Capability.class));
+    var observable = new RxJsObservable<List<Capability>>(microfrontendPlatformRcpHost.whenHostBrowser, observeIIFE,
+        new ParameterizedType(List.class, Capability.class));
     return observable.subscribe(listener);
   }
 
@@ -95,17 +91,12 @@ public class SciManifestService {
       else {
         registered.completeExceptionally(new RuntimeException((String) error));
       }
-    })
-        .installOnce()
-        .thenAccept(callback -> {
-          new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, Resources.readString("js/sci-manifest-service/register-capability.js"))
-              .replacePlaceholder("callback", callback.name)
-              .replacePlaceholder("capability", capability, Flags.ToJson)
-              .replacePlaceholder("refs.ManifestService", Refs.ManifestService)
-              .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
-              .runInsideAsyncFunction()
-              .execute();
-        });
+    }).installOnce().thenAccept(callback -> {
+      new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser,
+          Resources.readString("js/sci-manifest-service/register-capability.js")).replacePlaceholder("callback", callback.name)
+              .replacePlaceholder("capability", capability, Flags.ToJson).replacePlaceholder("refs.ManifestService", Refs.ManifestService)
+              .replacePlaceholder("helpers.fromJson", Helpers.fromJson).runInsideAsyncFunction().execute();
+    });
 
     return registered;
   }
@@ -131,20 +122,16 @@ public class SciManifestService {
       else {
         unregistered.completeExceptionally(new RuntimeException((String) error));
       }
-    })
-        .installOnce()
-        .thenAccept(callback -> {
-          new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, Resources.readString("js/sci-manifest-service/unregister-capabilities.js"))
-              .replacePlaceholder("callback", callback.name)
+    }).installOnce().thenAccept(callback -> {
+      new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser,
+          Resources.readString("js/sci-manifest-service/unregister-capabilities.js")).replacePlaceholder("callback", callback.name)
               .replacePlaceholder("refs.ManifestService", Refs.ManifestService)
               .replacePlaceholder("filter.id", manifestObjectFilter.id, Flags.ToJson)
               .replacePlaceholder("filter.type", manifestObjectFilter.type, Flags.ToJson)
               .replacePlaceholder("filter.qualifier", manifestObjectFilter.qualifier, Flags.ToJson)
               .replacePlaceholder("filter.appSymbolicName", manifestObjectFilter.appSymbolicName, Flags.ToJson)
-              .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
-              .runInsideAsyncFunction()
-              .execute();
-        });
+              .replacePlaceholder("helpers.fromJson", Helpers.fromJson).runInsideAsyncFunction().execute();
+    });
 
     return unregistered;
   }

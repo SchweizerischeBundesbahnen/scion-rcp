@@ -107,102 +107,60 @@ public class IntentClientPart {
     GridLayoutFactory.swtDefaults().numColumns(5).applyTo(group);
 
     // Type
-    LabelFactory.newLabel(SWT.NONE)
-        .text("Type*:")
-        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).align(SWT.BEGINNING, SWT.TOP).create())
-        .create(group);
+    LabelFactory.newLabel(SWT.NONE).text("Type*:")
+        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).align(SWT.BEGINNING, SWT.TOP).create()).create(group);
     var typeText = TextFactory.newText(SWT.SINGLE | SWT.BORDER)
-        .layoutData(GridDataFactory.fillDefaults().span(4, 1).grab(true, false).create())
-        .create(group);
+        .layoutData(GridDataFactory.fillDefaults().span(4, 1).grab(true, false).create()).create(group);
 
     // Qualifier
-    LabelFactory.newLabel(SWT.NONE)
-        .text("Qualifier:")
-        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).align(SWT.BEGINNING, SWT.TOP).create())
-        .create(group);
+    LabelFactory.newLabel(SWT.NONE).text("Qualifier:")
+        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).align(SWT.BEGINNING, SWT.TOP).create()).create(group);
 
     var qualifierComposite = createKeyValuePairViewerComposite(group, intentModel.getQualifiers());
-    GridDataFactory.swtDefaults()
-        .span(4, 1)
-        .hint(SWT.DEFAULT, 100)
-        .align(SWT.FILL, SWT.FILL)
-        .grab(true, false)
-        .applyTo(qualifierComposite);
+    GridDataFactory.swtDefaults().span(4, 1).hint(SWT.DEFAULT, 100).align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(qualifierComposite);
 
     // Params
-    LabelFactory.newLabel(SWT.NONE)
-        .text("Params:")
-        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).align(SWT.BEGINNING, SWT.TOP).create())
-        .create(group);
+    LabelFactory.newLabel(SWT.NONE).text("Params:")
+        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).align(SWT.BEGINNING, SWT.TOP).create()).create(group);
 
     var paramComposite = createKeyValuePairViewerComposite(group, intentModel.getParams());
-    GridDataFactory.swtDefaults()
-        .span(4, 1)
-        .hint(SWT.DEFAULT, 100)
-        .align(SWT.FILL, SWT.FILL)
-        .grab(true, false)
-        .applyTo(paramComposite);
+    GridDataFactory.swtDefaults().span(4, 1).hint(SWT.DEFAULT, 100).align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(paramComposite);
 
     // Message
-    LabelFactory.newLabel(SWT.NONE)
-        .text("Message:")
-        .layoutData(GridDataFactory.fillDefaults().hint(70, SWT.DEFAULT).align(SWT.BEGINNING, SWT.TOP).create())
-        .create(group);
+    LabelFactory.newLabel(SWT.NONE).text("Message:")
+        .layoutData(GridDataFactory.fillDefaults().hint(70, SWT.DEFAULT).align(SWT.BEGINNING, SWT.TOP).create()).create(group);
     var messageText = TextFactory.newText(SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL)
-        .layoutData(GridDataFactory.fillDefaults().hint(SWT.DEFAULT, 50).span(4, 1).grab(true, false).create())
-        .create(group);
+        .layoutData(GridDataFactory.fillDefaults().hint(SWT.DEFAULT, 50).span(4, 1).grab(true, false).create()).create(group);
 
     // Headers
-    LabelFactory.newLabel(SWT.NONE)
-        .text("Headers:")
-        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).align(SWT.BEGINNING, SWT.TOP).create())
-        .create(group);
+    LabelFactory.newLabel(SWT.NONE).text("Headers:")
+        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).align(SWT.BEGINNING, SWT.TOP).create()).create(group);
 
     var headersComposite = createKeyValuePairViewerComposite(group, intentModel.getHeaders());
-    GridDataFactory.swtDefaults()
-        .span(4, 1)
-        .hint(SWT.DEFAULT, 100)
-        .align(SWT.FILL, SWT.FILL)
-        .grab(true, false)
-        .applyTo(headersComposite);
+    GridDataFactory.swtDefaults().span(4, 1).hint(SWT.DEFAULT, 100).align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(headersComposite);
 
     // Retain
-    LabelFactory.newLabel(SWT.NONE)
-        .text("Retain:")
-        .layoutData(GridDataFactory.fillDefaults()
-            .hint(SWT.DEFAULT, SWT.DEFAULT)
-            .align(SWT.BEGINNING, SWT.TOP)
-            .create())
+    LabelFactory.newLabel(SWT.NONE).text("Retain:")
+        .layoutData(GridDataFactory.fillDefaults().hint(SWT.DEFAULT, SWT.DEFAULT).align(SWT.BEGINNING, SWT.TOP).create()).create(group);
+    var retain = ButtonFactory.newButton(SWT.CHECK).layoutData(GridDataFactory.fillDefaults().span(4, 1).grab(true, false).create())
         .create(group);
-    var retain = ButtonFactory.newButton(SWT.CHECK)
-        .layoutData(GridDataFactory.fillDefaults().span(4, 1).grab(true, false).create())
-        .create(group);
-    
+
     // Request-Reply
-    LabelFactory.newLabel(SWT.NONE)
-        .text("Request-Reply:")
-        .layoutData(GridDataFactory.fillDefaults()
-            .hint(SWT.DEFAULT, SWT.DEFAULT)
-            .align(SWT.BEGINNING, SWT.TOP)
-            .create())
-        .create(group);
-    var requestReply = ButtonFactory.newButton(SWT.CHECK)
-        .layoutData(GridDataFactory.fillDefaults().span(4, 1).grab(true, false).create())
+    LabelFactory.newLabel(SWT.NONE).text("Request-Reply:")
+        .layoutData(GridDataFactory.fillDefaults().hint(SWT.DEFAULT, SWT.DEFAULT).align(SWT.BEGINNING, SWT.TOP).create()).create(group);
+    var requestReply = ButtonFactory.newButton(SWT.CHECK).layoutData(GridDataFactory.fillDefaults().span(4, 1).grab(true, false).create())
         .create(group);
 
     // Publish button
-    publishButton = ButtonFactory.newButton(SWT.NONE)
-        .text("Publish")
-        .layoutData(GridDataFactory.fillDefaults().span(5, 1).create())
+    publishButton = ButtonFactory.newButton(SWT.NONE).text("Publish").layoutData(GridDataFactory.fillDefaults().span(5, 1).create())
         .create(group);
 
     publishButton.addSelectionListener(new SelectionAdapter() {
+
       @Override
       public void widgetSelected(SelectionEvent e) {
         var body = intentModel.getMessage().getValue().isEmpty() ? null : intentModel.getMessage().getValue();
-        var headers = intentModel.getHeaders()
-            .stream()
-            .collect(Collectors.toMap(x -> x.getKey(), x -> (Object) x.getValue()));
+        var headers = intentModel.getHeaders().stream().collect(Collectors.toMap(x -> x.getKey(), x -> (Object) x.getValue()));
         if (requestSubscription != null) {
           cancelRequest();
         }
@@ -221,6 +179,7 @@ public class IntentClientPart {
     var typeModel = new WritableValue<>();
     var typeWidgetValue = WidgetProperties.text(SWT.Modify).observe(typeText);
     var validator = new IValidator<String>() {
+
       @Override
       public IStatus validate(String value) {
         String s = String.valueOf(value);
@@ -243,11 +202,10 @@ public class IntentClientPart {
     var bindingType = ctx.bindValue(typeWidgetValue, typeModel, strategy, null);
     ControlDecorationSupport.create(bindingType, SWT.TOP | SWT.LEFT);
 
-    IConverter<String, Boolean> stringToBooleanConverter = IConverter
-        .create(String.class, Boolean.class, (o1) -> !o1.isEmpty());
+    IConverter<String, Boolean> stringToBooleanConverter = IConverter.create(String.class, Boolean.class, (o1) -> !o1.isEmpty());
 
-    ctx.bindValue(WidgetProperties.enabled().observe(publishButton), typeWidgetValue, null, UpdateValueStrategy
-        .create(stringToBooleanConverter));
+    ctx.bindValue(WidgetProperties.enabled().observe(publishButton), typeWidgetValue, null,
+        UpdateValueStrategy.create(stringToBooleanConverter));
 
     return group;
   }
@@ -258,31 +216,21 @@ public class IntentClientPart {
     publishButton.setText("Publish");
   }
 
-  private Composite createKeyValuePairViewerComposite(final Composite parent,
-      final IObservableList<Entry<String, String>> entryModel) {
+  private Composite createKeyValuePairViewerComposite(final Composite parent, final IObservableList<Entry<String, String>> entryModel) {
     var composite = CompositeFactory.newComposite(SWT.NONE).create(parent);
     GridLayoutFactory.swtDefaults().numColumns(4).margins(0, 0).applyTo(composite);
 
     var nameText = TextFactory.newText(SWT.SINGLE | SWT.BORDER)
-        .layoutData(GridDataFactory.fillDefaults().hint(100, 20).align(SWT.BEGINNING, SWT.TOP).create())
-        .message("name")
+        .layoutData(GridDataFactory.fillDefaults().hint(100, 20).align(SWT.BEGINNING, SWT.TOP).create()).message("name").create(composite);
+
+    var valueText = TextFactory.newText(SWT.SINGLE | SWT.BORDER).layoutData(GridDataFactory.fillDefaults().grab(true, false).create())
+        .message("value").create(composite);
+
+    var addEntryButton = ButtonFactory.newButton(SWT.NONE).text("+").layoutData(GridDataFactory.fillDefaults().hint(30, 20).create())
         .create(composite);
 
-    var valueText = TextFactory.newText(SWT.SINGLE | SWT.BORDER)
-        .layoutData(GridDataFactory.fillDefaults().grab(true, false).create())
-        .message("value")
-        .create(composite);
-
-    var addEntryButton = ButtonFactory.newButton(SWT.NONE)
-        .text("+")
-        .layoutData(GridDataFactory.fillDefaults().hint(30, 20).create())
-        .create(composite);
-
-    var removeEntryButton = ButtonFactory.newButton(SWT.NONE)
-        .text("-")
-        .enabled(false)
-        .layoutData(GridDataFactory.fillDefaults().hint(30, 20).create())
-        .create(composite);
+    var removeEntryButton = ButtonFactory.newButton(SWT.NONE).text("-").enabled(false)
+        .layoutData(GridDataFactory.fillDefaults().hint(30, 20).create()).create(composite);
 
     var tableViewer = createTableViewer(composite);
     tableViewer.setInput(entryModel);
@@ -295,6 +243,7 @@ public class IntentClientPart {
     });
 
     addEntryButton.addSelectionListener(new SelectionAdapter() {
+
       @Override
       public void widgetSelected(final SelectionEvent e) {
         entryModel.add(Map.entry(nameText.getText(), valueText.getText()));
@@ -304,6 +253,7 @@ public class IntentClientPart {
     });
 
     removeEntryButton.addSelectionListener(new SelectionAdapter() {
+
       @SuppressWarnings("unchecked")
       @Override
       public void widgetSelected(final SelectionEvent e) {
@@ -364,11 +314,7 @@ public class IntentClientPart {
     var contentProvider = new ObservableListContentProvider<Entry<String, String>>();
     viewer.setContentProvider(contentProvider);
     createColumns(viewer);
-    GridDataFactory.swtDefaults()
-        .span(4, 1)
-        .hint(SWT.DEFAULT, SWT.DEFAULT)
-        .align(SWT.FILL, SWT.FILL)
-        .grab(true, true)
+    GridDataFactory.swtDefaults().span(4, 1).hint(SWT.DEFAULT, SWT.DEFAULT).align(SWT.FILL, SWT.FILL).grab(true, true)
         .applyTo(viewer.getControl());
 
     return viewer;
@@ -405,13 +351,8 @@ public class IntentClientPart {
     GridLayoutFactory.swtDefaults().numColumns(1).applyTo(group);
 
     validationLabel = TextFactory.newText(SWT.READ_ONLY | SWT.MULTI | SWT.WRAP)
-        .layoutData(GridDataFactory.fillDefaults()
-            .hint(SWT.DEFAULT, 40)
-            .grab(true, false)
-            .align(SWT.FILL, SWT.TOP)
-            .create())
-        .font(JFaceResources.getFontRegistry().get(JFaceResources.DIALOG_FONT))
-        .create(group);
+        .layoutData(GridDataFactory.fillDefaults().hint(SWT.DEFAULT, 40).grab(true, false).align(SWT.FILL, SWT.TOP).create())
+        .font(JFaceResources.getFontRegistry().get(JFaceResources.DIALOG_FONT)).create(group);
 
     ctx.bindValue(WidgetProperties.text(SWT.Modify).observe(validationLabel), validationMessage);
 
@@ -424,39 +365,27 @@ public class IntentClientPart {
     GridLayoutFactory.swtDefaults().numColumns(2).applyTo(group);
 
     // Type
-    LabelFactory.newLabel(SWT.NONE)
-        .text("Type:")
-        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).align(SWT.BEGINNING, SWT.TOP).create())
-        .create(group);
-    var typeText = TextFactory.newText(SWT.SINGLE | SWT.BORDER)
-        .layoutData(GridDataFactory.fillDefaults().grab(true, false).create())
+    LabelFactory.newLabel(SWT.NONE).text("Type:")
+        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).align(SWT.BEGINNING, SWT.TOP).create()).create(group);
+    var typeText = TextFactory.newText(SWT.SINGLE | SWT.BORDER).layoutData(GridDataFactory.fillDefaults().grab(true, false).create())
         .create(group);
 
     // Qualifier
-    LabelFactory.newLabel(SWT.NONE)
-        .text("Qualifier:")
-        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).align(SWT.BEGINNING, SWT.TOP).create())
-        .create(group);
+    LabelFactory.newLabel(SWT.NONE).text("Qualifier:")
+        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).align(SWT.BEGINNING, SWT.TOP).create()).create(group);
 
     var qualifierComposite = createKeyValuePairViewerComposite(group, selectorModel.getQualifiers());
-    GridDataFactory.swtDefaults()
-        .hint(SWT.DEFAULT, 100)
-        .align(SWT.FILL, SWT.FILL)
-        .grab(true, false)
-        .applyTo(qualifierComposite);
+    GridDataFactory.swtDefaults().hint(SWT.DEFAULT, 100).align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(qualifierComposite);
 
     // Subscribe button
-    var subscribeButton = ButtonFactory.newButton(SWT.NONE)
-        .text("Subscribe")
-        .layoutData(GridDataFactory.fillDefaults().span(2, 1).create())
+    var subscribeButton = ButtonFactory.newButton(SWT.NONE).text("Subscribe").layoutData(GridDataFactory.fillDefaults().span(2, 1).create())
         .create(group);
 
     // add bindings
     ctx.bindValue(WidgetProperties.text(SWT.Modify).observe(typeText), selectorModel.getType());
 
     var messages = new ArrayList<IntentMessage<?>>();
-    var intentsTableViewer = new TableViewer(new Table(group, SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION
-        | SWT.BORDER));
+    var intentsTableViewer = new TableViewer(new Table(group, SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER));
     var table = intentsTableViewer.getTable();
     table.setHeaderVisible(true);
     intentsTableViewer.setContentProvider(ArrayContentProvider.getInstance());
@@ -467,16 +396,13 @@ public class IntentClientPart {
     createBodyColumn(intentsTableViewer);
     createHeadersColumn(intentsTableViewer);
     createCapabilityIdColumn(intentsTableViewer);
-    GridDataFactory.fillDefaults()
-        .span(2, 1)
-        .align(SWT.FILL, SWT.FILL)
-        .grab(true, true)
-        .applyTo(intentsTableViewer.getControl());
+    GridDataFactory.fillDefaults().span(2, 1).align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(intentsTableViewer.getControl());
 
     intentsTableViewer.setInput(Collections.EMPTY_LIST);
 
     var subscription = new AtomicReference<ISubscription>();
     subscribeButton.addSelectionListener(new SelectionAdapter() {
+
       @Override
       public void widgetSelected(SelectionEvent e) {
         if (subscription.get() == null) {
@@ -505,6 +431,7 @@ public class IntentClientPart {
     var menuItem = new MenuItem(contextMenu, SWT.None);
     menuItem.setText("Reply");
     menuItem.addSelectionListener(new SelectionAdapter() {
+
       @SuppressWarnings("rawtypes")
       @Override
       public void widgetSelected(SelectionEvent evnt) {
@@ -516,6 +443,7 @@ public class IntentClientPart {
     });
 
     table.addListener(SWT.MenuDetect, new Listener() {
+
       @SuppressWarnings("rawtypes")
       @Override
       public void handleEvent(Event event) {
@@ -524,8 +452,7 @@ public class IntentClientPart {
         }
         if (table.getSelectionCount() > 0) {
           var selectedIntentMessage = (IntentMessage) table.getSelection()[0].getData();
-          if (selectedIntentMessage.headers == null
-              || selectedIntentMessage.headers.get(MessageHeaders.ReplyTo.value) == null) {
+          if (selectedIntentMessage.headers == null || selectedIntentMessage.headers.get(MessageHeaders.ReplyTo.value) == null) {
             event.doit = false;
           }
         }

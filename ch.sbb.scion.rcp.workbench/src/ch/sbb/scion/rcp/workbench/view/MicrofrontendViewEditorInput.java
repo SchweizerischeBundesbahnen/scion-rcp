@@ -43,9 +43,7 @@ public class MicrofrontendViewEditorInput implements IEditorInput {
     }
 
     // Test whether all "navigational" params match this input.
-    return capability.params.stream()
-        .filter(param -> param.required)
-        .map(param -> param.name)
+    return capability.params.stream().filter(param -> param.required).map(param -> param.name)
         .allMatch(param -> intent.params.get(param).equals(this.intent.params.get(param)));
   }
 

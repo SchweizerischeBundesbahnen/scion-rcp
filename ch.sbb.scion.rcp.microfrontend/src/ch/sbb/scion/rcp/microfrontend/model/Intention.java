@@ -4,6 +4,7 @@ package ch.sbb.scion.rcp.microfrontend.model;
  * @see https://scion-microfrontend-platform-api.vercel.app/interfaces/Intention.html
  */
 public class Intention {
+
   /**
    * The type of capability to interact with.
    */
@@ -46,6 +47,7 @@ public class Intention {
   }
 
   public static class Metadata {
+
     /**
      * Unique identity of this intent declaration.
      */

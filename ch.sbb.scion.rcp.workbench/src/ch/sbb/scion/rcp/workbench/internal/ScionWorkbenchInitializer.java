@@ -33,20 +33,21 @@ public class ScionWorkbenchInitializer {
    * Installs an interceptor to handle view intents, i.e., to open Eclipse Workbench views.
    */
   private void installViewIntentInterceptor() {
-    microfrontendPlatform.registerIntentInterceptor("view", (final IntentMessage<Map<String, ?>> intentMessage, final InterceptorChain chain) -> {
-      try {
-        final var handled = PlatformUI.getWorkbench().getService(ViewIntentInterceptor.class).handle(intentMessage);
-        if (handled) {
-          chain.doSwallow();
-        }
-        else {
-          chain.doContinue(intentMessage);
-        }
-      }
-      catch (final PartInitException e) {
-        chain.doReject(e.getMessage());
-        Platform.getLog(ScionWorkbenchInitializer.class).error("Failed to intercept view intent", e);
-      }
-    });
+    microfrontendPlatform.registerIntentInterceptor("view",
+        (final IntentMessage<Map<String, ?>> intentMessage, final InterceptorChain chain) -> {
+          try {
+            final var handled = PlatformUI.getWorkbench().getService(ViewIntentInterceptor.class).handle(intentMessage);
+            if (handled) {
+              chain.doSwallow();
+            }
+            else {
+              chain.doContinue(intentMessage);
+            }
+          }
+          catch (final PartInitException e) {
+            chain.doReject(e.getMessage());
+            Platform.getLog(ScionWorkbenchInitializer.class).error("Failed to intercept view intent", e);
+          }
+        });
   }
 }

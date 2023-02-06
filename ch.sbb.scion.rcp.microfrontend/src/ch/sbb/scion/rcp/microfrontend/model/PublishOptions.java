@@ -6,6 +6,7 @@ import java.util.Map;
  * @see https://scion-microfrontend-platform-api.vercel.app/interfaces/PublishOptions.html
  */
 public class PublishOptions {
+
   private Map<String, ?> headers;
   private Boolean retain;
 

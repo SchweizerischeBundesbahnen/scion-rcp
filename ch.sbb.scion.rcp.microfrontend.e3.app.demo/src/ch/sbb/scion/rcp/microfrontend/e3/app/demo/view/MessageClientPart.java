@@ -33,7 +33,6 @@ import ch.sbb.scion.rcp.microfrontend.model.TopicMessage;
 
 public class MessageClientPart {
 
- 
   @Inject
   private SciMessageClient messageClient;
 
@@ -51,70 +50,44 @@ public class MessageClientPart {
 
   private Composite createPublishGroup(Composite parent) {
     var group = GroupFactory.newGroup(SWT.NONE).text("Publish").create(parent);
-    GridLayoutFactory.swtDefaults()
-        .numColumns(2)
-        .margins(5, 10)
-        .spacing(20, 7)
-        .applyTo(group);
+    GridLayoutFactory.swtDefaults().numColumns(2).margins(5, 10).spacing(20, 7).applyTo(group);
 
     // Topic
-    LabelFactory.newLabel(SWT.NONE)
-        .text("Topic")
-        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).align(SWT.BEGINNING, SWT.CENTER).create())
-        .create(group);
-    var topic = TextFactory.newText(SWT.SINGLE | SWT.BORDER)
-        .layoutData(GridDataFactory.fillDefaults().grab(true, false).create())
+    LabelFactory.newLabel(SWT.NONE).text("Topic")
+        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).align(SWT.BEGINNING, SWT.CENTER).create()).create(group);
+    var topic = TextFactory.newText(SWT.SINGLE | SWT.BORDER).layoutData(GridDataFactory.fillDefaults().grab(true, false).create())
         .create(group);
 
     // Message
-    LabelFactory.newLabel(SWT.NONE)
-        .text("Message")
-        .layoutData(GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).create())
+    LabelFactory.newLabel(SWT.NONE).text("Message").layoutData(GridDataFactory.fillDefaults().align(SWT.BEGINNING, SWT.CENTER).create())
         .create(group);
     var message = TextFactory.newText(SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL)
-        .layoutData(GridDataFactory.fillDefaults().grab(true, false).hint(SWT.DEFAULT, 100).create())
-        .create(group);
+        .layoutData(GridDataFactory.fillDefaults().grab(true, false).hint(SWT.DEFAULT, 100).create()).create(group);
 
     // Retain flag
-    LabelFactory.newLabel(SWT.NONE)
-        .layoutData(GridDataFactory.fillDefaults().create())
-        .create(group);
-    var retain = ButtonFactory.newButton(SWT.CHECK)
-        .text("Retain")
-        .layoutData(GridDataFactory.fillDefaults().create())
-        .create(group);
+    LabelFactory.newLabel(SWT.NONE).layoutData(GridDataFactory.fillDefaults().create()).create(group);
+    var retain = ButtonFactory.newButton(SWT.CHECK).text("Retain").layoutData(GridDataFactory.fillDefaults().create()).create(group);
 
     // Publish button
-    ButtonFactory.newButton(SWT.NONE)
-        .text("Publish")
+    ButtonFactory.newButton(SWT.NONE).text("Publish")
         .onSelect(e -> messageClient.publish(topic.getText(), message.getText(), new PublishOptions().retain(retain.getSelection())))
-        .layoutData(GridDataFactory.fillDefaults().span(2, 1).create())
-        .create(group);
+        .layoutData(GridDataFactory.fillDefaults().span(2, 1).create()).create(group);
 
     return group;
   }
 
   private Composite createSubscribeGroup(Composite parent) {
     var group = GroupFactory.newGroup(SWT.NONE).text("Subscribe").create(parent);
-    GridLayoutFactory.swtDefaults()
-        .numColumns(2)
-        .margins(5, 10)
-        .spacing(20, 7)
-        .applyTo(group);
+    GridLayoutFactory.swtDefaults().numColumns(2).margins(5, 10).spacing(20, 7).applyTo(group);
 
     // Topic
-    LabelFactory.newLabel(SWT.NONE)
-        .text("Topic")
-        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).align(SWT.BEGINNING, SWT.CENTER).create())
-        .create(group);
-    var topic = TextFactory.newText(SWT.SINGLE | SWT.BORDER)
-        .layoutData(GridDataFactory.fillDefaults().grab(true, false).create())
+    LabelFactory.newLabel(SWT.NONE).text("Topic")
+        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).align(SWT.BEGINNING, SWT.CENTER).create()).create(group);
+    var topic = TextFactory.newText(SWT.SINGLE | SWT.BORDER).layoutData(GridDataFactory.fillDefaults().grab(true, false).create())
         .create(group);
 
     // Subscribe button
-    var subscribeButton = ButtonFactory.newButton(SWT.NONE)
-        .text("Subscribe")
-        .layoutData(GridDataFactory.fillDefaults().span(2, 1).create())
+    var subscribeButton = ButtonFactory.newButton(SWT.NONE).text("Subscribe").layoutData(GridDataFactory.fillDefaults().span(2, 1).create())
         .create(group);
 
     var messages = new ArrayList<TopicMessage<String>>();
@@ -125,16 +98,13 @@ public class MessageClientPart {
     createTimestampColumn(messagesTableViewer);
     createMessageHeadersColumn(messagesTableViewer);
     createTopicParamsColumn(messagesTableViewer);
-    GridDataFactory.swtDefaults()
-        .span(2, 1)
-        .align(SWT.FILL, SWT.FILL)
-        .grab(true, true)
-        .applyTo(messagesTableViewer.getControl());
+    GridDataFactory.swtDefaults().span(2, 1).align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(messagesTableViewer.getControl());
 
     messagesTableViewer.setInput(Collections.EMPTY_LIST);
 
     var subscription = new AtomicReference<ISubscription>();
     subscribeButton.addSelectionListener(new SelectionAdapter() {
+
       @Override
       public void widgetSelected(SelectionEvent e) {
         if (subscription.get() == null) {

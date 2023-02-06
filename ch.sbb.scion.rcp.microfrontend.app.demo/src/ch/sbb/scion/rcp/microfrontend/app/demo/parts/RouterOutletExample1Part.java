@@ -22,7 +22,8 @@ public class RouterOutletExample1Part {
   @PostConstruct
   public void createComposite(Composite parent) {
     var routerOutlet = new SciRouterOutlet(parent, SWT.NONE, PART_ID);
-    routerOutlet.registerKeystrokes(Set.of("keydown.m", "keydown.O", "keydown.escape", "keydown.control.alt.enter", "keydown.control.space"));
+    routerOutlet
+        .registerKeystrokes(Set.of("keydown.m", "keydown.O", "keydown.escape", "keydown.control.alt.enter", "keydown.control.space"));
 
     outletRouter.navigate("http://localhost:4201", new NavigationOptions().outlet(PART_ID));
 
@@ -31,7 +32,9 @@ public class RouterOutletExample1Part {
       var isAltPressed = ((e.stateMask & SWT.ALT) != 0);
       var isShiftPressed = ((e.stateMask & SWT.SHIFT) != 0);
       var isCommandPressed = ((e.stateMask & SWT.COMMAND) != 0);
-      System.out.println(String.format("onKeyEvent [character=%s, char=%s, stateMask=%s, keyCode=%s, ctrl=%b, alt=%b, shift=%b, command=%b]", e.character, (int) e.character, e.stateMask, e.keyCode, isCtrlPressed, isAltPressed, isShiftPressed, isCommandPressed));
+      System.out
+          .println(String.format("onKeyEvent [character=%s, char=%s, stateMask=%s, keyCode=%s, ctrl=%b, alt=%b, shift=%b, command=%b]",
+              e.character, (int) e.character, e.stateMask, e.keyCode, isCtrlPressed, isAltPressed, isShiftPressed, isCommandPressed));
     });
   }
 }

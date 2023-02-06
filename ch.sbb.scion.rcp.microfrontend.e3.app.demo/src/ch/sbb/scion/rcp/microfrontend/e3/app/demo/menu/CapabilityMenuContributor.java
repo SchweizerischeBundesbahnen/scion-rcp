@@ -45,13 +45,12 @@ public abstract class CapabilityMenuContributor extends ContributionItem {
         menuItem.setText(Optional.ofNullable(getText(capability)).orElse("?"));
         menuItem.setToolTipText(getToolTipText(capability));
         menuItem.addSelectionListener(new SelectionAdapter() {
+
           public void widgetSelected(SelectionEvent event) {
-            sciIntentClient
-                .publish(new Intent().type(capability.type).qualifier(capability.qualifier))
-                .exceptionally(e -> {
-                  Platform.getLog(CapabilityMenuContributor.class).error("Failed to send intent", e);
-                  return null;
-                });
+            sciIntentClient.publish(new Intent().type(capability.type).qualifier(capability.qualifier)).exceptionally(e -> {
+              Platform.getLog(CapabilityMenuContributor.class).error("Failed to send intent", e);
+              return null;
+            });
           }
         });
       });

@@ -24,12 +24,12 @@ import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
  */
 @Component(service = MessageInterceptorInstaller.class)
 public class MessageInterceptorInstaller {
+
   /**
    * Installs given message interceptor.
    */
   public <T> void install(MessageInterceptorDescriptor<T> interceptorDescriptor, Browser hostBrowser) {
-    createJavaInterceptorCallback(interceptorDescriptor, hostBrowser)
-        .install()
+    createJavaInterceptorCallback(interceptorDescriptor, hostBrowser).install()
         .thenAccept(callback -> registerInterceptor(callback, interceptorDescriptor, hostBrowser));
   }
 
@@ -38,18 +38,14 @@ public class MessageInterceptorInstaller {
    * 
    * Intercepted messages are delegated to the passed callback.
    */
-  private <T> void registerInterceptor(JavaCallback interceptorCallback, MessageInterceptorDescriptor<T> interceptorDescriptor, Browser hostBrowser) {
+  private <T> void registerInterceptor(JavaCallback interceptorCallback, MessageInterceptorDescriptor<T> interceptorDescriptor,
+      Browser hostBrowser) {
     new JavaScriptExecutor(hostBrowser, Resources.readString("js/host/register-message-interceptor.js"))
         .replacePlaceholder("interceptorCallback", interceptorCallback.name)
-        .replacePlaceholder("topic", interceptorDescriptor.topic, Flags.ToJson)
-        .replacePlaceholder("refs.Beans", Refs.Beans)
-        .replacePlaceholder("refs.MessageInterceptor", Refs.MessageInterceptor)
-        .replacePlaceholder("refs.TopicMatcher", Refs.TopicMatcher)
-        .replacePlaceholder("refs.UUID", Refs.UUID)
-        .replacePlaceholder("helpers.toJson", Helpers.toJson)
-        .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
-        .replacePlaceholder("storage", Scripts.Storage)
-        .execute();
+        .replacePlaceholder("topic", interceptorDescriptor.topic, Flags.ToJson).replacePlaceholder("refs.Beans", Refs.Beans)
+        .replacePlaceholder("refs.MessageInterceptor", Refs.MessageInterceptor).replacePlaceholder("refs.TopicMatcher", Refs.TopicMatcher)
+        .replacePlaceholder("refs.UUID", Refs.UUID).replacePlaceholder("helpers.toJson", Helpers.toJson)
+        .replacePlaceholder("helpers.fromJson", Helpers.fromJson).replacePlaceholder("storage", Scripts.Storage).execute();
   }
 
   /**
@@ -57,12 +53,14 @@ public class MessageInterceptorInstaller {
    */
   private <T> JavaCallback createJavaInterceptorCallback(MessageInterceptorDescriptor<T> interceptorDescriptor, Browser hostBrowser) {
     return new JavaCallback(hostBrowser, args -> {
-      TopicMessage<T> message = GsonFactory.create().fromJson((String) args[0], new ParameterizedType(TopicMessage.class, interceptorDescriptor.payloadClazz));
+      TopicMessage<T> message = GsonFactory.create().fromJson((String) args[0],
+          new ParameterizedType(TopicMessage.class, interceptorDescriptor.payloadClazz));
       interceptorDescriptor.interceptor.intercept(message, new InterceptorChainImpl(hostBrowser, (String) args[1]));
     });
   }
 
   public static class MessageInterceptorDescriptor<T> {
+
     public String topic;
     public MessageInterceptor<T> interceptor;
     public Type payloadClazz;

@@ -88,50 +88,30 @@ public class ManifestServicePart {
     GridLayoutFactory.swtDefaults().numColumns(6).applyTo(group);
 
     // Type
-    LabelFactory.newLabel(SWT.NONE)
-        .text("Type*:")
-        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).create())
-        .create(group);
+    LabelFactory.newLabel(SWT.NONE).text("Type*:").layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).create()).create(group);
     var typeText = TextFactory.newText(SWT.SINGLE | SWT.BORDER)
-        .layoutData(GridDataFactory.fillDefaults().span(5, 1).grab(true, false).create())
-        .create(group);
+        .layoutData(GridDataFactory.fillDefaults().span(5, 1).grab(true, false).create()).create(group);
 
     // Qualifier
-    LabelFactory.newLabel(SWT.NONE)
-        .text("Qualifier:")
-        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).create())
+    LabelFactory.newLabel(SWT.NONE).text("Qualifier:").layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).create())
         .create(group);
 
     var qualifierComp = CompositeFactory.newComposite(SWT.NONE).create(group);
-    GridDataFactory.swtDefaults()
-        .span(5, 1)
-        .hint(0, 120)
-        .align(SWT.FILL, SWT.TOP)
-        .grab(true, false)
-        .applyTo(qualifierComp);
+    GridDataFactory.swtDefaults().span(5, 1).hint(0, 120).align(SWT.FILL, SWT.TOP).grab(true, false).applyTo(qualifierComp);
 
     GridLayoutFactory.swtDefaults().margins(0, 0).numColumns(4).applyTo(qualifierComp);
 
     var qualifierNameText = TextFactory.newText(SWT.SINGLE | SWT.BORDER)
-        .layoutData(GridDataFactory.fillDefaults().hint(60, SWT.DEFAULT).create())
-        .message("name")
-        .create(qualifierComp);
+        .layoutData(GridDataFactory.fillDefaults().hint(60, SWT.DEFAULT).create()).message("name").create(qualifierComp);
 
     var qualifierValueText = TextFactory.newText(SWT.SINGLE | SWT.BORDER)
-        .layoutData(GridDataFactory.fillDefaults().grab(true, false).create())
-        .message("value")
-        .create(qualifierComp);
+        .layoutData(GridDataFactory.fillDefaults().grab(true, false).create()).message("value").create(qualifierComp);
 
-    var addQualifierButton = ButtonFactory.newButton(SWT.NONE)
-        .text("+")
-        .layoutData(GridDataFactory.fillDefaults().hint(25, SWT.DEFAULT).create())
-        .create(qualifierComp);
+    var addQualifierButton = ButtonFactory.newButton(SWT.NONE).text("+")
+        .layoutData(GridDataFactory.fillDefaults().hint(25, SWT.DEFAULT).create()).create(qualifierComp);
 
-    var removeQualifierButton = ButtonFactory.newButton(SWT.NONE)
-        .text("-")
-        .enabled(false)
-        .layoutData(GridDataFactory.fillDefaults().hint(25, SWT.DEFAULT).create())
-        .create(qualifierComp);
+    var removeQualifierButton = ButtonFactory.newButton(SWT.NONE).text("-").enabled(false)
+        .layoutData(GridDataFactory.fillDefaults().hint(25, SWT.DEFAULT).create()).create(qualifierComp);
 
     var qualifierTableViewer = createQualifiersTableViewer(qualifierComp);
     qualifierTableViewer.setInput(capabilityModel.getQualifiers());
@@ -144,6 +124,7 @@ public class ManifestServicePart {
     });
 
     addQualifierButton.addSelectionListener(new SelectionAdapter() {
+
       @Override
       public void widgetSelected(final SelectionEvent e) {
         capabilityModel.getQualifiers().add(Map.entry(qualifierNameText.getText(), qualifierValueText.getText()));
@@ -153,6 +134,7 @@ public class ManifestServicePart {
     });
 
     removeQualifierButton.addSelectionListener(new SelectionAdapter() {
+
       @SuppressWarnings("unchecked")
       @Override
       public void widgetSelected(final SelectionEvent e) {
@@ -162,53 +144,32 @@ public class ManifestServicePart {
     });
 
     // Description
-    LabelFactory.newLabel(SWT.NONE)
-        .text("Description:")
-        .layoutData(GridDataFactory.fillDefaults().hint(70, SWT.DEFAULT).create())
+    LabelFactory.newLabel(SWT.NONE).text("Description:").layoutData(GridDataFactory.fillDefaults().hint(70, SWT.DEFAULT).create())
         .create(group);
     var descriptionText = TextFactory.newText(SWT.SINGLE | SWT.BORDER)
-        .layoutData(GridDataFactory.fillDefaults().span(5, 1).grab(true, false).create())
-        .create(group);
+        .layoutData(GridDataFactory.fillDefaults().span(5, 1).grab(true, false).create()).create(group);
 
-    LabelFactory.newLabel(SWT.NONE)
-        .text("Params:")
-        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).create())
-        .create(group);
+    LabelFactory.newLabel(SWT.NONE).text("Params:").layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).create()).create(group);
 
     var paramsComp = CompositeFactory.newComposite(SWT.NONE).create(group);
-    GridDataFactory.swtDefaults()
-        .span(5, 1)
-        .hint(0, 120)
-        .align(SWT.FILL, SWT.TOP)
-        .grab(true, false)
-        .applyTo(paramsComp);
+    GridDataFactory.swtDefaults().span(5, 1).hint(0, 120).align(SWT.FILL, SWT.TOP).grab(true, false).applyTo(paramsComp);
 
     GridLayoutFactory.swtDefaults().margins(0, 0).numColumns(5).applyTo(paramsComp);
 
-    var paramNameText = TextFactory.newText(SWT.SINGLE | SWT.BORDER)
-        .layoutData(GridDataFactory.fillDefaults().hint(60, 20).create())
-        .message("name")
-        .create(paramsComp);
+    var paramNameText = TextFactory.newText(SWT.SINGLE | SWT.BORDER).layoutData(GridDataFactory.fillDefaults().hint(60, 20).create())
+        .message("name").create(paramsComp);
 
-    LabelFactory.newLabel(SWT.NONE)
-        .text("Required")
-        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).align(SWT.BEGINNING, SWT.CENTER).create())
-        .create(paramsComp);
+    LabelFactory.newLabel(SWT.NONE).text("Required")
+        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).align(SWT.BEGINNING, SWT.CENTER).create()).create(paramsComp);
     var isRequired = ButtonFactory.newButton(SWT.CHECK)
-        .layoutData(GridDataFactory.fillDefaults().grab(true, false).align(SWT.BEGINNING, SWT.CENTER).create())
-        .create(paramsComp);
+        .layoutData(GridDataFactory.fillDefaults().grab(true, false).align(SWT.BEGINNING, SWT.CENTER).create()).create(paramsComp);
     isRequired.setSelection(true);
 
-    var addParamButton = ButtonFactory.newButton(SWT.NONE)
-        .text("+")
-        .layoutData(GridDataFactory.fillDefaults().hint(25, SWT.DEFAULT).create())
-        .create(paramsComp);
+    var addParamButton = ButtonFactory.newButton(SWT.NONE).text("+")
+        .layoutData(GridDataFactory.fillDefaults().hint(25, SWT.DEFAULT).create()).create(paramsComp);
 
-    var removeParamButton = ButtonFactory.newButton(SWT.NONE)
-        .text("-")
-        .enabled(false)
-        .layoutData(GridDataFactory.fillDefaults().hint(25, SWT.DEFAULT).create())
-        .create(paramsComp);
+    var removeParamButton = ButtonFactory.newButton(SWT.NONE).text("-").enabled(false)
+        .layoutData(GridDataFactory.fillDefaults().hint(25, SWT.DEFAULT).create()).create(paramsComp);
 
     var paramsTableViewer = createParamsTableViewer(paramsComp);
     paramsTableViewer.setInput(capabilityModel.getParams());
@@ -221,17 +182,17 @@ public class ManifestServicePart {
     });
 
     addParamButton.addSelectionListener(new SelectionAdapter() {
+
       @Override
       public void widgetSelected(final SelectionEvent e) {
-        capabilityModel.getParams()
-            .add(new ParamDefinition().name(paramNameText.getText())
-                .required(isRequired.getSelection()));
+        capabilityModel.getParams().add(new ParamDefinition().name(paramNameText.getText()).required(isRequired.getSelection()));
         paramNameText.setText("");
         isRequired.setSelection(true);
       }
     });
 
     removeParamButton.addSelectionListener(new SelectionAdapter() {
+
       @Override
       public void widgetSelected(final SelectionEvent e) {
         var selectedRow = ((IStructuredSelection) paramsTableViewer.getSelection()).getFirstElement();
@@ -240,12 +201,9 @@ public class ManifestServicePart {
     });
 
     // IsPrivate
-    LabelFactory.newLabel(SWT.NONE)
-        .text("Private:")
-        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).create())
+    LabelFactory.newLabel(SWT.NONE).text("Private:").layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).create())
         .create(group);
-    var isPrivate = ButtonFactory.newButton(SWT.CHECK)
-        .layoutData(GridDataFactory.fillDefaults().span(5, 1).grab(true, false).create())
+    var isPrivate = ButtonFactory.newButton(SWT.CHECK).layoutData(GridDataFactory.fillDefaults().span(5, 1).grab(true, false).create())
         .create(group);
 
     // Register button
@@ -257,6 +215,7 @@ public class ManifestServicePart {
     var typeModel = new WritableValue<>();
     var typeWidgetValue = WidgetProperties.text(SWT.Modify).observe(typeText);
     var validator = new IValidator<String>() {
+
       @Override
       public IStatus validate(String value) {
         String s = String.valueOf(value);
@@ -278,8 +237,7 @@ public class ManifestServicePart {
     var bindingType = dbc.bindValue(typeWidgetValue, typeModel, strategy, null);
     ControlDecorationSupport.create(bindingType, SWT.TOP | SWT.LEFT);
 
-    IConverter<String, Boolean> stringToBooleanConverter = IConverter
-        .create(String.class, Boolean.class, (o1) -> !o1.isEmpty());
+    IConverter<String, Boolean> stringToBooleanConverter = IConverter.create(String.class, Boolean.class, (o1) -> !o1.isEmpty());
 
     IObservableValue<Boolean> qualifierFieldsSet = ComputedValue.create(() -> {
       return !WidgetProperties.text(SWT.Modify).observe(qualifierNameText).getValue().isEmpty()
@@ -288,11 +246,11 @@ public class ManifestServicePart {
 
     dbc.bindValue(WidgetProperties.enabled().observe(addQualifierButton), qualifierFieldsSet);
 
-    dbc.bindValue(WidgetProperties.enabled().observe(addParamButton), WidgetProperties.text(SWT.Modify)
-        .observe(paramNameText), null, UpdateValueStrategy.create(stringToBooleanConverter));
+    dbc.bindValue(WidgetProperties.enabled().observe(addParamButton), WidgetProperties.text(SWT.Modify).observe(paramNameText), null,
+        UpdateValueStrategy.create(stringToBooleanConverter));
 
-    dbc.bindValue(WidgetProperties.enabled().observe(registerButton), typeWidgetValue, null, UpdateValueStrategy
-        .create(stringToBooleanConverter));
+    dbc.bindValue(WidgetProperties.enabled().observe(registerButton), typeWidgetValue, null,
+        UpdateValueStrategy.create(stringToBooleanConverter));
 
     return group;
   }
@@ -304,11 +262,7 @@ public class ManifestServicePart {
 
     // ManifestObjectFilter composite
     var filterComposite = createManifestObjectFilterComposite(group, filterModel);
-    GridDataFactory.swtDefaults()
-        .hint(50, SWT.DEFAULT)
-        .align(SWT.FILL, SWT.FILL)
-        .grab(true, false)
-        .applyTo(filterComposite);
+    GridDataFactory.swtDefaults().hint(50, SWT.DEFAULT).align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(filterComposite);
 
     // Unregister button
     ButtonFactory.newButton(SWT.NONE).text("Unregister").onSelect(e -> {
@@ -325,77 +279,48 @@ public class ManifestServicePart {
 
     // validation text field
     validationText = TextFactory.newText(SWT.READ_ONLY | SWT.MULTI | SWT.WRAP)
-        .layoutData(GridDataFactory.fillDefaults()
-            .hint(SWT.DEFAULT, 40)
-            .grab(true, false)
-            .align(SWT.FILL, SWT.CENTER)
-            .create())
-        .font(JFaceResources.getFontRegistry().get(JFaceResources.DIALOG_FONT))
-        .create(group);
+        .layoutData(GridDataFactory.fillDefaults().hint(SWT.DEFAULT, 40).grab(true, false).align(SWT.FILL, SWT.CENTER).create())
+        .font(JFaceResources.getFontRegistry().get(JFaceResources.DIALOG_FONT)).create(group);
     dbc.bindValue(WidgetProperties.text(SWT.Modify).observe(validationText), validationMessage);
 
     return group;
   }
 
-  private Composite createManifestObjectFilterComposite(final Composite parent,
-      final ManifestObjectFilterModel filterModel) {
+  private Composite createManifestObjectFilterComposite(final Composite parent, final ManifestObjectFilterModel filterModel) {
     var comp = CompositeFactory.newComposite(SWT.NONE).create(parent);
     GridLayoutFactory.swtDefaults().numColumns(5).applyTo(comp);
 
     // ID
-    LabelFactory.newLabel(SWT.NONE)
-        .text("ID:")
-        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).create())
-        .create(comp);
+    LabelFactory.newLabel(SWT.NONE).text("ID:").layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).create()).create(comp);
     var idText = TextFactory.newText(SWT.SINGLE | SWT.BORDER)
-        .layoutData(GridDataFactory.fillDefaults().span(4, 1).grab(true, false).create())
-        .create(comp);
+        .layoutData(GridDataFactory.fillDefaults().span(4, 1).grab(true, false).create()).create(comp);
 
     // Type
-    LabelFactory.newLabel(SWT.NONE)
-        .text("Type:")
-        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).create())
-        .create(comp);
+    LabelFactory.newLabel(SWT.NONE).text("Type:").layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).create()).create(comp);
     var typeText = TextFactory.newText(SWT.SINGLE | SWT.BORDER)
-        .layoutData(GridDataFactory.fillDefaults().span(4, 1).grab(true, false).create())
-        .create(comp);
+        .layoutData(GridDataFactory.fillDefaults().span(4, 1).grab(true, false).create()).create(comp);
 
     // Qualifier
-    LabelFactory.newLabel(SWT.NONE)
-        .text("Qualifier:")
-        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).create())
+    LabelFactory.newLabel(SWT.NONE).text("Qualifier:").layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).create())
         .create(comp);
 
     var qualifierComp = CompositeFactory.newComposite(SWT.NONE).create(comp);
-    GridDataFactory.swtDefaults()
-        .span(4, 1)
-        .hint(0, 120)
-        .align(SWT.FILL, SWT.TOP)
-        .grab(true, false)
-        .applyTo(qualifierComp);
+    GridDataFactory.swtDefaults().span(4, 1).hint(0, 120).align(SWT.FILL, SWT.TOP).grab(true, false).applyTo(qualifierComp);
 
     GridLayoutFactory.swtDefaults().margins(0, 0).numColumns(4).applyTo(qualifierComp);
 
     var qualifierNameText = TextFactory.newText(SWT.SINGLE | SWT.BORDER)
-        .layoutData(GridDataFactory.fillDefaults().hint(60, SWT.DEFAULT).create())
-        .message("name")
-        .create(qualifierComp);
+        .layoutData(GridDataFactory.fillDefaults().hint(60, SWT.DEFAULT).create()).message("name").create(qualifierComp);
 
     var qualifierValueText = TextFactory.newText(SWT.SINGLE | SWT.BORDER)
-        .layoutData(GridDataFactory.fillDefaults().hint(200, SWT.DEFAULT).grab(true, false).create())
-        .message("value")
+        .layoutData(GridDataFactory.fillDefaults().hint(200, SWT.DEFAULT).grab(true, false).create()).message("value")
         .create(qualifierComp);
 
-    var addQualifierButton = ButtonFactory.newButton(SWT.NONE)
-        .text("+")
-        .layoutData(GridDataFactory.fillDefaults().hint(25, SWT.DEFAULT).create())
-        .create(qualifierComp);
+    var addQualifierButton = ButtonFactory.newButton(SWT.NONE).text("+")
+        .layoutData(GridDataFactory.fillDefaults().hint(25, SWT.DEFAULT).create()).create(qualifierComp);
 
-    var removeQualifierButton = ButtonFactory.newButton(SWT.NONE)
-        .text("-")
-        .enabled(false)
-        .layoutData(GridDataFactory.fillDefaults().hint(25, SWT.DEFAULT).create())
-        .create(qualifierComp);
+    var removeQualifierButton = ButtonFactory.newButton(SWT.NONE).text("-").enabled(false)
+        .layoutData(GridDataFactory.fillDefaults().hint(25, SWT.DEFAULT).create()).create(qualifierComp);
 
     var qualifierTableViewer = createQualifiersTableViewer(qualifierComp);
     qualifierTableViewer.setInput(filterModel.getQualifiers());
@@ -408,6 +333,7 @@ public class ManifestServicePart {
 
     });
     addQualifierButton.addSelectionListener(new SelectionAdapter() {
+
       @Override
       public void widgetSelected(final SelectionEvent e) {
         filterModel.getQualifiers().add(Map.entry(qualifierNameText.getText(), qualifierValueText.getText()));
@@ -417,6 +343,7 @@ public class ManifestServicePart {
     });
 
     removeQualifierButton.addSelectionListener(new SelectionAdapter() {
+
       @SuppressWarnings("unchecked")
       @Override
       public void widgetSelected(final SelectionEvent e) {
@@ -426,13 +353,10 @@ public class ManifestServicePart {
     });
 
     // Application
-    LabelFactory.newLabel(SWT.NONE)
-        .text("Application:")
-        .layoutData(GridDataFactory.fillDefaults().hint(70, SWT.DEFAULT).create())
+    LabelFactory.newLabel(SWT.NONE).text("Application:").layoutData(GridDataFactory.fillDefaults().hint(70, SWT.DEFAULT).create())
         .create(comp);
     var applicationText = TextFactory.newText(SWT.SINGLE | SWT.BORDER)
-        .layoutData(GridDataFactory.fillDefaults().span(4, 1).grab(true, false).create())
-        .create(comp);
+        .layoutData(GridDataFactory.fillDefaults().span(4, 1).grab(true, false).create()).create(comp);
 
     // add bindings
     dbc.bindValue(WidgetProperties.text(SWT.Modify).observe(idText), filterModel.getId());
@@ -483,12 +407,7 @@ public class ManifestServicePart {
     var contentProvider = new ObservableListContentProvider<Entry<String, String>>();
     viewer.setContentProvider(contentProvider);
     createQualifierColumns(viewer);
-    GridDataFactory.swtDefaults()
-        .span(4, 1)
-        .hint(0, SWT.DEFAULT)
-        .align(SWT.FILL, SWT.FILL)
-        .grab(true, true)
-        .applyTo(viewer.getControl());
+    GridDataFactory.swtDefaults().span(4, 1).hint(0, SWT.DEFAULT).align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(viewer.getControl());
 
     return viewer;
   }
@@ -525,12 +444,7 @@ public class ManifestServicePart {
     var contentProvider = new ObservableListContentProvider<ParamDefinition>();
     viewer.setContentProvider(contentProvider);
     createParamsColumns(viewer);
-    GridDataFactory.swtDefaults()
-        .span(5, 1)
-        .hint(0, 100)
-        .align(SWT.FILL, SWT.FILL)
-        .grab(true, true)
-        .applyTo(viewer.getControl());
+    GridDataFactory.swtDefaults().span(5, 1).hint(0, 100).align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(viewer.getControl());
 
     return viewer;
   }
@@ -567,17 +481,10 @@ public class ManifestServicePart {
 
     // ManifestObjectFilter composite
     var filterComposite = createManifestObjectFilterComposite(group, filterModel);
-    GridDataFactory.swtDefaults()
-        .span(2, 1)
-        .hint(50, SWT.DEFAULT)
-        .align(SWT.FILL, SWT.FILL)
-        .grab(true, false)
-        .applyTo(filterComposite);
+    GridDataFactory.swtDefaults().span(2, 1).hint(50, SWT.DEFAULT).align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(filterComposite);
 
     // Subscribe button
-    var subscribeButton = ButtonFactory.newButton(SWT.NONE)
-        .text("Subscribe")
-        .layoutData(GridDataFactory.fillDefaults().span(2, 1).create())
+    var subscribeButton = ButtonFactory.newButton(SWT.NONE).text("Subscribe").layoutData(GridDataFactory.fillDefaults().span(2, 1).create())
         .create(group);
 
     var messages = new ArrayList<TopicMessage<String>>();
@@ -592,16 +499,13 @@ public class ManifestServicePart {
     createParamsColumn(capabilitiesTableViewer);
     createPropertiesColumn(capabilitiesTableViewer);
     createApplicationColumn(capabilitiesTableViewer);
-    GridDataFactory.swtDefaults()
-        .span(2, 1)
-        .align(SWT.FILL, SWT.FILL)
-        .grab(true, true)
-        .applyTo(capabilitiesTableViewer.getControl());
+    GridDataFactory.swtDefaults().span(2, 1).align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(capabilitiesTableViewer.getControl());
 
     capabilitiesTableViewer.setInput(Collections.EMPTY_LIST);
 
     var subscription = new AtomicReference<ISubscription>();
     subscribeButton.addSelectionListener(new SelectionAdapter() {
+
       @Override
       public void widgetSelected(SelectionEvent e) {
         if (subscription.get() == null) {
@@ -651,13 +555,13 @@ public class ManifestServicePart {
       }
     });
   }
-  
+
   private void createPropertiesColumn(TableViewer messagesTableViewer) {
     var paramsColumn = new TableViewerColumn(messagesTableViewer, SWT.NONE);
     paramsColumn.getColumn().setText("Properties");
     paramsColumn.getColumn().setWidth(100);
     paramsColumn.setLabelProvider(new ColumnLabelProvider() {
-      
+
       @Override
       public String getText(Object message) {
         var params = ((Capability) message).properties;
@@ -665,7 +569,7 @@ public class ManifestServicePart {
       }
     });
   }
-  
+
   private void createQualifierColumn(TableViewer messagesTableViewer) {
     var qualifierColumn = new TableViewerColumn(messagesTableViewer, SWT.NONE);
     qualifierColumn.getColumn().setText("Qualifier");

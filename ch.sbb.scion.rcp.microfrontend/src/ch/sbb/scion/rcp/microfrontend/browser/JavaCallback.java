@@ -62,22 +62,21 @@ public class JavaCallback implements IDisposable {
   }
 
   private CompletableFuture<JavaCallback> install(boolean once) {
-    return whenBrowser
-        .thenAccept(browser -> {
-          browserFunction = new BrowserFunction(browser, name) {
-            @Override
-            public Boolean function(Object[] arguments) {
-              if (once) {
-                dispose();
-              }
-              // Invoke the callback asynchronously to first complete the invocation of this browser function.
-              // Otherwise, creating a new {@link Browser} instance in the callback would lead to a deadlock.
-              browser.getDisplay().asyncExec(() -> callback.accept(arguments));
-              return true;
-            }
-          };
-        })
-        .thenApply(browser -> this);
+    return whenBrowser.thenAccept(browser -> {
+      browserFunction = new BrowserFunction(browser, name) {
+
+        @Override
+        public Boolean function(Object[] arguments) {
+          if (once) {
+            dispose();
+          }
+          // Invoke the callback asynchronously to first complete the invocation of this browser function.
+          // Otherwise, creating a new {@link Browser} instance in the callback would lead to a deadlock.
+          browser.getDisplay().asyncExec(() -> callback.accept(arguments));
+          return true;
+        }
+      };
+    }).thenApply(browser -> this);
   }
 
   /**
@@ -106,8 +105,7 @@ public class JavaCallback implements IDisposable {
 
   private String toValidJavaScriptIdentifier(String name) {
     if (Pattern.matches("^\\d.+", name)) {
-      throw new IllegalArgumentException(
-          String.format("JavaScript identifier must not start with a digit. [name=%s]", name));
+      throw new IllegalArgumentException(String.format("JavaScript identifier must not start with a digit. [name=%s]", name));
     }
     return name.replaceAll("[^\\w\\d\\$]", "_");
   }

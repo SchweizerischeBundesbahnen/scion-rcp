@@ -51,12 +51,12 @@ public class ManifestObjectFilterModel {
     if (!type.getValue().isEmpty()) {
       filter.type(type.getValue());
     }
-    if(!qualifiers.isEmpty()) {
+    if (!qualifiers.isEmpty()) {
       var qualifier = new Qualifier();
       qualifiers.stream().forEach(x -> qualifier.set(x.getKey(), x.getValue()));
       filter.qualifier(qualifier);
     }
-    if(!appSymbolicName.getValue().isEmpty()) {
+    if (!appSymbolicName.getValue().isEmpty()) {
       filter.appSymbolicName(appSymbolicName.getValue());
     }
 

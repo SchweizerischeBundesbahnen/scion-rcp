@@ -23,46 +23,29 @@ public class OutletRouterPart {
   @PostConstruct
   public void createComposite(Composite parent) {
     var group = CompositeFactory.newComposite(SWT.NONE).create(parent);
-    GridLayoutFactory.swtDefaults()
-        .numColumns(2)
-        .margins(5, 10)
-        .spacing(20, 7)
-        .applyTo(group);
+    GridLayoutFactory.swtDefaults().numColumns(2).margins(5, 10).spacing(20, 7).applyTo(group);
 
     // Outlet
-    LabelFactory.newLabel(SWT.NONE)
-        .text("Outlet")
-        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).align(SWT.BEGINNING, SWT.CENTER).create())
-        .create(group);
-    var outlet = TextFactory.newText(SWT.SINGLE | SWT.BORDER)
-        .layoutData(GridDataFactory.fillDefaults().grab(true, false).create())
+    LabelFactory.newLabel(SWT.NONE).text("Outlet")
+        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).align(SWT.BEGINNING, SWT.CENTER).create()).create(group);
+    var outlet = TextFactory.newText(SWT.SINGLE | SWT.BORDER).layoutData(GridDataFactory.fillDefaults().grab(true, false).create())
         .create(group);
 
     // URL
-    LabelFactory.newLabel(SWT.NONE)
-        .text("URL")
-        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).align(SWT.BEGINNING, SWT.CENTER).create())
-        .create(group);
-    var url = TextFactory.newText(SWT.SINGLE | SWT.BORDER)
-        .layoutData(GridDataFactory.fillDefaults().grab(true, false).create())
+    LabelFactory.newLabel(SWT.NONE).text("URL")
+        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).align(SWT.BEGINNING, SWT.CENTER).create()).create(group);
+    var url = TextFactory.newText(SWT.SINGLE | SWT.BORDER).layoutData(GridDataFactory.fillDefaults().grab(true, false).create())
         .create(group);
 
     // Push state to session history stack
-    LabelFactory.newLabel(SWT.NONE)
-        .layoutData(GridDataFactory.fillDefaults().create())
-        .create(group);
-    var pushStateToSessionHistoryStack = ButtonFactory.newButton(SWT.CHECK)
-        .text("Push state to session history stack")
-        .layoutData(GridDataFactory.fillDefaults().create())
-        .create(group);
+    LabelFactory.newLabel(SWT.NONE).layoutData(GridDataFactory.fillDefaults().create()).create(group);
+    var pushStateToSessionHistoryStack = ButtonFactory.newButton(SWT.CHECK).text("Push state to session history stack")
+        .layoutData(GridDataFactory.fillDefaults().create()).create(group);
 
     // Navigate button
-    ButtonFactory.newButton(SWT.NONE)
-        .text("Navigate")
-        .onSelect(e -> outletRouter.navigate(url.getText(), new NavigationOptions()
-            .outlet(outlet.getText())
-            .pushStateToSessionHistoryStack(pushStateToSessionHistoryStack.getSelection())))
-        .layoutData(GridDataFactory.fillDefaults().span(2, 1).create())
-        .create(group);
+    ButtonFactory.newButton(SWT.NONE).text("Navigate")
+        .onSelect(e -> outletRouter.navigate(url.getText(),
+            new NavigationOptions().outlet(outlet.getText()).pushStateToSessionHistoryStack(pushStateToSessionHistoryStack.getSelection())))
+        .layoutData(GridDataFactory.fillDefaults().span(2, 1).create()).create(group);
   }
 }

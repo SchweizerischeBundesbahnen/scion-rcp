@@ -8,14 +8,15 @@ import org.eclipse.jface.dialogs.PlainMessageDialog;
 import org.eclipse.swt.widgets.Shell;
 
 public class ExitHandler {
-	@Execute
-	public void execute(IWorkbench workbench, Shell shell) {
 
-		PlainMessageDialog dialog = PlainMessageDialog.getBuilder(shell, "Confirmation")
-				.message("Do you want to exit?").buttonLabels(List.of("Exit", "Cancel")).build();
+  @Execute
+  public void execute(IWorkbench workbench, Shell shell) {
 
-		if (dialog.open() == 0) {
-			workbench.close();
-		}
-	}
+    PlainMessageDialog dialog = PlainMessageDialog.getBuilder(shell, "Confirmation").message("Do you want to exit?")
+        .buttonLabels(List.of("Exit", "Cancel")).build();
+
+    if (dialog.open() == 0) {
+      workbench.close();
+    }
+  }
 }

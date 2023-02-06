@@ -38,7 +38,7 @@ public class IntentMessageModel {
   public IObservableValue<Boolean> isRequestReply() {
     return requestReply;
   }
-  
+
   public IObservableValue<Boolean> isRetain() {
     return retain;
   }

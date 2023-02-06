@@ -7,6 +7,7 @@ import java.util.Map;
  * @see https://scion-microfrontend-platform-api.vercel.app/classes/MicrofrontendPlatformConfig.html
  */
 public class MicrofrontendPlatformConfig {
+
   /**
    * Lists the micro applications able to connect to the platform to interact with
    * other micro applications.

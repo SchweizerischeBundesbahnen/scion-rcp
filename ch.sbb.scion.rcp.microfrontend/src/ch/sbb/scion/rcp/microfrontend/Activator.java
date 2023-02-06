@@ -8,29 +8,29 @@ import org.osgi.framework.BundleContext;
  */
 public class Activator extends Plugin {
 
-	// The plug-in ID
-	public static final String PLUGIN_ID = "ch.sbb.scion.rcp.microfrontend"; //$NON-NLS-1$
+  // The plug-in ID
+  public static final String PLUGIN_ID = "ch.sbb.scion.rcp.microfrontend"; //$NON-NLS-1$
 
-	// The shared instance
-	private static Activator plugin;
-	
-	public Activator() {
-	}
+  // The shared instance
+  private static Activator plugin;
 
-	@Override
-	public void start(BundleContext context) throws Exception {
-		super.start(context);
-		plugin = this;
-	}
+  public Activator() {
+  }
 
-	@Override
-	public void stop(BundleContext context) throws Exception {
-		plugin = null;
-		super.stop(context);
-	}
+  @Override
+  public void start(BundleContext context) throws Exception {
+    super.start(context);
+    plugin = this;
+  }
 
-	public static Activator getDefault() {
-		return plugin;
-	}
+  @Override
+  public void stop(BundleContext context) throws Exception {
+    plugin = null;
+    super.stop(context);
+  }
+
+  public static Activator getDefault() {
+    return plugin;
+  }
 
 }

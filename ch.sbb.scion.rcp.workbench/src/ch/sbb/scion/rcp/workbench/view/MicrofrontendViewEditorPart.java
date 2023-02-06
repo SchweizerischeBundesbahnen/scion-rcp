@@ -102,8 +102,7 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
     // When navigating to another view capability of the same app, wait until transported the params to consumers before loading the
     // new microfrontend into the iframe, allowing the currently loaded microfrontend to cleanup subscriptions. Params include the
     // capability id.
-    if (prevCapability != null
-        && prevCapability.metadata.appSymbolicName.equals(capability.metadata.appSymbolicName)
+    if (prevCapability != null && prevCapability.metadata.appSymbolicName.equals(capability.metadata.appSymbolicName)
         && !prevCapability.metadata.id.equals(capability.metadata.id)) {
       waitForCapabilityParam(capability.metadata.id);
     }
@@ -118,11 +117,8 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
     var applications = CompletableFutures.await(this.applications);
     var appSymbolicName = capability.metadata.appSymbolicName;
     var path = (String) capability.properties.get("path");
-    outletRouter.navigate(path, new NavigationOptions()
-        .outlet(getSciViewId())
-        .relativeTo(applications.get(appSymbolicName).baseUrl)
-        .params(params)
-        .pushStateToSessionHistoryStack(false));
+    outletRouter.navigate(path, new NavigationOptions().outlet(getSciViewId()).relativeTo(applications.get(appSymbolicName).baseUrl)
+        .params(params).pushStateToSessionHistoryStack(false));
   }
 
   @Override
@@ -197,7 +193,8 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
     subscriptions.add(messageClient.subscribe(topic, message -> {
       var replyTo = (String) message.headers.get(MessageHeaders.ReplyTo.value);
       var error = "Self navigation is not supported by the SCION RCP Workbench. This feature is expected to be removed from the SCION Workbench.";
-      messageClient.publish(replyTo, error, new PublishOptions().headers(Map.of(MessageHeaders.Status.value, ResponseStatusCodes.ERROR.value)));
+      messageClient.publish(replyTo, error,
+          new PublishOptions().headers(Map.of(MessageHeaders.Status.value, ResponseStatusCodes.ERROR.value)));
     }, Map.class));
   }
 
