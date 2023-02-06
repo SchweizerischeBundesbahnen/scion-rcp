@@ -40,7 +40,8 @@ public class Webserver {
       while (!Thread.currentThread().isInterrupted()) {
         try (var socket = serverSocket.accept()) {
           handleRequest(socket);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
           if (!serverSocket.isClosed()) {
             LOGGER.error("Failed to handle HTTP request.", e);
           }
@@ -74,7 +75,8 @@ public class Webserver {
   private ServerSocket createServerSocket() {
     try {
       return new ServerSocket(0, 200, InetAddress.getLoopbackAddress());
-    } catch (IOException e) {
+    }
+    catch (IOException e) {
       throw new RuntimeException("Failed to start HTTP server.", e);
     }
   }
@@ -105,7 +107,8 @@ public class Webserver {
     if (serverSocket != null) {
       try {
         serverSocket.close();
-      } catch (IOException e) {
+      }
+      catch (IOException e) {
         LOGGER.error("Failed to stop HTTP server.", e);
       }
     }
@@ -115,7 +118,8 @@ public class Webserver {
     // Perform ping request.
     try {
       new URL("http", serverSocket.getInetAddress().getHostName(), getPort(), "").getContent();
-    } catch (IOException e) {
+    }
+    catch (IOException e) {
       LOGGER.error("Failed to wait until webserver is ready.", e);
     }
   }
@@ -125,6 +129,7 @@ public class Webserver {
   }
 
   public static class Resource {
+
     public URL url;
     public String contentType;
     public String encoding;

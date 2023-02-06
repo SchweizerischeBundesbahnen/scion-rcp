@@ -38,7 +38,7 @@ public class RxJsObservable<T> {
 
     new JavaCallback(whenBrowser, args -> {
       try {
-        var emission = GsonFactory.create().<Emission<T>>fromJson((String) args[0], new ParameterizedType(Emission.class, clazz));
+        var emission = GsonFactory.create().<Emission<T>> fromJson((String) args[0], new ParameterizedType(Emission.class, clazz));
         switch (emission.type) {
           case Next: {
             observer.onNext(emission.next);
@@ -59,29 +59,22 @@ public class RxJsObservable<T> {
       catch (RuntimeException e) {
         Platform.getLog(SciMessageClient.class).error("Unhandled error in callback", e);
       }
-    })
-        .addTo(disposables)
-        .install()
-        .thenAccept(callback -> {
-          var uuid = UUID.randomUUID();
-          new JavaScriptExecutor(whenBrowser, Resources.readString("js/rxjs-observable/subscribe.js"))
-              .replacePlaceholder("callback", callback.name)
-              .replacePlaceholder("subscriptionStorageKey", uuid)
-              .replacePlaceholder("helpers.toJson", Helpers.toJson)
-              .replacePlaceholder("storage", Scripts.Storage)
-              .replacePlaceholder("rxjsObservableIIFE", rxjsObservableIIFE)
-              .execute();
+    }).addTo(disposables).install().thenAccept(callback -> {
+      var uuid = UUID.randomUUID();
+      new JavaScriptExecutor(whenBrowser, Resources.readString("js/rxjs-observable/subscribe.js"))
+          .replacePlaceholder("callback", callback.name).replacePlaceholder("subscriptionStorageKey", uuid)
+          .replacePlaceholder("helpers.toJson", Helpers.toJson).replacePlaceholder("storage", Scripts.Storage)
+          .replacePlaceholder("rxjsObservableIIFE", rxjsObservableIIFE).execute();
 
-          disposables.add(() -> new JavaScriptExecutor(whenBrowser, Resources.readString("js/rxjs-observable/unsubscribe.js"))
-              .replacePlaceholder("subscriptionStorageKey", uuid)
-              .replacePlaceholder("storage", Scripts.Storage)
-              .execute());
-        });
+      disposables.add(() -> new JavaScriptExecutor(whenBrowser, Resources.readString("js/rxjs-observable/unsubscribe.js"))
+          .replacePlaceholder("subscriptionStorageKey", uuid).replacePlaceholder("storage", Scripts.Storage).execute());
+    });
 
     return () -> disposables.forEach(IDisposable::dispose);
   }
 
   private static class Emission<T> {
+
     public static enum Type {
       Next, Error, Complete
     };

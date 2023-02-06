@@ -22,10 +22,7 @@ public class DevToolsPart {
   @PostConstruct
   public void createComposite(Composite parent) {
     new SciRouterOutlet(parent, SWT.NONE, PART_ID);
-    var navigation = outletRouter.navigate(
-        new Qualifier()
-            .set("component", "devtools")
-            .set("vendor", "scion"),
+    var navigation = outletRouter.navigate(new Qualifier().set("component", "devtools").set("vendor", "scion"),
         new NavigationOptions().outlet(PART_ID));
 
     navigation.exceptionally(e -> {

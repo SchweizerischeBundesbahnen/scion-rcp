@@ -85,10 +85,8 @@ public class SciIntentClient {
   public <T> ISubscription subscribe(IntentSelector selector, Class<T> clazz, ISubscriber<IntentMessage<T>> subscriber) {
     selector = Optional.ofNullable(selector).orElse(new IntentSelector());
     var observeIIFE = new Script(Resources.readString("js/sci-intent-client/observe.iife.js"))
-        .replacePlaceholder("refs.IntentClient", Refs.IntentClient)
-        .replacePlaceholder("selector.type", selector.type, Flags.ToJson)
-        .replacePlaceholder("selector.qualifier", selector.qualifier, Flags.ToJson)
-        .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
+        .replacePlaceholder("refs.IntentClient", Refs.IntentClient).replacePlaceholder("selector.type", selector.type, Flags.ToJson)
+        .replacePlaceholder("selector.qualifier", selector.qualifier, Flags.ToJson).replacePlaceholder("helpers.fromJson", Helpers.fromJson)
         .substitute();
 
     var type = (Void.class.equals(clazz) ? IntentMessage.class : new ParameterizedType(IntentMessage.class, clazz));
@@ -120,32 +118,32 @@ public class SciIntentClient {
   /**
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#request_
    */
-  public <T> ISubscription request(Intent intent, Object body, RequestOptions options, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
+  public <T> ISubscription request(Intent intent, Object body, RequestOptions options, Class<T> clazz,
+      ISubscriber<TopicMessage<T>> subscriber) {
     return requestJson(intent, GsonFactory.create().toJson(body), options, clazz, subscriber);
   }
 
   /**
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish
    */
-  public <T> ISubscription request(Intent intent, JsonElement jsonElement, RequestOptions options, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
+  public <T> ISubscription request(Intent intent, JsonElement jsonElement, RequestOptions options, Class<T> clazz,
+      ISubscriber<TopicMessage<T>> subscriber) {
     return requestJson(intent, GsonFactory.create().toJson(jsonElement), options, clazz, subscriber);
   }
 
   /**
    * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#observe_
    */
-  private <T> ISubscription requestJson(Intent intent, String json, RequestOptions options, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
+  private <T> ISubscription requestJson(Intent intent, String json, RequestOptions options, Class<T> clazz,
+      ISubscriber<TopicMessage<T>> subscriber) {
     options = Optional.ofNullable(options).orElse(new RequestOptions());
     var requestIIFE = new Script(Resources.readString("js/sci-intent-client/request.iife.js"))
-        .replacePlaceholder("refs.IntentClient", Refs.IntentClient)
-        .replacePlaceholder("intent", intent, Flags.ToJson)
-        .replacePlaceholder("body", json)
-        .replacePlaceholder("options.headers", options.getHeaders(), Flags.ToJson)
-        .replacePlaceholder("options.retain", options.isRetain())
-        .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
-        .substitute();
+        .replacePlaceholder("refs.IntentClient", Refs.IntentClient).replacePlaceholder("intent", intent, Flags.ToJson)
+        .replacePlaceholder("body", json).replacePlaceholder("options.headers", options.getHeaders(), Flags.ToJson)
+        .replacePlaceholder("options.retain", options.isRetain()).replacePlaceholder("helpers.fromJson", Helpers.fromJson).substitute();
 
-    var observable = new RxJsObservable<TopicMessage<T>>(microfrontendPlatformRcpHost.whenHostBrowser, requestIIFE, new ParameterizedType(TopicMessage.class, clazz));
+    var observable = new RxJsObservable<TopicMessage<T>>(microfrontendPlatformRcpHost.whenHostBrowser, requestIIFE,
+        new ParameterizedType(TopicMessage.class, clazz));
     return observable.subscribe(subscriber);
   }
 
@@ -163,20 +161,13 @@ public class SciIntentClient {
       else {
         published.completeExceptionally(new RuntimeException((String) error));
       }
-    })
-        .installOnce()
-        .thenAccept(callback -> {
-          new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, Resources.readString("js/sci-intent-client/publish.js"))
-              .replacePlaceholder("callback", callback.name)
-              .replacePlaceholder("intent", intent, Flags.ToJson)
-              .replacePlaceholder("body", json)
-              .replacePlaceholder("options.headers", options.getHeaders(), Flags.ToJson)
-              .replacePlaceholder("options.retain", options.isRetain())
-              .replacePlaceholder("refs.IntentClient", Refs.IntentClient)
-              .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
-              .runInsideAsyncFunction()
-              .execute();
-        });
+    }).installOnce().thenAccept(callback -> {
+      new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, Resources.readString("js/sci-intent-client/publish.js"))
+          .replacePlaceholder("callback", callback.name).replacePlaceholder("intent", intent, Flags.ToJson).replacePlaceholder("body", json)
+          .replacePlaceholder("options.headers", options.getHeaders(), Flags.ToJson)
+          .replacePlaceholder("options.retain", options.isRetain()).replacePlaceholder("refs.IntentClient", Refs.IntentClient)
+          .replacePlaceholder("helpers.fromJson", Helpers.fromJson).runInsideAsyncFunction().execute();
+    });
 
     return published;
   }

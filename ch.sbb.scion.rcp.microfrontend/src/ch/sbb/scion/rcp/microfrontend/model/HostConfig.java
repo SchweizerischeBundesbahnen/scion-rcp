@@ -4,6 +4,7 @@ package ch.sbb.scion.rcp.microfrontend.model;
  * @see https://scion-microfrontend-platform-api.vercel.app/classes/HostConfig.html
  */
 public class HostConfig {
+
   /**
    * Symbolic name of the host. If not set, 'host' is used as the symbolic name of
    * the host.

@@ -70,13 +70,15 @@ public class ViewIntentInterceptor {
 
     switch (target) {
       case "blank": {
-        activePage.openEditor(new MicrofrontendViewEditorInput(capability, intent), MicrofrontendViewEditorPart.ID, true, IWorkbenchPage.MATCH_NONE);
+        activePage.openEditor(new MicrofrontendViewEditorInput(capability, intent), MicrofrontendViewEditorPart.ID, true,
+            IWorkbenchPage.MATCH_NONE);
         return;
       }
       case "self": {
         var targetViewId = Optional.ofNullable(intentMessage.body).map(body -> (String) body.get("selfViewId")).orElse(null);
         var editorInput = new MicrofrontendViewEditorInput(targetViewId, capability, intent);
-        var editor = (IReusableEditor) activePage.openEditor(editorInput, MicrofrontendViewEditorPart.ID, true, IWorkbenchPage.MATCH_INPUT | IWorkbenchPage.MATCH_ID);
+        var editor = (IReusableEditor) activePage.openEditor(editorInput, MicrofrontendViewEditorPart.ID, true,
+            IWorkbenchPage.MATCH_INPUT | IWorkbenchPage.MATCH_ID);
         activePage.reuseEditor(editor, editorInput);
         return;
       }
@@ -94,16 +96,14 @@ public class ViewIntentInterceptor {
           }
         }
         // Open new editor.
-        activePage.openEditor(new MicrofrontendViewEditorInput(capability, intent), MicrofrontendViewEditorPart.ID, true, IWorkbenchPage.MATCH_NONE);
+        activePage.openEditor(new MicrofrontendViewEditorInput(capability, intent), MicrofrontendViewEditorPart.ID, true,
+            IWorkbenchPage.MATCH_NONE);
     }
   }
 
   private Set<IEditorReference> findMicrofrontendViewEditors() {
-    return Stream.of(workbench.getWorkbenchWindows())
-        .flatMap(window -> Stream.of(window.getPages()))
-        .flatMap(page -> Stream.of(page.getEditorReferences()))
-        .filter(this::hasMicrofrontendViewEditorInput)
-        .collect(Collectors.toSet());
+    return Stream.of(workbench.getWorkbenchWindows()).flatMap(window -> Stream.of(window.getPages()))
+        .flatMap(page -> Stream.of(page.getEditorReferences())).filter(this::hasMicrofrontendViewEditorInput).collect(Collectors.toSet());
   }
 
   private IWorkbenchPage getActivePage() {

@@ -40,6 +40,7 @@ public class Script {
   }
 
   public static class Flags {
+
     public static final int ToJson = 1 << 2;
   }
 }

@@ -65,21 +65,16 @@ public class SciOutletRouter {
       else {
         navigated.completeExceptionally(new RuntimeException((String) error));
       }
-    })
-        .installOnce()
-        .thenAccept(callback -> {
-          new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, Resources.readString("js/sci-outlet-router/navigate.js"))
-              .replacePlaceholder("callback", callback.name)
-              .replacePlaceholder("target", target, Flags.ToJson)
-              .replacePlaceholder("options.outlet", options.outlet, Flags.ToJson)
-              .replacePlaceholder("options.relativeTo", options.relativeTo, Flags.ToJson)
-              .replacePlaceholder("options.params", options.params, Flags.ToJson)
-              .replacePlaceholder("options.pushStateToSessionHistoryStack", options.pushStateToSessionHistoryStack)
-              .replacePlaceholder("refs.OutletRouter", Refs.OutletRouter)
-              .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
-              .runInsideAsyncFunction()
-              .execute();
-        });
+    }).installOnce().thenAccept(callback -> {
+      new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, Resources.readString("js/sci-outlet-router/navigate.js"))
+          .replacePlaceholder("callback", callback.name).replacePlaceholder("target", target, Flags.ToJson)
+          .replacePlaceholder("options.outlet", options.outlet, Flags.ToJson)
+          .replacePlaceholder("options.relativeTo", options.relativeTo, Flags.ToJson)
+          .replacePlaceholder("options.params", options.params, Flags.ToJson)
+          .replacePlaceholder("options.pushStateToSessionHistoryStack", options.pushStateToSessionHistoryStack)
+          .replacePlaceholder("refs.OutletRouter", Refs.OutletRouter).replacePlaceholder("helpers.fromJson", Helpers.fromJson)
+          .runInsideAsyncFunction().execute();
+    });
 
     return navigated;
   }
@@ -88,6 +83,7 @@ public class SciOutletRouter {
    * @see https://scion-microfrontend-platform-api.vercel.app/interfaces/NavigationOptions.html
    */
   public static class NavigationOptions {
+
     private String outlet;
     private String relativeTo;
     private Map<String, ?> params;

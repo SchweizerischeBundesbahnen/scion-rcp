@@ -76,16 +76,15 @@ public class MicrofrontendPlatformRcpHost {
     shell.setText("SCION Microfrontend Platform RCP host");
 
     // Create webserver to serve the host app on a random port.
-    webserver = new Webserver(Map.of(
-        "host.html", new Resource(Resources.get("js/host.html"), "text/html", "utf-8"),
-        "js/refs.js", new Resource(Resources.get("js/refs.js"), "application/javascript", "utf-8"),
-        "js/refs.js.map", new Resource(Resources.get("js/refs.js.map"), "application/javascript", "utf-8"),
-        "js/helpers.js", new Resource(Resources.get("js/helpers.js"), "application/javascript", "utf-8")))
-        .start();
+    webserver = new Webserver(Map.of("host.html", new Resource(Resources.get("js/host.html"), "text/html", "utf-8"), "js/refs.js",
+        new Resource(Resources.get("js/refs.js"), "application/javascript", "utf-8"), "js/refs.js.map",
+        new Resource(Resources.get("js/refs.js.map"), "application/javascript", "utf-8"), "js/helpers.js",
+        new Resource(Resources.get("js/helpers.js"), "application/javascript", "utf-8"))).start();
 
     // Create the browser and
     hostBrowser = new Browser(shell, SWT.EDGE);
     hostBrowser.addProgressListener(new ProgressAdapter() {
+
       public void completed(ProgressEvent event) {
         startHost(config);
       };
@@ -112,17 +111,12 @@ public class MicrofrontendPlatformRcpHost {
         Platform.getLog(JavaScriptExecutor.class).error("Failed to start Microfrontend Platform: " + error);
         whenHostBrowser.completeExceptionally(new RuntimeException((String) error));
       }
-    })
-        .installOnce()
-        .thenAccept(callback -> {
-          new JavaScriptExecutor(hostBrowser, Resources.readString("js/host/start-host.js"))
-              .replacePlaceholder("callback", callback.name)
-              .replacePlaceholder("refs.MicrofrontendPlatformHost", Refs.MicrofrontendPlatformHost)
-              .replacePlaceholder("platformConfig", config, Flags.ToJson)
-              .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
-              .runInsideAsyncFunction()
-              .execute();
-        });
+    }).installOnce().thenAccept(callback -> {
+      new JavaScriptExecutor(hostBrowser, Resources.readString("js/host/start-host.js")).replacePlaceholder("callback", callback.name)
+          .replacePlaceholder("refs.MicrofrontendPlatformHost", Refs.MicrofrontendPlatformHost)
+          .replacePlaceholder("platformConfig", config, Flags.ToJson).replacePlaceholder("helpers.fromJson", Helpers.fromJson)
+          .runInsideAsyncFunction().execute();
+    });
   }
 
   public <T> void registerMessageInterceptor(String topic, MessageInterceptor<T> interceptor, Type payloadClazz) {
@@ -132,8 +126,7 @@ public class MicrofrontendPlatformRcpHost {
     messageInterceptors.add(new MessageInterceptorDescriptor<>(topic, interceptor, payloadClazz));
   }
 
-  public <T> void registerIntentInterceptor(String type, Qualifier qualifier, IntentInterceptor<T> interceptor,
-      Type payloadClazz) {
+  public <T> void registerIntentInterceptor(String type, Qualifier qualifier, IntentInterceptor<T> interceptor, Type payloadClazz) {
     if (isHostStarted()) {
       throw new IllegalStateException("Host already started. Intent interceptors must be registered prior to host startup.");
     }

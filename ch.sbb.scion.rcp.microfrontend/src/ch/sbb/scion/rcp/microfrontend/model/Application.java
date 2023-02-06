@@ -4,6 +4,7 @@ package ch.sbb.scion.rcp.microfrontend.model;
  * @see https://scion-microfrontend-platform-api.vercel.app/interfaces/Application.html
  */
 public class Application {
+
   /**
    * Unique symbolic name of the application.
    */

@@ -1,6 +1,7 @@
 package ch.sbb.scion.rcp.microfrontend.keyboard;
 
 public class JavaScriptKeyboardEvent {
+
   public String type;
   public String key;
   public boolean ctrlKey;

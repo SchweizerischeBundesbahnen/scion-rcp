@@ -95,6 +95,7 @@ public class Capability {
   }
 
   public static class Metadata {
+
     /**
      * Unique identity of this intent declaration.
      */
@@ -109,6 +110,7 @@ public class Capability {
    * @see https://scion-microfrontend-platform-api.vercel.app/interfaces/ParamDefinition.html
    */
   public static class ParamDefinition {
+
     /**
      * Specifies the name of the parameter.
      */

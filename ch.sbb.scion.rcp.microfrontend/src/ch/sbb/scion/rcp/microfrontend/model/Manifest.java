@@ -6,6 +6,7 @@ import java.util.List;
  * @see https://scion-microfrontend-platform-api.vercel.app/interfaces/Manifest.html
  */
 public class Manifest {
+
   /**
    * The name of the application, e.g. displayed in the DevTools.
    */

@@ -110,10 +110,8 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
         }
 
         var pushStateToSessionHistoryStack = Optional.ofNullable(event.headers.get("ɵPUSH_STATE_TO_SESSION_HISTORY_STACK")).orElse(false);
-        new JavaScriptExecutor(browser, Resources.readString("js/sci-router-outlet/navigate.js"))
-            .replacePlaceholder("url", url)
-            .replacePlaceholder("pushStateToSessionHistoryStack", pushStateToSessionHistoryStack)
-            .execute()
+        new JavaScriptExecutor(browser, Resources.readString("js/sci-router-outlet/navigate.js")).replacePlaceholder("url", url)
+            .replacePlaceholder("pushStateToSessionHistoryStack", pushStateToSessionHistoryStack).execute()
             .thenRun(() -> loadListeners.forEach(listener -> listener.onLoad(url)));
       }
       catch (MalformedURLException e) {
@@ -126,7 +124,9 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
 
   private IDisposable installKeystrokeDispatcher() {
     return routerOutletProxy.onKeystroke(event -> {
-      Platform.getLog(SciRouterOutlet.class).info(String.format("TODO: Dispatching event to SWT [type=%s, keyCode=%s, character=%s, stateMask=%s]", event.type, event.keyCode, event.character, event.stateMask));
+      Platform.getLog(SciRouterOutlet.class)
+          .info(String.format("TODO: Dispatching event to SWT [type=%s, keyCode=%s, character=%s, stateMask=%s]", event.type, event.keyCode,
+              event.character, event.stateMask));
       // TODO Dispatching event to SWT (getDisplay().post(event))
     });
   }
@@ -210,15 +210,20 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
         // Also, when registering the applications, we set the applications "actual" message origin to the origin
         // of the host as SCION would reject messages otherwise.
         if (sender == null && !trustedOrigins.containsValue(origin)) {
-          Platform.getLog(SciRouterOutlet.class).info(String.format("[BLOCKED] Request blocked. Wrong origin [actual='%s', expectedOneOf='%s', envelope='%s']", origin, trustedOrigins.values(), decodeBase64(base64json)));
+          Platform.getLog(SciRouterOutlet.class)
+              .info(String.format("[BLOCKED] Request blocked. Wrong origin [actual='%s', expectedOneOf='%s', envelope='%s']", origin,
+                  trustedOrigins.values(), decodeBase64(base64json)));
           disposables.forEach(IDisposable::dispose);
         }
         else if (sender != null && !trustedOrigins.containsKey(sender)) {
-          Platform.getLog(SciRouterOutlet.class).info(String.format("[BLOCKED] Request blocked. Unknown application [app='%s', envelope='%s']", sender, decodeBase64(base64json)));
+          Platform.getLog(SciRouterOutlet.class).info(
+              String.format("[BLOCKED] Request blocked. Unknown application [app='%s', envelope='%s']", sender, decodeBase64(base64json)));
           disposables.forEach(IDisposable::dispose);
         }
         else if (sender != null && !origin.equals(trustedOrigins.get(sender))) {
-          Platform.getLog(SciRouterOutlet.class).info(String.format("[BLOCKED] Request blocked. Wrong origin [app='%s', actual='%s', expected='%s', envelope='%s']", sender, origin, trustedOrigins.get(sender), decodeBase64(base64json)));
+          Platform.getLog(SciRouterOutlet.class)
+              .info(String.format("[BLOCKED] Request blocked. Wrong origin [app='%s', actual='%s', expected='%s', envelope='%s']", sender,
+                  origin, trustedOrigins.get(sender), decodeBase64(base64json)));
           disposables.forEach(IDisposable::dispose);
         }
         else {
@@ -227,24 +232,17 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
           }
           routerOutletProxy.postJsonMessage(base64json);
         }
-      })
-          .addTo(disposables)
-          .install()
-          .thenAccept(callback -> {
-            var uuid = UUID.randomUUID();
-            new JavaScriptExecutor(browser, Resources.readString("js/sci-router-outlet/install-client-message-dispatcher.js"))
-                .replacePlaceholder("callback", callback.name)
-                .replacePlaceholder("helpers.toJson", Helpers.toJson)
-                .replacePlaceholder("headers.AppSymbolicName", MessageHeaders.AppSymbolicName)
-                .replacePlaceholder("storage", Scripts.Storage)
-                .replacePlaceholder("uninstallStorageKey", uuid)
-                .execute();
+      }).addTo(disposables).install().thenAccept(callback -> {
+        var uuid = UUID.randomUUID();
+        new JavaScriptExecutor(browser, Resources.readString("js/sci-router-outlet/install-client-message-dispatcher.js"))
+            .replacePlaceholder("callback", callback.name).replacePlaceholder("helpers.toJson", Helpers.toJson)
+            .replacePlaceholder("headers.AppSymbolicName", MessageHeaders.AppSymbolicName).replacePlaceholder("storage", Scripts.Storage)
+            .replacePlaceholder("uninstallStorageKey", uuid).execute();
 
-            disposables.add(() -> new JavaScriptExecutor(browser, Resources.readString("js/sci-router-outlet/uninstall-client-message-dispatcher.js"))
-                .replacePlaceholder("storage", Scripts.Storage)
-                .replacePlaceholder("uninstallStorageKey", uuid)
-                .execute());
-          });
+        disposables
+            .add(() -> new JavaScriptExecutor(browser, Resources.readString("js/sci-router-outlet/uninstall-client-message-dispatcher.js"))
+                .replacePlaceholder("storage", Scripts.Storage).replacePlaceholder("uninstallStorageKey", uuid).execute());
+      });
     });
 
     return () -> disposables.forEach(IDisposable::dispose);
@@ -260,9 +258,7 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
       }
 
       new JavaScriptExecutor(browser, "window.postMessage(/@@helpers.fromJson@@/('/@@base64json@@/', {decode: true}));")
-          .replacePlaceholder("base64json", base64json)
-          .replacePlaceholder("helpers.fromJson", Helpers.fromJson)
-          .execute();
+          .replacePlaceholder("base64json", base64json).replacePlaceholder("helpers.fromJson", Helpers.fromJson).execute();
     });
   }
 
@@ -270,22 +266,20 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
    * Creates a {@link Map} with the origins of the passed applications.
    */
   private Map<String, String> getTrustedOrigins(List<Application> applications) {
-    return applications
-        .stream()
-        .collect(Collectors.toMap(app -> app.symbolicName, app -> {
-          try {
-            var url = new URL(app.baseUrl);
-            if (url.getPort() == -1) {
-              return url.getProtocol() + "://" + url.getHost();
-            }
-            else {
-              return url.getProtocol() + "://" + url.getHost() + ":" + url.getPort();
-            }
-          }
-          catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-          }
-        }));
+    return applications.stream().collect(Collectors.toMap(app -> app.symbolicName, app -> {
+      try {
+        var url = new URL(app.baseUrl);
+        if (url.getPort() == -1) {
+          return url.getProtocol() + "://" + url.getHost();
+        }
+        else {
+          return url.getProtocol() + "://" + url.getHost() + ":" + url.getPort();
+        }
+      }
+      catch (MalformedURLException e) {
+        throw new RuntimeException(e);
+      }
+    }));
   }
 
   private String decodeBase64(String base64) {
@@ -307,11 +301,13 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
 
   @FunctionalInterface
   public static interface LoadListener {
+
     public void onLoad(URL url);
   }
 
   @FunctionalInterface
   public static interface UnloadListener {
+
     public void onUnload(URL url);
   }
 }

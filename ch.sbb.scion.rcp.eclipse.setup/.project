@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>ch.sbb.scion.rcp.microfrontend.app.demo</name>
+	<name>ch.sbb.scion.rcp.eclipse.setup</name>
 	<comment></comment>
 	<projects>
 	</projects>
 	<buildSpec>
-		<buildCommand>
-			<name>org.eclipse.jdt.core.javabuilder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
 		<buildCommand>
 			<name>org.eclipse.pde.ManifestBuilder</name>
 			<arguments>
@@ -21,15 +16,7 @@
 			</arguments>
 		</buildCommand>
 	</buildSpec>
-	<linkedResources>
-		<link>
-			<name>.settings</name>
-			<type>2</type>
-			<locationURI>PARENT-1-PROJECT_LOC/ch.sbb.scion.rcp.eclipse.setup/settings</locationURI>
-		</link>
-	</linkedResources>	
 	<natures>
 		<nature>org.eclipse.pde.PluginNature</nature>
-		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
 </projectDescription>
