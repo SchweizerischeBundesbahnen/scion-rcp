@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="SCION RCP Demo Application" uid="ch.sbb.scion.rcp.microfrontend.e3.app.demo.product" id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.product" application="ch.sbb.scion.rcp.microfrontend.e3.app.demo.application" useFeatures="false" includeLaunchers="true">
+<product name="SCION RCP Demo Application" uid="ch.sbb.scion.rcp.microfrontend.e3.app.demo.product" id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.product" application="ch.sbb.scion.rcp.microfrontend.e3.app.demo.application" useFeatures="true" includeLaunchers="true" autoIncludeRequirements="true">
 
    <configIni use="default">
    </configIni>
@@ -15,8 +15,14 @@
       </vmArgsMac>
    </launcherArgs>
 
+   <launcher>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
    <vm>
-      <windows include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17</windows>
+      <windows include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JRE-1.1</windows>
    </vm>
 
    <plugins>
@@ -166,6 +172,14 @@
       <plugin id="org.w3c.dom.smil"/>
       <plugin id="org.w3c.dom.svg"/>
    </plugins>
+
+   <features>
+      <feature id="ch.sbb.scion.rcp.feature" installMode="root"/>
+      <feature id="org.eclipse.emf.ecore" installMode="root"/>
+      <feature id="org.eclipse.emf.common" installMode="root"/>
+      <feature id="org.eclipse.rcp" installMode="root"/>
+      <feature id="org.eclipse.e4.rcp" installMode="root"/>
+   </features>
 
    <configurations>
       <plugin id="org.apache.felix.scr" autoStart="true" startLevel="1" />
