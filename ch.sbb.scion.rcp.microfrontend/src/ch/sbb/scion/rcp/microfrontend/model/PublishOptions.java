@@ -3,7 +3,7 @@ package ch.sbb.scion.rcp.microfrontend.model;
 import java.util.Map;
 
 /**
- * @see https://scion-microfrontend-platform-api.vercel.app/interfaces/PublishOptions.html
+ * @see "https://scion-microfrontend-platform-api.vercel.app/interfaces/PublishOptions.html"
  */
 public class PublishOptions {
 
@@ -18,18 +18,22 @@ public class PublishOptions {
     return retain;
   }
 
-  public PublishOptions headers(Map<String, ?> headers) {
+  public PublishOptions headers(final Map<String, ?> headers) {
     this.headers = headers;
     return this;
   }
 
-  public PublishOptions retain(boolean retain) {
+  public PublishOptions retain(final Boolean retain) {
     this.retain = retain;
     return this;
   }
 
-  public PublishOptions retain() {
-    retain(true);
+  public PublishOptions retain(final boolean retain) {
+    retain(Boolean.valueOf(retain));
     return this;
+  }
+
+  public PublishOptions retain() {
+    return retain(Boolean.TRUE);
   }
 }

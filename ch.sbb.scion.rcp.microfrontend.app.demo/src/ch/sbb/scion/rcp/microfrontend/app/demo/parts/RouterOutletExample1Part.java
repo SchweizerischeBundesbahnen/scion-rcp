@@ -20,7 +20,7 @@ public class RouterOutletExample1Part {
   private SciOutletRouter outletRouter;
 
   @PostConstruct
-  public void createComposite(Composite parent) {
+  public void createComposite(final Composite parent) {
     var routerOutlet = new SciRouterOutlet(parent, SWT.NONE, PART_ID);
     routerOutlet
         .registerKeystrokes(Set.of("keydown.m", "keydown.O", "keydown.escape", "keydown.control.alt.enter", "keydown.control.space"));
@@ -34,7 +34,9 @@ public class RouterOutletExample1Part {
       var isCommandPressed = ((e.stateMask & SWT.COMMAND) != 0);
       System.out
           .println(String.format("onKeyEvent [character=%s, char=%s, stateMask=%s, keyCode=%s, ctrl=%b, alt=%b, shift=%b, command=%b]",
-              e.character, (int) e.character, e.stateMask, e.keyCode, isCtrlPressed, isAltPressed, isShiftPressed, isCommandPressed));
+              Character.valueOf(e.character), Integer.valueOf(e.character), Integer.valueOf(e.stateMask), Integer.valueOf(e.keyCode),
+              Boolean.valueOf(isCtrlPressed), Boolean.valueOf(isAltPressed), Boolean.valueOf(isShiftPressed),
+              Boolean.valueOf(isCommandPressed)));
     });
   }
 }

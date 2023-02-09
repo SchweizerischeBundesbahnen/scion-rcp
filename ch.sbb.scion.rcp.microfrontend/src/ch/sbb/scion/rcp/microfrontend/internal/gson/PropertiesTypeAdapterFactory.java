@@ -1,7 +1,8 @@
 package ch.sbb.scion.rcp.microfrontend.internal.gson;
 
-import java.io.IOException;
 import java.util.Map;
+
+import java.io.IOException;
 
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
@@ -20,7 +21,7 @@ public class PropertiesTypeAdapterFactory implements TypeAdapterFactory {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+  public <T> TypeAdapter<T> create(final Gson gson, final TypeToken<T> type) {
     if (!Properties.class.isAssignableFrom(type.getRawType())) {
       return null;
     }
@@ -30,17 +31,17 @@ public class PropertiesTypeAdapterFactory implements TypeAdapterFactory {
     return (TypeAdapter<T>) new TypeAdapter<Properties>() {
 
       @Override
-      public Properties read(JsonReader reader) throws IOException {
+      public Properties read(final JsonReader reader) throws IOException {
         if (reader.peek() == JsonToken.NULL) {
           reader.nextNull();
           return new Properties();
         }
 
-        return new Properties((Map<String, Object>) defaultMapAdapter.read(reader));
+        return new Properties(defaultMapAdapter.read(reader));
       }
 
       @Override
-      public void write(JsonWriter writer, Properties properties) throws IOException {
+      public void write(final JsonWriter writer, final Properties properties) throws IOException {
         if (properties == null) {
           writer.nullValue();
           return;

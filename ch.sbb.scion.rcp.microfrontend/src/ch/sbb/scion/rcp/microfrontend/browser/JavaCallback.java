@@ -12,14 +12,9 @@ import org.eclipse.swt.browser.BrowserFunction;
 import ch.sbb.scion.rcp.microfrontend.model.IDisposable;
 
 /**
- * Allows interaction from JavaScript with Java code.
- * 
- * Injects a function to the {Window} of the currently loaded document that can
- * be invoked from JavaScript. Invoking that function calls the passed callback.
- * 
- * The function's name can be obtained via {@link JavaCallback#name}.
- * 
- * Wraps a SWT {@link BrowserFunction}.
+ * Allows interaction from JavaScript with Java code. Injects a function to the {Window} of the currently loaded document that can be
+ * invoked from JavaScript. Invoking that function calls the passed callback. The function's name can be obtained via
+ * {@link JavaCallback#name}. Wraps a SWT {@link BrowserFunction}.
  */
 public class JavaCallback implements IDisposable {
 
@@ -40,22 +35,16 @@ public class JavaCallback implements IDisposable {
   }
 
   /**
-   * Installs this callback on the {Window} of the currently loaded document in
-   * the browser. Applications must dispose this function if not used anymore.
-   * 
-   * This method resolves to the callback when installed the callback.
+   * Installs this callback on the {Window} of the currently loaded document in the browser. Applications must dispose this function if not
+   * used anymore. This method resolves to the callback when installed the callback.
    */
   public CompletableFuture<JavaCallback> install() {
     return install(false);
   }
 
   /**
-   * Installs this callback on the {Window} of the currently loaded document in
-   * the browser.
-   * 
-   * This callback is automatically uninstalled after first invocvation.
-   * 
-   * This method resolves to the callback when installed the callback.
+   * Installs this callback on the {Window} of the currently loaded document in the browser. This callback is automatically uninstalled
+   * after first invocvation. This method resolves to the callback when installed the callback.
    */
   public CompletableFuture<JavaCallback> installOnce() {
     return install(true);
@@ -73,7 +62,7 @@ public class JavaCallback implements IDisposable {
           // Invoke the callback asynchronously to first complete the invocation of this browser function.
           // Otherwise, creating a new {@link Browser} instance in the callback would lead to a deadlock.
           browser.getDisplay().asyncExec(() -> callback.accept(arguments));
-          return true;
+          return Boolean.TRUE;
         }
       };
     }).thenApply(browser -> this);
@@ -88,11 +77,9 @@ public class JavaCallback implements IDisposable {
   }
 
   /**
-   * Disposes of the resources associated with this BrowserFunction. Applications
-   * must dispose of all BrowserFunctions that they create.
+   * Disposes of the resources associated with this BrowserFunction. Applications must dispose of all BrowserFunctions that they create.
    * <p>
-   * Note that disposing a Browser automatically disposes all BrowserFunctions
-   * associated with it.
+   * Note that disposing a Browser automatically disposes all BrowserFunctions associated with it.
    * </p>
    */
   @Override

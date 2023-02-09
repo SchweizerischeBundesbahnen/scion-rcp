@@ -1,7 +1,8 @@
 package ch.sbb.scion.rcp.microfrontend;
 
-import java.lang.reflect.Type;
 import java.util.concurrent.CompletableFuture;
+
+import java.lang.reflect.Type;
 
 import org.eclipse.swt.browser.Browser;
 import org.osgi.service.component.annotations.Component;
@@ -14,7 +15,7 @@ import ch.sbb.scion.rcp.microfrontend.model.MicrofrontendPlatformConfig;
 import ch.sbb.scion.rcp.microfrontend.model.Qualifier;
 
 /**
- * @see https://scion-microfrontend-platform-api.vercel.app/classes/MicrofrontendPlatform.html
+ * @see "https://scion-microfrontend-platform-api.vercel.app/classes/MicrofrontendPlatform.html"
  */
 @Component(service = MicrofrontendPlatform.class)
 public class MicrofrontendPlatform {
@@ -24,66 +25,57 @@ public class MicrofrontendPlatform {
 
   /**
    * Starts the SCION Microfrontend Platform host.
-   * 
-   * @see https://scion-microfrontend-platform-api.vercel.app/classes/MicrofrontendPlatformHost.html#start
+   *
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/MicrofrontendPlatformHost.html#start"
    */
-  public CompletableFuture<Browser> startHost(MicrofrontendPlatformConfig config) {
+  public CompletableFuture<Browser> startHost(final MicrofrontendPlatformConfig config) {
     return microfrontendPlatformRcpHost.start(config);
   }
 
   /**
-   * Registers an interceptor for intercepting messages before being dispatched.
-   * Interceptors must be registered prior to starting the host.
+   * Registers an interceptor for intercepting messages before being dispatched. Interceptors must be registered prior to starting the host.
    */
-  public <T> void registerMessageInterceptor(String topic, MessageInterceptor<T> interceptor) {
+  public <T> void registerMessageInterceptor(final String topic, final MessageInterceptor<T> interceptor) {
     registerMessageInterceptor(topic, interceptor, Object.class);
   }
 
   /**
-   * Registers an interceptor for intercepting messages before being dispatched.
-   * Interceptors must be registered prior to starting the host.
+   * Registers an interceptor for intercepting messages before being dispatched. Interceptors must be registered prior to starting the host.
    */
-  public <T> void registerMessageInterceptor(String topic, MessageInterceptor<T> interceptor, Type payloadClazz) {
+  public <T> void registerMessageInterceptor(final String topic, final MessageInterceptor<T> interceptor, final Type payloadClazz) {
     microfrontendPlatformRcpHost.registerMessageInterceptor(topic, interceptor, payloadClazz);
   }
 
   /**
-   * Registers an interceptor for intercepting intents before being dispatched.
-   * 
-   * The interceptor will receive all intents independent of the host's
-   * intentions. Interceptors must be registered prior to starting the host.
+   * Registers an interceptor for intercepting intents before being dispatched. The interceptor will receive all intents independent of the
+   * host's intentions. Interceptors must be registered prior to starting the host.
    */
-  public <T> void registerIntentInterceptor(String type, IntentInterceptor<T> interceptor) {
+  public <T> void registerIntentInterceptor(final String type, final IntentInterceptor<T> interceptor) {
     registerIntentInterceptor(type, null, interceptor);
   }
 
   /**
-   * Registers an interceptor for intercepting intents before being dispatched.
-   * 
-   * The interceptor will receive all intents independent of the host's
-   * intentions. Interceptors must be registered prior to starting the host.
+   * Registers an interceptor for intercepting intents before being dispatched. The interceptor will receive all intents independent of the
+   * host's intentions. Interceptors must be registered prior to starting the host.
    */
-  public <T> void registerIntentInterceptor(String type, IntentInterceptor<T> interceptor, Type payloadClazz) {
+  public <T> void registerIntentInterceptor(final String type, final IntentInterceptor<T> interceptor, final Type payloadClazz) {
     registerIntentInterceptor(type, null, interceptor, payloadClazz);
   }
 
   /**
-   * Registers an interceptor for intercepting intents before being dispatched.
-   * 
-   * The interceptor will receive all intents independent of the host's
-   * intentions. Interceptors must be registered prior to starting the host.
+   * Registers an interceptor for intercepting intents before being dispatched. The interceptor will receive all intents independent of the
+   * host's intentions. Interceptors must be registered prior to starting the host.
    */
-  public <T> void registerIntentInterceptor(String type, Qualifier qualifier, IntentInterceptor<T> interceptor) {
+  public <T> void registerIntentInterceptor(final String type, final Qualifier qualifier, final IntentInterceptor<T> interceptor) {
     registerIntentInterceptor(type, qualifier, interceptor, Object.class);
   }
 
   /**
-   * Registers an interceptor for intercepting intents before being dispatched.
-   * 
-   * The interceptor will receive all intents independent of the host's
-   * intentions. Interceptors must be registered prior to starting the host.
+   * Registers an interceptor for intercepting intents before being dispatched. The interceptor will receive all intents independent of the
+   * host's intentions. Interceptors must be registered prior to starting the host.
    */
-  public <T> void registerIntentInterceptor(String type, Qualifier qualifier, IntentInterceptor<T> interceptor, Type payloadClazz) {
+  public <T> void registerIntentInterceptor(final String type, final Qualifier qualifier, final IntentInterceptor<T> interceptor,
+      final Type payloadClazz) {
     microfrontendPlatformRcpHost.registerIntentInterceptor(type, qualifier, interceptor, payloadClazz);
   }
 }

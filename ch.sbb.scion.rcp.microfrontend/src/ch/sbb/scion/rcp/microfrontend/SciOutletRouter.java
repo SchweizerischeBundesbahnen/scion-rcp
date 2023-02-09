@@ -17,7 +17,7 @@ import ch.sbb.scion.rcp.microfrontend.script.Scripts.Helpers;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
 
 /**
- * @see https://scion-microfrontend-platform-api.vercel.app/classes/OutletRouter.html
+ * @see "https://scion-microfrontend-platform-api.vercel.app/classes/OutletRouter.html"
  */
 @Component(service = SciOutletRouter.class)
 public class SciOutletRouter {
@@ -26,34 +26,34 @@ public class SciOutletRouter {
   private MicrofrontendPlatformRcpHost microfrontendPlatformRcpHost;
 
   /**
-   * @see https://scion-microfrontend-platform-api.vercel.app/classes/OutletRouter.html#navigate
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/OutletRouter.html#navigate"
    */
-  public CompletableFuture<Void> navigate(String url) {
+  public CompletableFuture<Void> navigate(final String url) {
     return navigateInternal(url, null);
   }
 
   /**
-   * @see https://scion-microfrontend-platform-api.vercel.app/classes/OutletRouter.html#navigate
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/OutletRouter.html#navigate"
    */
-  public CompletableFuture<Void> navigate(String url, NavigationOptions navigationOptions) {
+  public CompletableFuture<Void> navigate(final String url, final NavigationOptions navigationOptions) {
     return navigateInternal(url, navigationOptions);
   }
 
   /**
-   * @see https://scion-microfrontend-platform-api.vercel.app/classes/OutletRouter.html#navigate
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/OutletRouter.html#navigate"
    */
-  public CompletableFuture<Void> navigate(Qualifier qualifier) {
+  public CompletableFuture<Void> navigate(final Qualifier qualifier) {
     return navigateInternal(qualifier, null);
   }
 
   /**
-   * @see https://scion-microfrontend-platform-api.vercel.app/classes/OutletRouter.html#navigate
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/OutletRouter.html#navigate"
    */
-  public CompletableFuture<Void> navigate(Qualifier qualifier, NavigationOptions navigationOptions) {
+  public CompletableFuture<Void> navigate(final Qualifier qualifier, final NavigationOptions navigationOptions) {
     return navigateInternal(qualifier, navigationOptions);
   }
 
-  private CompletableFuture<Void> navigateInternal(Object target, NavigationOptions navigationOptions) {
+  private CompletableFuture<Void> navigateInternal(final Object target, final NavigationOptions navigationOptions) {
     var options = Optional.ofNullable(navigationOptions).orElse(new NavigationOptions());
 
     var navigated = new CompletableFuture<Void>();
@@ -80,7 +80,7 @@ public class SciOutletRouter {
   }
 
   /**
-   * @see https://scion-microfrontend-platform-api.vercel.app/interfaces/NavigationOptions.html
+   * @see "https://scion-microfrontend-platform-api.vercel.app/interfaces/NavigationOptions.html"
    */
   public static class NavigationOptions {
 
@@ -89,22 +89,22 @@ public class SciOutletRouter {
     private Map<String, ?> params;
     private Boolean pushStateToSessionHistoryStack;
 
-    public NavigationOptions outlet(String outlet) {
+    public NavigationOptions outlet(final String outlet) {
       this.outlet = outlet;
       return this;
     }
 
-    public NavigationOptions relativeTo(String relativeTo) {
+    public NavigationOptions relativeTo(final String relativeTo) {
       this.relativeTo = relativeTo;
       return this;
     }
 
-    public NavigationOptions params(Map<String, ?> params) {
+    public NavigationOptions params(final Map<String, ?> params) {
       this.params = params;
       return this;
     }
 
-    public NavigationOptions pushStateToSessionHistoryStack(Boolean pushStateToSessionHistoryStack) {
+    public NavigationOptions pushStateToSessionHistoryStack(final Boolean pushStateToSessionHistoryStack) {
       this.pushStateToSessionHistoryStack = pushStateToSessionHistoryStack;
       return this;
     }

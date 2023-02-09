@@ -38,7 +38,7 @@ public abstract class CapabilityMenuContributor extends ContributionItem {
   }
 
   @Override
-  public void fill(Menu menu, int index) {
+  public void fill(final Menu menu, final int index) {
     subscription = sciManifestService.lookupCapabilities(new ManifestObjectFilter().type(getCapabilityType()), capabilities -> {
       capabilities.forEach(capability -> {
         MenuItem menuItem = new MenuItem(menu, SWT.PUSH, index);
@@ -46,7 +46,8 @@ public abstract class CapabilityMenuContributor extends ContributionItem {
         menuItem.setToolTipText(getToolTipText(capability));
         menuItem.addSelectionListener(new SelectionAdapter() {
 
-          public void widgetSelected(SelectionEvent event) {
+          @Override
+          public void widgetSelected(final SelectionEvent event) {
             sciIntentClient.publish(new Intent().type(capability.type).qualifier(capability.qualifier)).exceptionally(e -> {
               Platform.getLog(CapabilityMenuContributor.class).error("Failed to send intent", e);
               return null;

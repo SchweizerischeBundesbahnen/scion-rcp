@@ -3,7 +3,7 @@ package ch.sbb.scion.rcp.microfrontend.model;
 import java.util.Map;
 
 /**
- * @see https://scion-microfrontend-platform-api.vercel.app/interfaces/Intent.html
+ * @see "https://scion-microfrontend-platform-api.vercel.app/interfaces/Intent.html"
  */
 public class Intent {
 
@@ -15,7 +15,7 @@ public class Intent {
     return type;
   }
 
-  public Intent type(String type) {
+  public Intent type(final String type) {
     this.type = type;
     return this;
   }
@@ -24,7 +24,7 @@ public class Intent {
     return qualifier;
   }
 
-  public Intent qualifier(Qualifier qualifier) {
+  public Intent qualifier(final Qualifier qualifier) {
     this.qualifier = qualifier;
     return this;
   }
@@ -33,7 +33,7 @@ public class Intent {
     return params;
   }
 
-  public Intent params(Map<String, Object> params) {
+  public Intent params(final Map<String, Object> params) {
     this.params = params;
     return this;
   }

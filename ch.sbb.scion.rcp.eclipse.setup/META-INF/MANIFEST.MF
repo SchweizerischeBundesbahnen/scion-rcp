@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: scion setup for the eclipse ide
+Bundle-Name: ch.sbb.scion.rcp.eclipse.setup
 Bundle-SymbolicName: ch.sbb.scion.rcp.eclipse.setup
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: SBB

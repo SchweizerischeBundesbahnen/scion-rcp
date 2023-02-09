@@ -30,11 +30,11 @@ import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
  */
 public class RouterOutletProxy {
 
-  private String outletId;
-  private CompletableFuture<Browser> whenOutlet;
-  private List<Consumer<String>> outletToProxyMessageListeners = new ArrayList<>();
-  private List<Consumer<Event>> outletToProxyKeystrokeListeners = new ArrayList<>();
-  private List<IDisposable> disposables = new ArrayList<>();
+  private final String outletId;
+  private final CompletableFuture<Browser> whenOutlet;
+  private final List<Consumer<String>> outletToProxyMessageListeners = new ArrayList<>();
+  private final List<Consumer<Event>> outletToProxyKeystrokeListeners = new ArrayList<>();
+  private final List<IDisposable> disposables = new ArrayList<>();
 
   @Inject
   private MicrofrontendPlatformRcpHost microfrontendPlatformRcpHost;
@@ -42,7 +42,7 @@ public class RouterOutletProxy {
   @Inject
   private KeyboardEventMapper keyboardEventMapper;
 
-  public RouterOutletProxy(String outletName) {
+  public RouterOutletProxy(final String outletName) {
     outletId = "sci_router_outlet_" + outletName.toLowerCase() + "_" + UUID.randomUUID();
     whenOutlet = new CompletableFuture<>();
     ContextInjectors.inject(this);
@@ -58,8 +58,10 @@ public class RouterOutletProxy {
 
     // Callback invoked for keystrokes triggered by the client.
     var outletToProxyKeystrokeCallback = new JavaCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
-      var webEvent = new JavaScriptKeyboardEvent((String) args[0], (String) args[1], (boolean) args[2], (boolean) args[3],
-          (boolean) args[4], (boolean) args[5]);
+
+      // args 2-5 will never be null
+      var webEvent = new JavaScriptKeyboardEvent((String) args[0], (String) args[1], unboxBoolean(args[2]), unboxBoolean(args[3]),
+          unboxBoolean(args[4]), unboxBoolean(args[5]));
       var swtEvent = keyboardEventMapper.mapKeyboardEvent(webEvent);
       outletToProxyKeystrokeListeners.forEach(listener -> listener.accept(swtEvent));
     });
@@ -82,23 +84,26 @@ public class RouterOutletProxy {
     });
   }
 
+  private final static boolean unboxBoolean(final Object o) {
+    return ((Boolean) o).booleanValue();
+  }
+
   /**
-   * Instructs the web application loaded into the {@link SciRouterOutlet outlet
-   * proxy} to dispatch given keystrokes.
+   * Instructs the web application loaded into the {@link SciRouterOutlet outlet proxy} to dispatch given keystrokes.
    */
-  public CompletableFuture<Void> registerKeystrokes(Set<String> keystrokes) {
+  public CompletableFuture<Void> registerKeystrokes(final Set<String> keystrokes) {
     return new JavaScriptExecutor(whenOutlet, Resources.readString("js/router-outlet-proxy/register-keystrokes.js"))
         .replacePlaceholder("outletId", outletId).replacePlaceholder("keystrokes", new ArrayList<>(keystrokes), Flags.ToJson)
         .replacePlaceholder("helpers.fromJson", Helpers.fromJson).execute();
   }
 
-  public CompletableFuture<Void> setContextValue(String name, Object value) {
+  public CompletableFuture<Void> setContextValue(final String name, final Object value) {
     return new JavaScriptExecutor(whenOutlet, Resources.readString("js/router-outlet-proxy/set-context-value.js"))
         .replacePlaceholder("outletId", outletId).replacePlaceholder("name", name).replacePlaceholder("value", value, Flags.ToJson)
         .replacePlaceholder("helpers.fromJson", Helpers.fromJson).execute();
   }
 
-  public CompletableFuture<Boolean> removeContextValue(String name) {
+  public CompletableFuture<Boolean> removeContextValue(final String name) {
     var removed = new CompletableFuture<Boolean>();
     new JavaCallback(whenOutlet, args -> {
       removed.complete((Boolean) args[0]);
@@ -111,29 +116,26 @@ public class RouterOutletProxy {
   }
 
   /**
-   * Posts given JSON message to the host in the name of the web application
-   * loaded into the the {@link SciRouterOutlet outlet proxy}.
+   * Posts given JSON message to the host in the name of the web application loaded into the the {@link SciRouterOutlet outlet proxy}.
    */
-  public void postJsonMessage(String base64json) {
+  public void postJsonMessage(final String base64json) {
     new JavaScriptExecutor(whenOutlet, Resources.readString("js/router-outlet-proxy/post-message-to-host.js"))
         .replacePlaceholder("outletId", outletId).replacePlaceholder("base64json", base64json)
         .replacePlaceholder("helpers.fromJson", Helpers.fromJson).execute();
   }
 
   /**
-   * Dispatches messages from the host which are intended for the web application
-   * loaded into the {@link SciRouterOutlet outlet proxy}.
+   * Dispatches messages from the host which are intended for the web application loaded into the {@link SciRouterOutlet outlet proxy}.
    */
-  public IDisposable onMessage(Consumer<String> messageListener) {
+  public IDisposable onMessage(final Consumer<String> messageListener) {
     outletToProxyMessageListeners.add(messageListener);
     return () -> outletToProxyMessageListeners.remove(messageListener);
   }
 
   /**
-   * Dispatches keystrokes originating from the web application loaded into the
-   * {@link SciRouterOutlet outlet proxy}.
+   * Dispatches keystrokes originating from the web application loaded into the {@link SciRouterOutlet outlet proxy}.
    */
-  public IDisposable onKeystroke(Consumer<Event> keystrokeListener) {
+  public IDisposable onKeystroke(final Consumer<Event> keystrokeListener) {
     outletToProxyKeystrokeListeners.add(keystrokeListener);
     return () -> outletToProxyMessageListeners.remove(keystrokeListener);
   }

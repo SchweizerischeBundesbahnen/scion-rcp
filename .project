@@ -4,4 +4,15 @@
 	<comment></comment>
 	<projects>
 	</projects>
+	<buildSpec>
+	</buildSpec>
+	<natures>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>.settings</name>
+			<type>2</type>
+			<locationURI>PROJECT_LOC/ch.sbb.scion.rcp.eclipse.setup/.settings</locationURI>
+		</link>
+	</linkedResources>
 </projectDescription>

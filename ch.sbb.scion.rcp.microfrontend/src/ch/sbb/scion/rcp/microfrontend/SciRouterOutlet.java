@@ -1,9 +1,5 @@
 package ch.sbb.scion.rcp.microfrontend;
 
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashSet;
@@ -14,6 +10,11 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLDecoder;
 
 import javax.inject.Inject;
 
@@ -39,23 +40,21 @@ import ch.sbb.scion.rcp.microfrontend.script.Scripts;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Helpers;
 
 /**
- * Widget to display a microfrontend.
- * 
- * This widget acts as proxy for the SCION <sci-router-outlet> web component.
- * 
- * @see https://scion-microfrontend-platform-api.vercel.app/classes/SciRouterOutletElement.html
+ * Widget to display a microfrontend. This widget acts as proxy for the SCION <sci-router-outlet> web component.
+ *
+ * @see "https://scion-microfrontend-platform-api.vercel.app/classes/SciRouterOutletElement.html"
  */
 public class SciRouterOutlet extends Composite implements DisposeListener {
 
-  private RouterOutletProxy routerOutletProxy;
-  private Browser browser;
+  private final RouterOutletProxy routerOutletProxy;
+  private final Browser browser;
   private URL url;
-  private IDisposable navigator;
-  private IDisposable keystrokeDispatcher;
-  private List<LoadListener> loadListeners = new ArrayList<>();
-  private List<UnloadListener> unloadListeners = new ArrayList<>();
-  private Set<String> keystrokes = new HashSet<>();
-  private boolean bridgeLoggerEnabled = false;
+  private final IDisposable navigator;
+  private final IDisposable keystrokeDispatcher;
+  private final List<LoadListener> loadListeners = new ArrayList<>();
+  private final List<UnloadListener> unloadListeners = new ArrayList<>();
+  private final Set<String> keystrokes = new HashSet<>();
+  private final boolean bridgeLoggerEnabled = false;
 
   @Inject
   private SciMessageClient messageClient;
@@ -63,7 +62,7 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
   @Inject
   private SciManifestService manifestService;
 
-  public SciRouterOutlet(Composite parent, int style, String outletName) {
+  public SciRouterOutlet(final Composite parent, final int style, final String outletName) {
     super(parent, style);
     ContextInjectors.inject(this);
 
@@ -75,9 +74,10 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
     browser = new Browser(this, SWT.EDGE);
     browser.addProgressListener(new ProgressAdapter() {
 
-      private List<IDisposable> disposables = new ArrayList<>();
+      private final List<IDisposable> disposables = new ArrayList<>();
 
-      public void completed(ProgressEvent event) {
+      @Override
+      public void completed(final ProgressEvent event) {
         // is invoked when completed loading the app, or when reloading it, e.g., due to
         // hot code replacement during development
         disposables.forEach(IDisposable::dispose);
@@ -95,7 +95,7 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
     keystrokeDispatcher = installKeystrokeDispatcher();
   }
 
-  private IDisposable installRouter(String outletName) {
+  private IDisposable installRouter(final String outletName) {
     var subscription = messageClient.subscribe("sci-router-outlets/" + outletName + "/url", event -> {
       var prevUrl = url;
       if (prevUrl != null) {
@@ -109,7 +109,8 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
           return;
         }
 
-        var pushStateToSessionHistoryStack = Optional.ofNullable(event.headers.get("ɵPUSH_STATE_TO_SESSION_HISTORY_STACK")).orElse(false);
+        var pushStateToSessionHistoryStack = Optional.ofNullable(event.headers.get("ɵPUSH_STATE_TO_SESSION_HISTORY_STACK"))
+            .orElse(Boolean.FALSE);
         new JavaScriptExecutor(browser, Resources.readString("js/sci-router-outlet/navigate.js")).replacePlaceholder("url", url)
             .replacePlaceholder("pushStateToSessionHistoryStack", pushStateToSessionHistoryStack).execute()
             .thenRun(() -> loadListeners.forEach(listener -> listener.onLoad(url)));
@@ -124,70 +125,67 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
 
   private IDisposable installKeystrokeDispatcher() {
     return routerOutletProxy.onKeystroke(event -> {
-      Platform.getLog(SciRouterOutlet.class)
-          .info(String.format("TODO: Dispatching event to SWT [type=%s, keyCode=%s, character=%s, stateMask=%s]", event.type, event.keyCode,
-              event.character, event.stateMask));
+      Platform.getLog(SciRouterOutlet.class).info(String.format(//
+          "TODO: Dispatching event to SWT [type=%s, keyCode=%s, character=%s, stateMask=%s]", //
+          Integer.valueOf(event.type), Integer.valueOf(event.keyCode), Character.valueOf(event.character),
+          Integer.valueOf(event.stateMask)));
       // TODO Dispatching event to SWT (getDisplay().post(event))
     });
   }
 
-  public IDisposable onLoad(LoadListener listener) {
+  public IDisposable onLoad(final LoadListener listener) {
     loadListeners.add(listener);
     return () -> loadListeners.remove(listener);
   }
 
-  public IDisposable onUnload(UnloadListener listener) {
+  public IDisposable onUnload(final UnloadListener listener) {
     unloadListeners.add(listener);
     return () -> unloadListeners.remove(listener);
   }
 
   /**
-   * Instructs the web application loaded into the outlet to dispatch given
-   * keystrokes.
+   * Instructs the web application loaded into the outlet to dispatch given keystrokes.
    */
-  public CompletableFuture<Void> registerKeystroke(String keystroke) {
+  public CompletableFuture<Void> registerKeystroke(final String keystroke) {
     return registerKeystrokes(Set.of(keystroke));
   }
 
   /**
-   * Instructs the web application loaded into the outlet to dispatch given
-   * keystrokes.
+   * Instructs the web application loaded into the outlet to dispatch given keystrokes.
    */
-  public CompletableFuture<Void> registerKeystrokes(Set<String> keystrokes) {
+  public CompletableFuture<Void> registerKeystrokes(final Set<String> keystrokes) {
     this.keystrokes.addAll(keystrokes);
     return routerOutletProxy.registerKeystrokes(this.keystrokes);
   }
 
-  public CompletableFuture<Void> unregisterKeystroke(String keystroke) {
+  public CompletableFuture<Void> unregisterKeystroke(final String keystroke) {
     return unregisterKeystrokes(Set.of(keystroke));
   }
 
-  public CompletableFuture<Void> unregisterKeystrokes(Set<String> keystrokes) {
+  public CompletableFuture<Void> unregisterKeystrokes(final Set<String> keystrokes) {
     this.keystrokes.removeAll(keystrokes);
     return routerOutletProxy.registerKeystrokes(this.keystrokes);
   }
 
   /**
-   * Makes contextual data available to embedded content. Embedded content can lookup contextual data using the {@link ContextService}.
-   * Contextual data must be serializable with the structured clone algorithm.
-   * 
-   * @see https://scion-microfrontend-platform-api.vercel.app/classes/SciRouterOutletElement.html#setContextValue
+   * Makes contextual data available to embedded content. Embedded content can lookup contextual data using the
+   * {@link "org.eclipse.ui.internal.contexts.ContextService"}. Contextual data must be serializable with the structured clone algorithm.
+   *
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/SciRouterOutletElement.html#setContextValue"
    */
-  public CompletableFuture<Void> setContextValue(String name, Object value) {
+  public CompletableFuture<Void> setContextValue(final String name, final Object value) {
     return routerOutletProxy.setContextValue(name, value);
   }
 
   /**
-   * Removes data registered under the given key from the context.
-   *
-   * Removal does not affect parent contexts, so it is possible that a subsequent call to {@link ContextService.observe$} with the same name
-   * will return a non-null result, due to a value being stored in a parent context.
+   * Removes data registered under the given key from the context. Removal does not affect parent contexts, so it is possible that a
+   * subsequent call to {@link "org.eclipse.ui.internal.contexts.ContextService.observe()"} with the same name will return a non-null
+   * result, due to a value being stored in a parent context.
    *
    * @return `true` if removed the value from the outlet context; otherwise `false`.
-   * 
-   * @see https://scion-microfrontend-platform-api.vercel.app/classes/SciRouterOutletElement.html#removeContextValue
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/SciRouterOutletElement.html#removeContextValue"
    */
-  public CompletableFuture<Boolean> removeContextValue(String name) {
+  public CompletableFuture<Boolean> removeContextValue(final String name) {
     return routerOutletProxy.removeContextValue(name);
   }
 
@@ -265,7 +263,7 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
   /**
    * Creates a {@link Map} with the origins of the passed applications.
    */
-  private Map<String, String> getTrustedOrigins(List<Application> applications) {
+  private Map<String, String> getTrustedOrigins(final List<Application> applications) {
     return applications.stream().collect(Collectors.toMap(app -> app.symbolicName, app -> {
       try {
         var url = new URL(app.baseUrl);
@@ -282,7 +280,7 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
     }));
   }
 
-  private String decodeBase64(String base64) {
+  private String decodeBase64(final String base64) {
     try {
       return URLDecoder.decode(new String(Base64.getUrlDecoder().decode(base64)), "utf-8");
     }
@@ -293,7 +291,7 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
   }
 
   @Override
-  public void widgetDisposed(DisposeEvent e) {
+  public void widgetDisposed(final DisposeEvent e) {
     routerOutletProxy.dispose();
     navigator.dispose();
     keystrokeDispatcher.dispose();

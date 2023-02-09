@@ -40,20 +40,20 @@ public class RxJsObservable<T> {
       try {
         var emission = GsonFactory.create().<Emission<T>> fromJson((String) args[0], new ParameterizedType(Emission.class, clazz));
         switch (emission.type) {
-          case Next: {
-            observer.onNext(emission.next);
-            break;
-          }
-          case Error: {
-            observer.onError(new RuntimeException(emission.error));
-            disposables.forEach(IDisposable::dispose);
-            break;
-          }
-          case Complete: {
-            observer.onComplete();
-            disposables.forEach(IDisposable::dispose);
-            break;
-          }
+        case Next: {
+          observer.onNext(emission.next);
+          break;
+        }
+        case Error: {
+          observer.onError(new RuntimeException(emission.error));
+          disposables.forEach(IDisposable::dispose);
+          break;
+        }
+        case Complete: {
+          observer.onComplete();
+          disposables.forEach(IDisposable::dispose);
+          break;
+        }
         }
       }
       catch (RuntimeException e) {
@@ -76,7 +76,9 @@ public class RxJsObservable<T> {
   private static class Emission<T> {
 
     public static enum Type {
-      Next, Error, Complete
+      Next,
+      Error,
+      Complete
     };
 
     public Type type;
