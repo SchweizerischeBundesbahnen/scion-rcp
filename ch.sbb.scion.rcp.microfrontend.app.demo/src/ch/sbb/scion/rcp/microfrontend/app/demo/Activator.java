@@ -11,11 +11,13 @@ public class Activator implements BundleActivator {
     return context;
   }
 
-  public void start(BundleContext bundleContext) throws Exception {
+  @Override
+  public void start(final BundleContext bundleContext) throws Exception {
     Activator.context = bundleContext;
   }
 
-  public void stop(BundleContext bundleContext) throws Exception {
+  @Override
+  public void stop(final BundleContext bundleContext) throws Exception {
     Activator.context = null;
   }
 

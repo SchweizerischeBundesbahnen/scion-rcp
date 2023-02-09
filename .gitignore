@@ -1,6 +1,11 @@
+### IntelliJ IDEA ###
+**/*.iws
+**/*.iml
+**/*.ipr
 **/.idea/
-**/.launch
 
+### Eclipse IDE ###
+**/.launch
 **/target/
 **/bin/
 **/*.log
@@ -11,7 +16,9 @@
 **/target/
 **/*.bak
 **/*.iml
+**/workspace
 
+### others ###
 **/dist/
 **/out-tsc/
 **/node_modules

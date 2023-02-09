@@ -15,7 +15,7 @@ import ch.sbb.scion.rcp.microfrontend.model.Qualifier;
 public class ApplicationStartup {
 
   @PostContextCreate
-  public void postContextCreate(MicrofrontendPlatform microfrontendPlatform) {
+  public void postContextCreate(final MicrofrontendPlatform microfrontendPlatform) {
     microfrontendPlatform
         .startHost(
             new MicrofrontendPlatformConfig()
@@ -26,7 +26,7 @@ public class ApplicationStartup {
                 .applications(List.of(new ApplicationConfig().symbolicName("client-app").manifestUrl("http://localhost:4201/manifest.json"),
                     new ApplicationConfig().symbolicName("devtools")
                         .manifestUrl("https://scion-microfrontend-platform-devtools-v1-0-0-rc-12.vercel.app/assets/manifest.json")
-                        .intentionCheckDisabled(true).scopeCheckDisabled(true)))
-                .manifestLoadTimeout(2000L).activatorLoadTimeout(5000L));
+                        .intentionCheckDisabled(Boolean.TRUE).scopeCheckDisabled(Boolean.TRUE)))
+                .manifestLoadTimeout(Long.valueOf(2000L)).activatorLoadTimeout(Long.valueOf(5000L)));
   }
 }

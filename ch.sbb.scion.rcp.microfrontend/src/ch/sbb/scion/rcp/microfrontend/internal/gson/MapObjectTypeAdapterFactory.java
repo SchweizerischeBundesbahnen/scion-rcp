@@ -1,7 +1,8 @@
 package ch.sbb.scion.rcp.microfrontend.internal.gson;
 
-import java.io.IOException;
 import java.util.Map;
+
+import java.io.IOException;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -13,20 +14,14 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
 /**
- * Custom GSON adapter to convert a Java `Map` to a JSON object literal and vice versa,
- * which is necessary because JSON has no representation for the Map data type.
- * 
- * By default, GSON converts a Java `Map` to a JSON object literal, so there is no way
- * to determine in JavaScript whether it is a Map or a dictionary.
- * 
- * Format of the JSON object literal: `{__type: 'Map', __value: [...[key, value]]}`
- * 
- * This adapter is to be used together with {@link helpers.js#fromJson} and {@link helpers.js#toJson}
- * in JavaScript.
- * 
- * @see MapTypeAdapterFactory
- * @see helpers.js#fromJson
- * @see helpers.js#toJson
+ * Custom GSON adapter to convert a Java `Map` to a JSON object literal and vice versa, which is necessary because JSON has no
+ * representation for the Map data type. By default, GSON converts a Java `Map` to a JSON object literal, so there is no way to determine in
+ * JavaScript whether it is a Map or a dictionary. Format of the JSON object literal: `{__type: 'Map', __value: [...[key, value]]}` This
+ * adapter is to be used together with {@link "helpers.js#fromJson"} and {@link "helpers.js#toJson"} in JavaScript.
+ *
+ * @see "com.google.gson.internal.bind.MapTypeAdapterFactory"
+ * @see "helpers.js#fromJson"
+ * @see "helpers.js#toJson"
  */
 public class MapObjectTypeAdapterFactory implements TypeAdapterFactory {
 
@@ -36,7 +31,7 @@ public class MapObjectTypeAdapterFactory implements TypeAdapterFactory {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+  public <T> TypeAdapter<T> create(final Gson gson, final TypeToken<T> type) {
     if (!Map.class.isAssignableFrom(type.getRawType())) {
       return null;
     }
@@ -47,7 +42,7 @@ public class MapObjectTypeAdapterFactory implements TypeAdapterFactory {
     return (TypeAdapter<T>) new TypeAdapter<Map<?, ?>>() {
 
       @Override
-      public Map<?, ?> read(JsonReader reader) throws IOException {
+      public Map<?, ?> read(final JsonReader reader) throws IOException {
         if (reader.peek() == JsonToken.NULL) {
           reader.nextNull();
           return null;
@@ -65,7 +60,7 @@ public class MapObjectTypeAdapterFactory implements TypeAdapterFactory {
       }
 
       @Override
-      public void write(JsonWriter writer, Map<?, ?> map) throws IOException {
+      public void write(final JsonWriter writer, final Map<?, ?> map) throws IOException {
         if (map == null) {
           writer.nullValue();
           return;

@@ -29,7 +29,7 @@ import ch.sbb.scion.rcp.microfrontend.script.Scripts.Helpers;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
 
 /**
- * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html
+ * @see "https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html"
  */
 @Component(service = SciIntentClient.class)
 public class SciIntentClient {
@@ -38,51 +38,51 @@ public class SciIntentClient {
   private MicrofrontendPlatformRcpHost microfrontendPlatformRcpHost;
 
   /**
-   * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish"
    */
-  public CompletableFuture<Void> publish(Intent intent) {
+  public CompletableFuture<Void> publish(final Intent intent) {
     return publishJson(intent, null, null);
   }
 
   /**
-   * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish"
    */
-  public CompletableFuture<Void> publish(Intent intent, Object body) {
+  public CompletableFuture<Void> publish(final Intent intent, final Object body) {
     return publishJson(intent, GsonFactory.create().toJson(body), null);
   }
 
   /**
-   * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish"
    */
-  public CompletableFuture<Void> publish(Intent intent, PublishOptions options) {
+  public CompletableFuture<Void> publish(final Intent intent, final PublishOptions options) {
     return publishJson(intent, null, options);
   }
 
   /**
-   * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish"
    */
-  public CompletableFuture<Void> publish(Intent intent, Object body, PublishOptions options) {
+  public CompletableFuture<Void> publish(final Intent intent, final Object body, final PublishOptions options) {
     return publishJson(intent, GsonFactory.create().toJson(body), options);
   }
 
   /**
-   * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish"
    */
-  public CompletableFuture<Void> publish(Intent intent, JsonElement jsonElement, PublishOptions options) {
+  public CompletableFuture<Void> publish(final Intent intent, final JsonElement jsonElement, final PublishOptions options) {
     return publishJson(intent, GsonFactory.create().toJson(jsonElement), options);
   }
 
   /**
-   * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish"
    */
-  public ISubscription subscribe(IntentSelector selector, ISubscriber<IntentMessage<Void>> subscriber) {
+  public ISubscription subscribe(final IntentSelector selector, final ISubscriber<IntentMessage<Void>> subscriber) {
     return subscribe(selector, Void.class, subscriber);
   }
 
   /**
-   * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#observe_
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#observe_"
    */
-  public <T> ISubscription subscribe(IntentSelector selector, Class<T> clazz, ISubscriber<IntentMessage<T>> subscriber) {
+  public <T> ISubscription subscribe(IntentSelector selector, final Class<T> clazz, final ISubscriber<IntentMessage<T>> subscriber) {
     selector = Optional.ofNullable(selector).orElse(new IntentSelector());
     var observeIIFE = new Script(Resources.readString("js/sci-intent-client/observe.iife.js"))
         .replacePlaceholder("refs.IntentClient", Refs.IntentClient).replacePlaceholder("selector.type", selector.type, Flags.ToJson)
@@ -95,47 +95,49 @@ public class SciIntentClient {
   }
 
   /**
-   * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#request_
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#request_"
    */
-  public <T> ISubscription request(Intent intent, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
+  public <T> ISubscription request(final Intent intent, final Class<T> clazz, final ISubscriber<TopicMessage<T>> subscriber) {
     return requestJson(intent, null, null, clazz, subscriber);
   }
 
   /**
-   * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#request_
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#request_"
    */
-  public <T> ISubscription request(Intent intent, Object body, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
+  public <T> ISubscription request(final Intent intent, final Object body, final Class<T> clazz,
+      final ISubscriber<TopicMessage<T>> subscriber) {
     return requestJson(intent, GsonFactory.create().toJson(body), null, clazz, subscriber);
   }
 
   /**
-   * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#request_
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#request_"
    */
-  public <T> ISubscription request(Intent intent, RequestOptions options, Class<T> clazz, ISubscriber<TopicMessage<T>> subscriber) {
+  public <T> ISubscription request(final Intent intent, final RequestOptions options, final Class<T> clazz,
+      final ISubscriber<TopicMessage<T>> subscriber) {
     return requestJson(intent, null, options, clazz, subscriber);
   }
 
   /**
-   * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#request_
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#request_"
    */
-  public <T> ISubscription request(Intent intent, Object body, RequestOptions options, Class<T> clazz,
-      ISubscriber<TopicMessage<T>> subscriber) {
+  public <T> ISubscription request(final Intent intent, final Object body, final RequestOptions options, final Class<T> clazz,
+      final ISubscriber<TopicMessage<T>> subscriber) {
     return requestJson(intent, GsonFactory.create().toJson(body), options, clazz, subscriber);
   }
 
   /**
-   * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish"
    */
-  public <T> ISubscription request(Intent intent, JsonElement jsonElement, RequestOptions options, Class<T> clazz,
-      ISubscriber<TopicMessage<T>> subscriber) {
+  public <T> ISubscription request(final Intent intent, final JsonElement jsonElement, final RequestOptions options, final Class<T> clazz,
+      final ISubscriber<TopicMessage<T>> subscriber) {
     return requestJson(intent, GsonFactory.create().toJson(jsonElement), options, clazz, subscriber);
   }
 
   /**
-   * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#observe_
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#observe_"
    */
-  private <T> ISubscription requestJson(Intent intent, String json, RequestOptions options, Class<T> clazz,
-      ISubscriber<TopicMessage<T>> subscriber) {
+  private <T> ISubscription requestJson(final Intent intent, final String json, RequestOptions options, final Class<T> clazz,
+      final ISubscriber<TopicMessage<T>> subscriber) {
     options = Optional.ofNullable(options).orElse(new RequestOptions());
     var requestIIFE = new Script(Resources.readString("js/sci-intent-client/request.iife.js"))
         .replacePlaceholder("refs.IntentClient", Refs.IntentClient).replacePlaceholder("intent", intent, Flags.ToJson)
@@ -148,9 +150,9 @@ public class SciIntentClient {
   }
 
   /**
-   * @see https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish"
    */
-  private CompletableFuture<Void> publishJson(Intent intent, String json, PublishOptions intentOptions) {
+  private CompletableFuture<Void> publishJson(final Intent intent, final String json, final PublishOptions intentOptions) {
     var options = Optional.ofNullable(intentOptions).orElse(new PublishOptions());
     var published = new CompletableFuture<Void>();
     new JavaCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
@@ -181,7 +183,7 @@ public class SciIntentClient {
       return type;
     }
 
-    public IntentSelector type(String type) {
+    public IntentSelector type(final String type) {
       this.type = type;
       return this;
     }
@@ -190,7 +192,7 @@ public class SciIntentClient {
       return qualifier;
     }
 
-    public IntentSelector qualifier(Qualifier qualifier) {
+    public IntentSelector qualifier(final Qualifier qualifier) {
       this.qualifier = qualifier;
       return this;
     }

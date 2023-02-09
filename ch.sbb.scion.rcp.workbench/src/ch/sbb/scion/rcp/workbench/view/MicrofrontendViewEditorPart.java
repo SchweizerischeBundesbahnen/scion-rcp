@@ -35,9 +35,7 @@ import ch.sbb.scion.rcp.microfrontend.model.ResponseStatusCodes;
 import ch.sbb.scion.rcp.workbench.internal.ContextInjectors;
 
 /**
- * Embeds the microfrontend of a view capability.
- * 
- * See `MicrofrontendViewComponent` in SCION Workbench.
+ * Embeds the microfrontend of a view capability. See `MicrofrontendViewComponent` in SCION Workbench.
  */
 public class MicrofrontendViewEditorPart extends EditorPart implements IReusableEditor, IPartListener2 {
 
@@ -97,7 +95,7 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
     params.putAll(intent.params);
     params.putAll(intent.qualifier.entries);
     params.put("ɵViewCapabilityId", capability.metadata.id);
-    messageClient.publish(computeViewParamsTopic(), params, new PublishOptions().retain(true));
+    messageClient.publish(computeViewParamsTopic(), params, new PublishOptions().retain(Boolean.TRUE));
 
     // When navigating to another view capability of the same app, wait until transported the params to consumers before loading the
     // new microfrontend into the iframe, allowing the currently loaded microfrontend to cleanup subscriptions. Params include the
@@ -118,7 +116,7 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
     var appSymbolicName = capability.metadata.appSymbolicName;
     var path = (String) capability.properties.get("path");
     outletRouter.navigate(path, new NavigationOptions().outlet(getSciViewId()).relativeTo(applications.get(appSymbolicName).baseUrl)
-        .params(params).pushStateToSessionHistoryStack(false));
+        .params(params).pushStateToSessionHistoryStack(Boolean.FALSE));
   }
 
   @Override
@@ -151,16 +149,16 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
   }
 
   @Override
-  public void partVisible(IWorkbenchPartReference partRef) {
+  public void partVisible(final IWorkbenchPartReference partRef) {
     if (partRef.getPart(false) == this) {
-      messageClient.publish(computeViewActiveTopic(), true, new PublishOptions().retain(true));
+      messageClient.publish(computeViewActiveTopic(), Boolean.TRUE, new PublishOptions().retain(Boolean.TRUE));
     }
   }
 
   @Override
-  public void partHidden(IWorkbenchPartReference partRef) {
+  public void partHidden(final IWorkbenchPartReference partRef) {
     if (partRef.getPart(false) == this) {
-      messageClient.publish(computeViewActiveTopic(), false, new PublishOptions().retain(true));
+      messageClient.publish(computeViewActiveTopic(), Boolean.FALSE, new PublishOptions().retain(Boolean.TRUE));
     }
   }
 
@@ -182,7 +180,7 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
   private void installViewDirtyUpdater() {
     var topic = String.format("ɵworkbench/views/%s/dirty", getSciViewId());
     subscriptions.add(messageClient.subscribe(topic, message -> {
-      dirty = message.body;
+      dirty = message.body.booleanValue();
       firePropertyChange(IEditorPart.PROP_DIRTY);
     }, Boolean.class));
   }
@@ -194,7 +192,7 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
       var replyTo = (String) message.headers.get(MessageHeaders.ReplyTo.value);
       var error = "Self navigation is not supported by the SCION RCP Workbench. This feature is expected to be removed from the SCION Workbench.";
       messageClient.publish(replyTo, error,
-          new PublishOptions().headers(Map.of(MessageHeaders.Status.value, ResponseStatusCodes.ERROR.value)));
+          new PublishOptions().headers(Map.of(MessageHeaders.Status.value, Integer.valueOf(ResponseStatusCodes.ERROR.value))));
     }, Map.class));
   }
 
@@ -210,7 +208,7 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
     return getEditorInput().sciViewId;
   }
 
-  private void waitForCapabilityParam(String capabilityId) {
+  private void waitForCapabilityParam(final String capabilityId) {
     var future = new CompletableFuture<Void>();
     var subscription = messageClient.subscribe(computeViewParamsTopic(), message -> {
       if (capabilityId.equals(message.body.get("ɵViewCapabilityId"))) {
@@ -231,7 +229,7 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
     getSite().getPage().removePartListener(this);
     subscriptions.forEach(ISubscription::unsubscribe);
     // Delete retained messages
-    messageClient.publish(computeViewParamsTopic(), null, new PublishOptions().retain(true));
-    messageClient.publish(computeViewActiveTopic(), null, new PublishOptions().retain(true));
+    messageClient.publish(computeViewParamsTopic(), null, new PublishOptions().retain(Boolean.TRUE));
+    messageClient.publish(computeViewActiveTopic(), null, new PublishOptions().retain(Boolean.TRUE));
   }
 }

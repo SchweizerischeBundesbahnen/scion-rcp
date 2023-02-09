@@ -1,10 +1,11 @@
 package ch.sbb.scion.rcp.microfrontend.host;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+
+import java.lang.reflect.Type;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.SWT;
@@ -35,24 +36,19 @@ import ch.sbb.scion.rcp.microfrontend.script.Scripts.Helpers;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
 
 /**
- * Represents the RCP host for the SCION Microfrontend Platform that is started
- * in an invisible shell in a web browser.
- *
- * When instantiating the {@link SciRouterOutlet} SWT component, an
- * <sci-router-outlet> web component is added to the DOM of the RCP host
- * application. From the perspective of the SCION Microfrontend Platform Host,
- * the microfrontend is embedded directly into this outlet.
- * {@link SciRouterOutlet} effectively acts as a proxy, bridging traffic between
- * <sci-router-outlet> and {@link SciRouterOutlet}.
+ * Represents the RCP host for the SCION Microfrontend Platform that is started in an invisible shell in a web browser. When instantiating
+ * the {@link SciRouterOutlet} SWT component, an <sci-router-outlet> web component is added to the DOM of the RCP host application. From the
+ * perspective of the SCION Microfrontend Platform Host, the microfrontend is embedded directly into this outlet. {@link SciRouterOutlet}
+ * effectively acts as a proxy, bridging traffic between <sci-router-outlet> and {@link SciRouterOutlet}.
  */
 @Component(service = MicrofrontendPlatformRcpHost.class)
 public class MicrofrontendPlatformRcpHost {
 
-  private boolean headless = false;
+  private final boolean headless = false;
   private Shell shell;
   private Webserver webserver;
-  private List<MessageInterceptorDescriptor<?>> messageInterceptors = new ArrayList<>();
-  private List<IntentInterceptorDescriptor<?>> intentInterceptors = new ArrayList<>();
+  private final List<MessageInterceptorDescriptor<?>> messageInterceptors = new ArrayList<>();
+  private final List<IntentInterceptorDescriptor<?>> intentInterceptors = new ArrayList<>();
 
   public Browser hostBrowser;
   public CompletableFuture<Browser> whenHostBrowser = new CompletableFuture<>();
@@ -66,9 +62,9 @@ public class MicrofrontendPlatformRcpHost {
   /**
    * Starts the SCION Microfrontend Platform host.
    *
-   * @see https://scion-microfrontend-platform-api.vercel.app/classes/MicrofrontendPlatformHost.html#start
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/MicrofrontendPlatformHost.html#start"
    */
-  public CompletableFuture<Browser> start(MicrofrontendPlatformConfig config) {
+  public CompletableFuture<Browser> start(final MicrofrontendPlatformConfig config) {
     // Create the shell
     shell = new Shell(Display.getDefault());
     shell.setLayout(new FillLayout());
@@ -85,7 +81,8 @@ public class MicrofrontendPlatformRcpHost {
     hostBrowser = new Browser(shell, SWT.EDGE);
     hostBrowser.addProgressListener(new ProgressAdapter() {
 
-      public void completed(ProgressEvent event) {
+      @Override
+      public void completed(final ProgressEvent event) {
         startHost(config);
       };
     });
@@ -94,11 +91,11 @@ public class MicrofrontendPlatformRcpHost {
       shell.open();
     }
 
-    hostBrowser.setUrl(String.format("http://localhost:%d/host.html", webserver.getPort()));
+    hostBrowser.setUrl(String.format("http://localhost:%d/host.html", Integer.valueOf(webserver.getPort())));
     return whenHostBrowser;
   }
 
-  private void startHost(MicrofrontendPlatformConfig config) {
+  private void startHost(final MicrofrontendPlatformConfig config) {
     messageInterceptors.forEach(interceptor -> messageInterceptorInstaller.install(interceptor, hostBrowser));
     intentInterceptors.forEach(interceptor -> intentInterceptorInstaller.install(interceptor, hostBrowser));
 
@@ -119,14 +116,15 @@ public class MicrofrontendPlatformRcpHost {
     });
   }
 
-  public <T> void registerMessageInterceptor(String topic, MessageInterceptor<T> interceptor, Type payloadClazz) {
+  public <T> void registerMessageInterceptor(final String topic, final MessageInterceptor<T> interceptor, final Type payloadClazz) {
     if (isHostStarted()) {
       throw new IllegalStateException("Host already started. Message interceptors must be registered prior to host startup.");
     }
     messageInterceptors.add(new MessageInterceptorDescriptor<>(topic, interceptor, payloadClazz));
   }
 
-  public <T> void registerIntentInterceptor(String type, Qualifier qualifier, IntentInterceptor<T> interceptor, Type payloadClazz) {
+  public <T> void registerIntentInterceptor(final String type, final Qualifier qualifier, final IntentInterceptor<T> interceptor,
+      final Type payloadClazz) {
     if (isHostStarted()) {
       throw new IllegalStateException("Host already started. Intent interceptors must be registered prior to host startup.");
     }

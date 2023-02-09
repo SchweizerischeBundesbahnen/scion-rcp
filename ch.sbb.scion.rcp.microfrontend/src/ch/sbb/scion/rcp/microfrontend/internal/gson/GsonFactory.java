@@ -4,10 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 /**
- * Use to obtain a {@link Gson} instance configured with library-specific
- * adapters for marshalling/unmarshalling JSON.
- * 
- * This factory installs the following adapters:
+ * Use to obtain a {@link Gson} instance configured with library-specific adapters for marshalling/unmarshalling JSON. This factory installs
+ * the following adapters:
  * <ul>
  * <li>{@link MapObjectTypeAdapterFactory}</li>
  * <li>{@link SetObjectTypeAdapterFactory}</li>
@@ -23,8 +21,8 @@ public interface GsonFactory {
   public static final PropertiesTypeAdapterFactory PROPERTIES_TYPE_ADAPTER_FACTORY = new PropertiesTypeAdapterFactory();
 
   /**
-   * Use to create a {@link Gson} instance to be used in conjunction with
-   * {@link helpers.js#fromJson} and {@link helpers.js#toJson} in JavaScript.
+   * Use to create a {@link Gson} instance to be used in conjunction with {@link "helpers.js#fromJson"} and {@link "helpers.js#toJson"} in
+   * JavaScript.
    */
   public static Gson create() {
     return new GsonBuilder().registerTypeAdapterFactory(MAP_OBJECT_TYPE_ADAPTER_FACTORY)

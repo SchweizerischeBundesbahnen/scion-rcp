@@ -19,7 +19,7 @@ public class RouterOutletPart {
   private final String routerOutletName = UUID.randomUUID().toString();
 
   @PostConstruct
-  public void createComposite(Composite parent) {
+  public void createComposite(final Composite parent) {
     var composite = new Composite(parent, SWT.NONE);
     GridLayoutFactory.swtDefaults().numColumns(2).margins(5, 10).spacing(20, 7).applyTo(composite);
 
@@ -42,7 +42,9 @@ public class RouterOutletPart {
       var isCommandPressed = ((e.stateMask & SWT.COMMAND) != 0);
       System.out
           .println(String.format("onKeyEvent [character=%s, char=%s, stateMask=%s, keyCode=%s, ctrl=%b, alt=%b, shift=%b, command=%b]",
-              e.character, (int) e.character, e.stateMask, e.keyCode, isCtrlPressed, isAltPressed, isShiftPressed, isCommandPressed));
+              Character.valueOf(e.character), Integer.valueOf(e.character), Integer.valueOf(e.stateMask), Integer.valueOf(e.keyCode),
+              Boolean.valueOf(isCtrlPressed), Boolean.valueOf(isAltPressed), Boolean.valueOf(isShiftPressed),
+              Boolean.valueOf(isCommandPressed)));
     });
   }
 }

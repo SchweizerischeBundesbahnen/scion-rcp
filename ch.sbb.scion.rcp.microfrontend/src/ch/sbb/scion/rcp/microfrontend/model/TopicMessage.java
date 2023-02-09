@@ -3,7 +3,7 @@ package ch.sbb.scion.rcp.microfrontend.model;
 import java.util.Map;
 
 /**
- * @see https://scion-microfrontend-platform-api.vercel.app/interfaces/TopicMessage.html
+ * @see "https://scion-microfrontend-platform-api.vercel.app/interfaces/TopicMessage.html"
  */
 public class TopicMessage<T> extends Message {
 

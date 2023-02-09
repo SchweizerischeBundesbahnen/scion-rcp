@@ -62,10 +62,10 @@ public class ManifestServicePart {
 
   private final DataBindingContext dbc = new DataBindingContext();
   private Text validationText;
-  private IObservableValue<String> validationMessage = new WritableValue<>("", String.class);
+  private final IObservableValue<String> validationMessage = new WritableValue<>("", String.class);
 
   @PostConstruct
-  public void createComposite(Composite parent) {
+  public void createComposite(final Composite parent) {
     var composite = new Composite(parent, SWT.NONE);
     GridLayoutFactory.swtDefaults().numColumns(2).applyTo(composite);
 
@@ -82,7 +82,7 @@ public class ManifestServicePart {
     GridDataFactory.swtDefaults().span(2, 1).align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(subscribeGroup);
   }
 
-  private Composite createRegisterComposite(Composite parent) {
+  private Composite createRegisterComposite(final Composite parent) {
     var capabilityModel = new CapabilityModel();
     var group = GroupFactory.newGroup(SWT.NONE).text("Register capability").create(parent);
     GridLayoutFactory.swtDefaults().numColumns(6).applyTo(group);
@@ -118,7 +118,7 @@ public class ManifestServicePart {
     qualifierTableViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 
       @Override
-      public void selectionChanged(SelectionChangedEvent event) {
+      public void selectionChanged(final SelectionChangedEvent event) {
         removeQualifierButton.setEnabled(!qualifierTableViewer.getSelection().isEmpty());
       }
     });
@@ -135,11 +135,10 @@ public class ManifestServicePart {
 
     removeQualifierButton.addSelectionListener(new SelectionAdapter() {
 
-      @SuppressWarnings("unchecked")
       @Override
       public void widgetSelected(final SelectionEvent e) {
         var selectedEntry = ((IStructuredSelection) qualifierTableViewer.getSelection()).getFirstElement();
-        capabilityModel.getQualifiers().remove((Entry<String, String>) selectedEntry);
+        capabilityModel.getQualifiers().remove(selectedEntry);
       }
     });
 
@@ -176,7 +175,7 @@ public class ManifestServicePart {
     paramsTableViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 
       @Override
-      public void selectionChanged(SelectionChangedEvent event) {
+      public void selectionChanged(final SelectionChangedEvent event) {
         removeParamButton.setEnabled(!paramsTableViewer.getSelection().isEmpty());
       }
     });
@@ -185,7 +184,8 @@ public class ManifestServicePart {
 
       @Override
       public void widgetSelected(final SelectionEvent e) {
-        capabilityModel.getParams().add(new ParamDefinition().name(paramNameText.getText()).required(isRequired.getSelection()));
+        capabilityModel.getParams()
+            .add(new ParamDefinition().name(paramNameText.getText()).required(Boolean.valueOf(isRequired.getSelection())));
         paramNameText.setText("");
         isRequired.setSelection(true);
       }
@@ -196,7 +196,7 @@ public class ManifestServicePart {
       @Override
       public void widgetSelected(final SelectionEvent e) {
         var selectedRow = ((IStructuredSelection) paramsTableViewer.getSelection()).getFirstElement();
-        capabilityModel.getParams().remove((ParamDefinition) selectedRow);
+        capabilityModel.getParams().remove(selectedRow);
       }
     });
 
@@ -217,7 +217,7 @@ public class ManifestServicePart {
     var validator = new IValidator<String>() {
 
       @Override
-      public IStatus validate(String value) {
+      public IStatus validate(final String value) {
         String s = String.valueOf(value);
         if (!s.isBlank()) {
           return ValidationStatus.ok();
@@ -237,11 +237,12 @@ public class ManifestServicePart {
     var bindingType = dbc.bindValue(typeWidgetValue, typeModel, strategy, null);
     ControlDecorationSupport.create(bindingType, SWT.TOP | SWT.LEFT);
 
-    IConverter<String, Boolean> stringToBooleanConverter = IConverter.create(String.class, Boolean.class, (o1) -> !o1.isEmpty());
+    IConverter<String, Boolean> stringToBooleanConverter = IConverter.create(String.class, Boolean.class,
+        (o1) -> Boolean.valueOf(!o1.isEmpty()));
 
     IObservableValue<Boolean> qualifierFieldsSet = ComputedValue.create(() -> {
-      return !WidgetProperties.text(SWT.Modify).observe(qualifierNameText).getValue().isEmpty()
-          && !WidgetProperties.text(SWT.Modify).observe(qualifierValueText).getValue().isEmpty();
+      return Boolean.valueOf(!WidgetProperties.text(SWT.Modify).observe(qualifierNameText).getValue().isEmpty()
+          && !WidgetProperties.text(SWT.Modify).observe(qualifierValueText).getValue().isEmpty());
     });
 
     dbc.bindValue(WidgetProperties.enabled().observe(addQualifierButton), qualifierFieldsSet);
@@ -327,7 +328,7 @@ public class ManifestServicePart {
     qualifierTableViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 
       @Override
-      public void selectionChanged(SelectionChangedEvent event) {
+      public void selectionChanged(final SelectionChangedEvent event) {
         removeQualifierButton.setEnabled(!qualifierTableViewer.getSelection().isEmpty());
       }
 
@@ -344,11 +345,10 @@ public class ManifestServicePart {
 
     removeQualifierButton.addSelectionListener(new SelectionAdapter() {
 
-      @SuppressWarnings("unchecked")
       @Override
       public void widgetSelected(final SelectionEvent e) {
         var selectedEntry = ((IStructuredSelection) qualifierTableViewer.getSelection()).getFirstElement();
-        filterModel.getQualifiers().remove((Entry<String, String>) selectedEntry);
+        filterModel.getQualifiers().remove(selectedEntry);
       }
     });
 
@@ -364,8 +364,8 @@ public class ManifestServicePart {
     dbc.bindValue(WidgetProperties.text(SWT.Modify).observe(applicationText), filterModel.getAppSymbolicName());
 
     final IObservableValue<Boolean> qualifierFieldsSet = ComputedValue.create(() -> {
-      return !WidgetProperties.text(SWT.Modify).observe(qualifierNameText).getValue().isEmpty()
-          && !WidgetProperties.text(SWT.Modify).observe(qualifierValueText).getValue().isEmpty();
+      return Boolean.valueOf(!WidgetProperties.text(SWT.Modify).observe(qualifierNameText).getValue().isEmpty()
+          && !WidgetProperties.text(SWT.Modify).observe(qualifierValueText).getValue().isEmpty());
     });
 
     dbc.bindValue(WidgetProperties.enabled().observe(addQualifierButton), qualifierFieldsSet);
@@ -401,7 +401,7 @@ public class ManifestServicePart {
     });
   }
 
-  private TableViewer createQualifiersTableViewer(Composite parent) {
+  private TableViewer createQualifiersTableViewer(final Composite parent) {
     var viewer = new TableViewer(new Table(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER));
     viewer.getTable().setHeaderVisible(true);
     var contentProvider = new ObservableListContentProvider<Entry<String, String>>();
@@ -412,7 +412,7 @@ public class ManifestServicePart {
     return viewer;
   }
 
-  private void createQualifierColumns(TableViewer viewer) {
+  private void createQualifierColumns(final TableViewer viewer) {
     var nameColumn = new TableViewerColumn(viewer, SWT.NONE);
     nameColumn.getColumn().setText("Name");
     nameColumn.getColumn().setWidth(70);
@@ -420,7 +420,7 @@ public class ManifestServicePart {
 
       @SuppressWarnings("unchecked")
       @Override
-      public String getText(Object message) {
+      public String getText(final Object message) {
         return ((Entry<String, String>) message).getKey();
       }
     });
@@ -432,13 +432,13 @@ public class ManifestServicePart {
 
       @SuppressWarnings("unchecked")
       @Override
-      public String getText(Object message) {
+      public String getText(final Object message) {
         return ((Entry<String, String>) message).getValue();
       }
     });
   }
 
-  private TableViewer createParamsTableViewer(Composite parent) {
+  private TableViewer createParamsTableViewer(final Composite parent) {
     var viewer = new TableViewer(new Table(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER));
     viewer.getTable().setHeaderVisible(true);
     var contentProvider = new ObservableListContentProvider<ParamDefinition>();
@@ -449,14 +449,14 @@ public class ManifestServicePart {
     return viewer;
   }
 
-  private void createParamsColumns(TableViewer viewer) {
+  private void createParamsColumns(final TableViewer viewer) {
     var nameColumn = new TableViewerColumn(viewer, SWT.NONE);
     nameColumn.getColumn().setText("Name");
     nameColumn.getColumn().setWidth(70);
     nameColumn.setLabelProvider(new ColumnLabelProvider() {
 
       @Override
-      public String getText(Object message) {
+      public String getText(final Object message) {
         return ((ParamDefinition) message).name;
       }
     });
@@ -467,13 +467,13 @@ public class ManifestServicePart {
     requiredColumn.setLabelProvider(new ColumnLabelProvider() {
 
       @Override
-      public String getText(Object message) {
-        return ((ParamDefinition) message).required ? "True" : "False";
+      public String getText(final Object message) {
+        return ((ParamDefinition) message).required.booleanValue() ? "True" : "False";
       }
     });
   }
 
-  private Composite createSubscribeGroup(Composite parent) {
+  private Composite createSubscribeGroup(final Composite parent) {
     var filterModel = new ManifestObjectFilterModel();
     var capabilities = new ArrayList<Capability>();
     var group = GroupFactory.newGroup(SWT.NONE).text("Lookup Capabilites").create(parent);
@@ -507,7 +507,7 @@ public class ManifestServicePart {
     subscribeButton.addSelectionListener(new SelectionAdapter() {
 
       @Override
-      public void widgetSelected(SelectionEvent e) {
+      public void widgetSelected(final SelectionEvent e) {
         if (subscription.get() == null) {
           subscription.set(manifestService.lookupCapabilities(filterModel.getFilter(), cpyList -> {
             capabilities.clear();
@@ -529,109 +529,109 @@ public class ManifestServicePart {
     return group;
   }
 
-  private void createDescriptionColumn(TableViewer messagesTableViewer) {
+  private void createDescriptionColumn(final TableViewer messagesTableViewer) {
     var descriptionColumn = new TableViewerColumn(messagesTableViewer, SWT.NONE);
     descriptionColumn.getColumn().setText("Description");
     descriptionColumn.getColumn().setWidth(100);
     descriptionColumn.setLabelProvider(new ColumnLabelProvider() {
 
       @Override
-      public String getText(Object message) {
+      public String getText(final Object message) {
         return ((Capability) message).description;
       }
     });
   }
 
-  private void createParamsColumn(TableViewer messagesTableViewer) {
+  private void createParamsColumn(final TableViewer messagesTableViewer) {
     var paramsColumn = new TableViewerColumn(messagesTableViewer, SWT.NONE);
     paramsColumn.getColumn().setText("Params");
     paramsColumn.getColumn().setWidth(100);
     paramsColumn.setLabelProvider(new ColumnLabelProvider() {
 
       @Override
-      public String getText(Object message) {
+      public String getText(final Object message) {
         var params = ((Capability) message).params;
         return new Gson().toJson(params);
       }
     });
   }
 
-  private void createPropertiesColumn(TableViewer messagesTableViewer) {
+  private void createPropertiesColumn(final TableViewer messagesTableViewer) {
     var paramsColumn = new TableViewerColumn(messagesTableViewer, SWT.NONE);
     paramsColumn.getColumn().setText("Properties");
     paramsColumn.getColumn().setWidth(100);
     paramsColumn.setLabelProvider(new ColumnLabelProvider() {
 
       @Override
-      public String getText(Object message) {
+      public String getText(final Object message) {
         var params = ((Capability) message).properties;
         return new Gson().toJson(params);
       }
     });
   }
 
-  private void createQualifierColumn(TableViewer messagesTableViewer) {
+  private void createQualifierColumn(final TableViewer messagesTableViewer) {
     var qualifierColumn = new TableViewerColumn(messagesTableViewer, SWT.NONE);
     qualifierColumn.getColumn().setText("Qualifier");
     qualifierColumn.getColumn().setWidth(100);
     qualifierColumn.setLabelProvider(new ColumnLabelProvider() {
 
       @Override
-      public String getText(Object message) {
+      public String getText(final Object message) {
         var qualifier = ((Capability) message).qualifier;
         return new Gson().toJson(qualifier);
       }
     });
   }
 
-  private void createAccessibilityColumn(TableViewer messagesTableViewer) {
+  private void createAccessibilityColumn(final TableViewer messagesTableViewer) {
     var accessibilityColumn = new TableViewerColumn(messagesTableViewer, SWT.NONE);
     accessibilityColumn.getColumn().setText("Accessibility");
     accessibilityColumn.getColumn().setWidth(100);
     accessibilityColumn.setLabelProvider(new ColumnLabelProvider() {
 
       @Override
-      public String getText(Object message) {
-        return ((Capability) message).isPrivate ? "Private" : "Public";
+      public String getText(final Object message) {
+        return ((Capability) message).isPrivate.booleanValue() ? "Private" : "Public";
       }
     });
   }
 
-  private void createTypeColumn(TableViewer messagesTableViewer) {
+  private void createTypeColumn(final TableViewer messagesTableViewer) {
     var typeColumn = new TableViewerColumn(messagesTableViewer, SWT.NONE);
     typeColumn.getColumn().setText("Type");
     typeColumn.getColumn().setWidth(100);
     typeColumn.setLabelProvider(new ColumnLabelProvider() {
 
       @Override
-      public String getText(Object message) {
+      public String getText(final Object message) {
         return ((Capability) message).type;
       }
     });
   }
 
-  private void createIdColumn(TableViewer messagesTableViewer) {
+  private void createIdColumn(final TableViewer messagesTableViewer) {
     var idColumn = new TableViewerColumn(messagesTableViewer, SWT.NONE);
     idColumn.getColumn().setText("Id");
     idColumn.getColumn().setWidth(100);
     idColumn.setLabelProvider(new ColumnLabelProvider() {
 
       @Override
-      public String getText(Object message) {
+      public String getText(final Object message) {
         var capability = (Capability) message;
         return capability.metadata.id;
       }
     });
   }
 
-  private void createApplicationColumn(TableViewer messagesTableViewer) {
+  private void createApplicationColumn(final TableViewer messagesTableViewer) {
     var appColumn = new TableViewerColumn(messagesTableViewer, SWT.NONE);
     appColumn.getColumn().setText("App");
     appColumn.getColumn().setWidth(100);
     appColumn.setLabelProvider(new ColumnLabelProvider() {
 
       @Override
-      public String getText(Object message) {
+      public String getText(final Object message) {
         var capability = (Capability) message;
         return capability.metadata.appSymbolicName;
       }

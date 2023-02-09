@@ -21,7 +21,7 @@ public class OutletRouterPart {
   private SciOutletRouter outletRouter;
 
   @PostConstruct
-  public void createComposite(Composite parent) {
+  public void createComposite(final Composite parent) {
     var group = CompositeFactory.newComposite(SWT.NONE).create(parent);
     GridLayoutFactory.swtDefaults().numColumns(2).margins(5, 10).spacing(20, 7).applyTo(group);
 
@@ -45,7 +45,8 @@ public class OutletRouterPart {
     // Navigate button
     ButtonFactory.newButton(SWT.NONE).text("Navigate")
         .onSelect(e -> outletRouter.navigate(url.getText(),
-            new NavigationOptions().outlet(outlet.getText()).pushStateToSessionHistoryStack(pushStateToSessionHistoryStack.getSelection())))
+            new NavigationOptions().outlet(outlet.getText())
+                .pushStateToSessionHistoryStack(Boolean.valueOf(pushStateToSessionHistoryStack.getSelection()))))
         .layoutData(GridDataFactory.fillDefaults().span(2, 1).create()).create(group);
   }
 }

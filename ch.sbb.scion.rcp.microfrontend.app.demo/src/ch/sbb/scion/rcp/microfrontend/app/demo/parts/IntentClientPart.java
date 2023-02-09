@@ -84,10 +84,10 @@ public class IntentClientPart {
 
   private Text validationLabel;
 
-  private IObservableValue<String> validationMessage = new WritableValue<>("", String.class);
+  private final IObservableValue<String> validationMessage = new WritableValue<>("", String.class);
 
   @PostConstruct
-  public void createComposite(Composite parent) {
+  public void createComposite(final Composite parent) {
     var composite = new Composite(parent, SWT.NONE);
     GridLayoutFactory.swtDefaults().applyTo(composite);
 
@@ -158,13 +158,13 @@ public class IntentClientPart {
     publishButton.addSelectionListener(new SelectionAdapter() {
 
       @Override
-      public void widgetSelected(SelectionEvent e) {
+      public void widgetSelected(final SelectionEvent e) {
         var body = intentModel.getMessage().getValue().isEmpty() ? null : intentModel.getMessage().getValue();
         var headers = intentModel.getHeaders().stream().collect(Collectors.toMap(x -> x.getKey(), x -> (Object) x.getValue()));
         if (requestSubscription != null) {
           cancelRequest();
         }
-        else if (intentModel.isRequestReply().getValue()) {
+        else if (intentModel.isRequestReply().getValue().booleanValue()) {
           publishButton.setText("Cancel");
           var options = new RequestOptions().headers(headers).retain(intentModel.isRetain().getValue());
           requestSubscription = request(intentModel.getIntent(), body, options);
@@ -181,7 +181,7 @@ public class IntentClientPart {
     var validator = new IValidator<String>() {
 
       @Override
-      public IStatus validate(String value) {
+      public IStatus validate(final String value) {
         String s = String.valueOf(value);
         if (!s.isBlank()) {
           return ValidationStatus.ok();
@@ -202,8 +202,8 @@ public class IntentClientPart {
     var bindingType = ctx.bindValue(typeWidgetValue, typeModel, strategy, null);
     ControlDecorationSupport.create(bindingType, SWT.TOP | SWT.LEFT);
 
-    IConverter<String, Boolean> stringToBooleanConverter = IConverter.create(String.class, Boolean.class, (o1) -> !o1.isEmpty());
-
+    IConverter<String, Boolean> stringToBooleanConverter = IConverter.create(String.class, Boolean.class,
+        (o1) -> Boolean.valueOf(!o1.isEmpty()));
     ctx.bindValue(WidgetProperties.enabled().observe(publishButton), typeWidgetValue, null,
         UpdateValueStrategy.create(stringToBooleanConverter));
 
@@ -237,7 +237,7 @@ public class IntentClientPart {
     tableViewer.addSelectionChangedListener(new ISelectionChangedListener() {
 
       @Override
-      public void selectionChanged(SelectionChangedEvent event) {
+      public void selectionChanged(final SelectionChangedEvent event) {
         removeEntryButton.setEnabled(!tableViewer.getSelection().isEmpty());
       }
     });
@@ -254,17 +254,16 @@ public class IntentClientPart {
 
     removeEntryButton.addSelectionListener(new SelectionAdapter() {
 
-      @SuppressWarnings("unchecked")
       @Override
       public void widgetSelected(final SelectionEvent e) {
         var selectedEntry = ((IStructuredSelection) tableViewer.getSelection()).getFirstElement();
-        entryModel.remove((Entry<String, String>) selectedEntry);
+        entryModel.remove(selectedEntry);
       }
     });
 
     IObservableValue<Boolean> fieldsSet = ComputedValue.create(() -> {
-      return !WidgetProperties.text(SWT.Modify).observe(nameText).getValue().isEmpty()
-          && !WidgetProperties.text(SWT.Modify).observe(valueText).getValue().isEmpty();
+      return Boolean.valueOf(!WidgetProperties.text(SWT.Modify).observe(nameText).getValue().isEmpty()
+          && !WidgetProperties.text(SWT.Modify).observe(valueText).getValue().isEmpty());
     });
 
     ctx.bindValue(WidgetProperties.enabled().observe(addEntryButton), fieldsSet);
@@ -290,7 +289,7 @@ public class IntentClientPart {
     return intentClient.request(intent, body, requestOptions, String.class, new ISubscriber<TopicMessage<String>>() {
 
       @Override
-      public void onNext(TopicMessage<String> next) {
+      public void onNext(final TopicMessage<String> next) {
         var replyBox = new MessageBox(validationLabel.getShell(), SWT.ICON_INFORMATION | SWT.OK);
         replyBox.setText("Reply from application: " + next.headers.get(MessageHeaders.AppSymbolicName.value));
         replyBox.setMessage(next.body);
@@ -300,7 +299,7 @@ public class IntentClientPart {
       }
 
       @Override
-      public void onError(Exception e) {
+      public void onError(final Exception e) {
         validationMessage.setValue(e.getMessage());
         validationLabel.getParent().setBackground(new Color(245, 182, 182));
         cancelRequest();
@@ -308,7 +307,7 @@ public class IntentClientPart {
     });
   }
 
-  private TableViewer createTableViewer(Composite parent) {
+  private TableViewer createTableViewer(final Composite parent) {
     var viewer = new TableViewer(new Table(parent, SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER));
     viewer.getTable().setHeaderVisible(true);
     var contentProvider = new ObservableListContentProvider<Entry<String, String>>();
@@ -320,7 +319,7 @@ public class IntentClientPart {
     return viewer;
   }
 
-  private void createColumns(TableViewer viewer) {
+  private void createColumns(final TableViewer viewer) {
     var nameColumn = new TableViewerColumn(viewer, SWT.NONE);
     nameColumn.getColumn().setText("Name");
     nameColumn.getColumn().setWidth(120);
@@ -328,7 +327,7 @@ public class IntentClientPart {
 
       @SuppressWarnings("unchecked")
       @Override
-      public String getText(Object message) {
+      public String getText(final Object message) {
         return ((Entry<String, String>) message).getKey();
       }
     });
@@ -340,13 +339,13 @@ public class IntentClientPart {
 
       @SuppressWarnings("unchecked")
       @Override
-      public String getText(Object message) {
+      public String getText(final Object message) {
         return ((Entry<String, String>) message).getValue();
       }
     });
   }
 
-  private Composite createValidationArea(Composite parent) {
+  private Composite createValidationArea(final Composite parent) {
     var group = GroupFactory.newGroup(SWT.NONE).text("Result").create(parent);
     GridLayoutFactory.swtDefaults().numColumns(1).applyTo(group);
 
@@ -404,7 +403,7 @@ public class IntentClientPart {
     subscribeButton.addSelectionListener(new SelectionAdapter() {
 
       @Override
-      public void widgetSelected(SelectionEvent e) {
+      public void widgetSelected(final SelectionEvent e) {
         if (subscription.get() == null) {
           subscription.set(intentClient.subscribe(selectorModel.getSelector(), intentMessage -> {
             messages.add(0, intentMessage);
@@ -434,10 +433,10 @@ public class IntentClientPart {
 
       @SuppressWarnings("rawtypes")
       @Override
-      public void widgetSelected(SelectionEvent evnt) {
+      public void widgetSelected(final SelectionEvent evnt) {
         var selectedIntentMessage = (IntentMessage) table.getSelection()[0].getData();
         var replyTo = selectedIntentMessage.headers.get(MessageHeaders.ReplyTo.value).toString();
-        var headers = Map.of(MessageHeaders.Status.value, ResponseStatusCodes.TERMINAL.value);
+        var headers = Map.of(MessageHeaders.Status.value, Integer.valueOf(ResponseStatusCodes.TERMINAL.value));
         messageClient.publish(replyTo, "This is a reply.", new PublishOptions().headers(headers));
       }
     });
@@ -446,7 +445,7 @@ public class IntentClientPart {
 
       @SuppressWarnings("rawtypes")
       @Override
-      public void handleEvent(Event event) {
+      public void handleEvent(final Event event) {
         if (table.getSelectionCount() <= 0) {
           event.doit = false;
         }
@@ -460,7 +459,7 @@ public class IntentClientPart {
     });
   }
 
-  private void createBodyColumn(TableViewer messagesTableViewer) {
+  private void createBodyColumn(final TableViewer messagesTableViewer) {
     var descriptionColumn = new TableViewerColumn(messagesTableViewer, SWT.NONE);
     descriptionColumn.getColumn().setText("Body");
     descriptionColumn.getColumn().setWidth(120);
@@ -468,13 +467,13 @@ public class IntentClientPart {
 
       @SuppressWarnings("unchecked")
       @Override
-      public String getText(Object message) {
+      public String getText(final Object message) {
         return ((IntentMessage<String>) message).body;
       }
     });
   }
 
-  private void createParamsColumn(TableViewer messagesTableViewer) {
+  private void createParamsColumn(final TableViewer messagesTableViewer) {
     var paramsColumn = new TableViewerColumn(messagesTableViewer, SWT.NONE);
     paramsColumn.getColumn().setText("Params");
     paramsColumn.getColumn().setWidth(120);
@@ -482,14 +481,14 @@ public class IntentClientPart {
 
       @SuppressWarnings("unchecked")
       @Override
-      public String getText(Object message) {
+      public String getText(final Object message) {
         var params = ((IntentMessage<Void>) message).intent.params;
         return new Gson().toJson(params);
       }
     });
   }
 
-  private void createQualifierColumn(TableViewer messagesTableViewer) {
+  private void createQualifierColumn(final TableViewer messagesTableViewer) {
     var qualifierColumn = new TableViewerColumn(messagesTableViewer, SWT.NONE);
     qualifierColumn.getColumn().setText("Qualifier");
     qualifierColumn.getColumn().setWidth(120);
@@ -497,14 +496,14 @@ public class IntentClientPart {
 
       @SuppressWarnings("unchecked")
       @Override
-      public String getText(Object message) {
+      public String getText(final Object message) {
         var qualifier = ((IntentMessage<Void>) message).intent.qualifier;
         return new Gson().toJson(qualifier);
       }
     });
   }
 
-  private void createTypeColumn(TableViewer messagesTableViewer) {
+  private void createTypeColumn(final TableViewer messagesTableViewer) {
     var typeColumn = new TableViewerColumn(messagesTableViewer, SWT.NONE);
     typeColumn.getColumn().setText("Type");
     typeColumn.getColumn().setWidth(120);
@@ -512,13 +511,13 @@ public class IntentClientPart {
 
       @SuppressWarnings("unchecked")
       @Override
-      public String getText(Object message) {
+      public String getText(final Object message) {
         return ((IntentMessage<Void>) message).intent.type;
       }
     });
   }
 
-  private void createCapabilityIdColumn(TableViewer messagesTableViewer) {
+  private void createCapabilityIdColumn(final TableViewer messagesTableViewer) {
     var idColumn = new TableViewerColumn(messagesTableViewer, SWT.NONE);
     idColumn.getColumn().setText("Capability Id");
     idColumn.getColumn().setWidth(120);
@@ -526,14 +525,14 @@ public class IntentClientPart {
 
       @SuppressWarnings("unchecked")
       @Override
-      public String getText(Object message) {
+      public String getText(final Object message) {
         var capability = ((IntentMessage<Void>) message).capability;
         return capability.metadata.id;
       }
     });
   }
 
-  private void createHeadersColumn(TableViewer messagesTableViewer) {
+  private void createHeadersColumn(final TableViewer messagesTableViewer) {
     var appColumn = new TableViewerColumn(messagesTableViewer, SWT.NONE);
     appColumn.getColumn().setText("Headers");
     appColumn.getColumn().setWidth(120);
@@ -541,7 +540,7 @@ public class IntentClientPart {
 
       @SuppressWarnings("unchecked")
       @Override
-      public String getText(Object message) {
+      public String getText(final Object message) {
         var headers = ((IntentMessage<Void>) message).headers;
         return new Gson().toJson(headers);
       }

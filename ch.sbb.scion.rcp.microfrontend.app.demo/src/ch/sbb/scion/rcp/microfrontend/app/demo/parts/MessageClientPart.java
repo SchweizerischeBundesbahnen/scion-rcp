@@ -1,9 +1,10 @@
 package ch.sbb.scion.rcp.microfrontend.app.demo.parts;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicReference;
+
+import java.text.SimpleDateFormat;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -37,7 +38,7 @@ public class MessageClientPart {
   private SciMessageClient messageClient;
 
   @PostConstruct
-  public void createComposite(Composite parent) {
+  public void createComposite(final Composite parent) {
     var composite = new Composite(parent, SWT.NONE);
     GridLayoutFactory.swtDefaults().spacing(5, 0).applyTo(composite);
 
@@ -48,7 +49,7 @@ public class MessageClientPart {
     GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(subscribeGroup);
   }
 
-  private Composite createPublishGroup(Composite parent) {
+  private Composite createPublishGroup(final Composite parent) {
     var group = GroupFactory.newGroup(SWT.NONE).text("Publish").create(parent);
     GridLayoutFactory.swtDefaults().numColumns(2).margins(5, 10).spacing(20, 7).applyTo(group);
 
@@ -76,7 +77,7 @@ public class MessageClientPart {
     return group;
   }
 
-  private Composite createSubscribeGroup(Composite parent) {
+  private Composite createSubscribeGroup(final Composite parent) {
     var group = GroupFactory.newGroup(SWT.NONE).text("Subscribe").create(parent);
     GridLayoutFactory.swtDefaults().numColumns(2).margins(5, 10).spacing(20, 7).applyTo(group);
 
@@ -106,7 +107,7 @@ public class MessageClientPart {
     subscribeButton.addSelectionListener(new SelectionAdapter() {
 
       @Override
-      public void widgetSelected(SelectionEvent e) {
+      public void widgetSelected(final SelectionEvent e) {
         if (subscription.get() == null) {
           subscription.set(messageClient.subscribe(topic.getText(), message -> {
             messages.add(0, message);
@@ -127,58 +128,67 @@ public class MessageClientPart {
     return group;
   }
 
-  private void createMessageHeadersColumn(TableViewer messagesTableViewer) {
+  private void createMessageHeadersColumn(final TableViewer messagesTableViewer) {
     TableViewerColumn headersColumn = new TableViewerColumn(messagesTableViewer, SWT.NONE);
     headersColumn.getColumn().setText("Message Headers");
     headersColumn.getColumn().setWidth(200);
     headersColumn.setLabelProvider(new ColumnLabelProvider() {
 
       @Override
-      public String getText(Object message) {
-        var params = ((TopicMessage<String>) message).headers;
+      public String getText(final Object object) {
+        TopicMessage<String> topicMessage = getTopicMessageFromObject(object);
+        var params = topicMessage.headers;
         return new Gson().toJson(params);
       }
     });
   }
 
-  private void createTopicParamsColumn(TableViewer messagesTableViewer) {
+  private void createTopicParamsColumn(final TableViewer messagesTableViewer) {
     TableViewerColumn paramsColumn = new TableViewerColumn(messagesTableViewer, SWT.NONE);
     paramsColumn.getColumn().setText("Topic Params");
     paramsColumn.getColumn().setWidth(200);
     paramsColumn.setLabelProvider(new ColumnLabelProvider() {
 
       @Override
-      public String getText(Object message) {
-        var params = ((TopicMessage<String>) message).params;
+      public String getText(final Object object) {
+        TopicMessage<String> topicMessage = getTopicMessageFromObject(object);
+        var params = topicMessage.params;
         return new Gson().toJson(params);
       }
     });
   }
 
-  private void createTimestampColumn(TableViewer messagesTableViewer) {
+  private void createTimestampColumn(final TableViewer messagesTableViewer) {
     TableViewerColumn timestampColumn = new TableViewerColumn(messagesTableViewer, SWT.NONE);
     timestampColumn.getColumn().setText("Timestamp");
     timestampColumn.getColumn().setWidth(150);
     timestampColumn.setLabelProvider(new ColumnLabelProvider() {
 
       @Override
-      public String getText(Object message) {
-        var timestamp = (Double) ((TopicMessage<String>) message).headers.get(MessageHeaders.Timestamp.value);
-        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(timestamp.longValue());
+      public String getText(final Object object) {
+        TopicMessage<String> topicMessage = getTopicMessageFromObject(object);
+        var timestamp = (Double) topicMessage.headers.get(MessageHeaders.Timestamp.value);
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(Long.valueOf(timestamp.longValue()));
       }
     });
   }
 
-  private void createMessageColumn(TableViewer messagesTableViewer) {
+  private void createMessageColumn(final TableViewer messagesTableViewer) {
     TableViewerColumn messageColumn = new TableViewerColumn(messagesTableViewer, SWT.NONE);
     messageColumn.getColumn().setText("Message");
     messageColumn.getColumn().setWidth(250);
     messageColumn.setLabelProvider(new ColumnLabelProvider() {
 
       @Override
-      public String getText(Object message) {
-        return ((TopicMessage<String>) message).body;
+      public String getText(final Object object) {
+        TopicMessage<String> topicMessage = getTopicMessageFromObject(object);
+        return topicMessage.body;
       }
     });
+  }
+
+  @SuppressWarnings("unchecked") // due to the fact that those ColumnLabelProviders are not type safe
+  private final static TopicMessage<String> getTopicMessageFromObject(final Object o) {
+    return (TopicMessage<String>) o;
   }
 }

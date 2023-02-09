@@ -12,15 +12,15 @@ import ch.sbb.scion.rcp.microfrontend.internal.ParameterizedType;
 import ch.sbb.scion.rcp.microfrontend.internal.Resources;
 import ch.sbb.scion.rcp.microfrontend.internal.gson.GsonFactory;
 import ch.sbb.scion.rcp.microfrontend.model.TopicMessage;
-import ch.sbb.scion.rcp.microfrontend.script.Scripts;
 import ch.sbb.scion.rcp.microfrontend.script.Script.Flags;
+import ch.sbb.scion.rcp.microfrontend.script.Scripts;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Helpers;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
 
 /**
  * Installs an interceptor to intercept messages sent to a topic destination.
- * 
- * @see https://scion-microfrontend-platform-developer-guide.vercel.app/#chapter:message-interception
+ *
+ * @see "https://scion-microfrontend-platform-developer-guide.vercel.app/#chapter:message-interception"
  */
 @Component(service = MessageInterceptorInstaller.class)
 public class MessageInterceptorInstaller {
@@ -28,18 +28,16 @@ public class MessageInterceptorInstaller {
   /**
    * Installs given message interceptor.
    */
-  public <T> void install(MessageInterceptorDescriptor<T> interceptorDescriptor, Browser hostBrowser) {
+  public <T> void install(final MessageInterceptorDescriptor<T> interceptorDescriptor, final Browser hostBrowser) {
     createJavaInterceptorCallback(interceptorDescriptor, hostBrowser).install()
         .thenAccept(callback -> registerInterceptor(callback, interceptorDescriptor, hostBrowser));
   }
 
   /**
-   * Registers the passed interceptor in the SCION Microfrontend Platform.
-   * 
-   * Intercepted messages are delegated to the passed callback.
+   * Registers the passed interceptor in the SCION Microfrontend Platform. Intercepted messages are delegated to the passed callback.
    */
-  private <T> void registerInterceptor(JavaCallback interceptorCallback, MessageInterceptorDescriptor<T> interceptorDescriptor,
-      Browser hostBrowser) {
+  private <T> void registerInterceptor(final JavaCallback interceptorCallback, final MessageInterceptorDescriptor<T> interceptorDescriptor,
+      final Browser hostBrowser) {
     new JavaScriptExecutor(hostBrowser, Resources.readString("js/host/register-message-interceptor.js"))
         .replacePlaceholder("interceptorCallback", interceptorCallback.name)
         .replacePlaceholder("topic", interceptorDescriptor.topic, Flags.ToJson).replacePlaceholder("refs.Beans", Refs.Beans)
@@ -51,7 +49,8 @@ public class MessageInterceptorInstaller {
   /**
    * Creates the Java callback for intercepting messages.
    */
-  private <T> JavaCallback createJavaInterceptorCallback(MessageInterceptorDescriptor<T> interceptorDescriptor, Browser hostBrowser) {
+  private <T> JavaCallback createJavaInterceptorCallback(final MessageInterceptorDescriptor<T> interceptorDescriptor,
+      final Browser hostBrowser) {
     return new JavaCallback(hostBrowser, args -> {
       TopicMessage<T> message = GsonFactory.create().fromJson((String) args[0],
           new ParameterizedType(TopicMessage.class, interceptorDescriptor.payloadClazz));
@@ -65,7 +64,7 @@ public class MessageInterceptorInstaller {
     public MessageInterceptor<T> interceptor;
     public Type payloadClazz;
 
-    public MessageInterceptorDescriptor(String topic, MessageInterceptor<T> interceptor, Type payloadClazz) {
+    public MessageInterceptorDescriptor(final String topic, final MessageInterceptor<T> interceptor, final Type payloadClazz) {
       this.topic = topic;
       this.interceptor = interceptor;
       this.payloadClazz = payloadClazz;
