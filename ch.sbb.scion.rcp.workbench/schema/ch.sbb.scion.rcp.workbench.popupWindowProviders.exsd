@@ -1,0 +1,128 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="ch.sbb.scion.rcp.workbench" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appinfo>
+         <meta.schema plugin="ch.sbb.scion.rcp.workbench" id="ch.sbb.scion.rcp.workbench.popupWindowProviders" name="Workbench Popup Window Providers"/>
+      </appinfo>
+      <documentation>
+         The &lt;code&gt;ch.sbb.scion.rcp.workbench.popupWindowProviders&lt;/code&gt; extension point is used to declare workbench popup window providers, using the provider element. A workbench popup window provider allows registring a &lt;code&gt;org.eclipse.jface.window.Window&lt;/code&gt; as a Scion workbench popup in the Eclipse context. Registered windows can then be requested via a Scion workbench popup intent. For more information about the Scion Intention API, refer to the &lt;a href=&quot;https://scion-microfrontend-platform-developer-guide.vercel.app/#chapter:intention-api&quot;&gt;official documentation&lt;/a&gt;.
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <annotation>
+         <appinfo>
+            <meta.element />
+         </appinfo>
+      </annotation>
+      <complexType>
+         <choice minOccurs="1" maxOccurs="unbounded">
+            <element ref="provider"/>
+         </choice>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute translatable="true"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="provider">
+      <complexType>
+         <attribute name="id" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The unique identifier of this provider.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The translatable name of this provider
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="description" type="string">
+            <annotation>
+               <documentation>
+                  A short translatable description of this provider.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="class" type="string">
+            <annotation>
+               <documentation>
+                  A provider class that implements ch.sbb.scion.rcp.workbench.ISciWorkbenchPopupWindowProvider.
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn=":ch.sbb.scion.rcp.workbench.ISciWorkbenchPopupWindowProvider"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="popupId" type="string">
+            <annotation>
+               <documentation>
+                  The unique identifier of the popup that this provider provides.
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+
+   <annotation>
+      <appinfo>
+         <meta.section type="examples"/>
+      </appinfo>
+      <documentation>
+         The following is an example of a workbench popup window provider extension definition:
+&lt;p&gt;
+&lt;pre&gt;
+   &lt;extension
+         point=&quot;ch.sbb.scion.rcp.workbench.popupWindowProviders&quot;&gt;
+      &lt;provider
+            class=&quot;ch.sbb.scion.rcp.microfrontend.e3.app.demo.popup.TestPopupDialogProvider&quot;
+            description=&quot;A popup window provider that provides a test dialog.&quot;
+            id=&quot;ch.sbb.scion.rcp.popups.TestPopupDialogProvider&quot;
+            name=&quot;Test Popup Dialog Provider&quot;&gt;
+      &lt;/provider&gt;
+   &lt;/extension&gt;
+&lt;/pre&gt;
+&lt;/p&gt;
+See the official &lt;a href=&quot;https://github.com/SchweizerischeBundesbahnen/scion-rcp&quot;&gt;scion-rcp&lt;/a&gt; repository for more examples.
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="apiinfo"/>
+      </appinfo>
+      <documentation>
+         The value of the popupId attribute must match the Eclipse popup id property of the popup capability that should be associated with the provided window.
+      </documentation>
+   </annotation>
+
+
+
+</schema>

@@ -10,7 +10,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.e4.core.contexts,
  org.eclipse.osgi.services,
  org.eclipse.e4.core.di,
- com.google.gson
+ com.google.gson,
+ org.eclipse.jface
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: ch.sbb.scion.rcp.workbench
 Bundle-ActivationPolicy: lazy
@@ -18,5 +19,8 @@ Import-Package: javax.annotation,
  javax.inject
 Export-Package: ch.sbb.scion.rcp.workbench
 Service-Component: OSGI-INF/ch.sbb.scion.rcp.workbench.internal.ScionWorkbenchInitializer.xml,
+ OSGI-INF/ch.sbb.scion.rcp.workbench.popup.PopupIntentInterceptor.xml,
+ OSGI-INF/ch.sbb.scion.rcp.workbench.popup.PopupRegistry.xml,
+ OSGI-INF/ch.sbb.scion.rcp.workbench.popup.PopupService.xml,
  OSGI-INF/ch.sbb.scion.rcp.workbench.view.ViewIntentInterceptor.xml
 Bundle-Vendor: SBB and Contributors
