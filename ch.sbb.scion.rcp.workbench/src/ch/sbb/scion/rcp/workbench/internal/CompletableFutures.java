@@ -1,4 +1,4 @@
-package ch.sbb.scion.rcp.workbench.view;
+package ch.sbb.scion.rcp.workbench.internal;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -19,7 +19,7 @@ public class CompletableFutures {
    */
   public static <T> T await(final CompletableFuture<T> completableFuture) {
     // If not invoked from the UI thread, simply await the future.
-    if (Display.getCurrent().getThread() != Thread.currentThread()) {
+    if (Display.getCurrent() == null) {
       return completableFuture.join();
     }
 
