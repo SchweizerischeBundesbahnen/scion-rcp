@@ -27,6 +27,7 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 
 import ch.sbb.scion.rcp.microfrontend.browser.JavaCallback;
 import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
@@ -46,6 +47,8 @@ import ch.sbb.scion.rcp.microfrontend.script.Scripts.Helpers;
  */
 public class SciRouterOutlet extends Composite implements DisposeListener {
 
+  private static final boolean BRIDGE_LOGGER_ENABLED = false;
+
   private final RouterOutletProxy routerOutletProxy;
   private final Browser browser;
   private URL url;
@@ -54,7 +57,6 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
   private final List<LoadListener> loadListeners = new ArrayList<>();
   private final List<UnloadListener> unloadListeners = new ArrayList<>();
   private final Set<String> keystrokes = new HashSet<>();
-  private final boolean bridgeLoggerEnabled = false;
 
   @Inject
   private SciMessageClient messageClient;
@@ -63,6 +65,10 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
   private SciManifestService manifestService;
 
   public SciRouterOutlet(final Composite parent, final int style, final String outletName) {
+    this(parent, style, outletName, null);
+  }
+
+  public SciRouterOutlet(final Composite parent, final int style, final String outletName, final Control keystrokeTarget) {
     super(parent, style);
     ContextInjectors.inject(this);
 
@@ -89,10 +95,11 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
 
         disposables.add(clientToSciRouterOutletMessageDispatcher);
         disposables.add(sciRouterOutletToClientMessageDispatcher);
-      };
+      }
     });
+
     navigator = installRouter(outletName);
-    keystrokeDispatcher = installKeystrokeDispatcher();
+    keystrokeDispatcher = installKeystrokeDispatcher(keystrokeTarget);
   }
 
   private IDisposable installRouter(final String outletName) {
@@ -120,16 +127,24 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
       }
     });
 
-    return () -> subscription.unsubscribe();
+    return subscription::unsubscribe;
   }
 
-  private IDisposable installKeystrokeDispatcher() {
+  private IDisposable installKeystrokeDispatcher(final Control keystrokeTarget) {
+    if (keystrokeTarget == null) {
+      return () -> {
+        // noop
+      };
+    }
     return routerOutletProxy.onKeystroke(event -> {
-      Platform.getLog(SciRouterOutlet.class).info(String.format(//
-          "TODO: Dispatching event to SWT [type=%s, keyCode=%s, character=%s, stateMask=%s]", //
-          Integer.valueOf(event.type), Integer.valueOf(event.keyCode), Character.valueOf(event.character),
-          Integer.valueOf(event.stateMask)));
-      // TODO Dispatching event to SWT (getDisplay().post(event))
+      keystrokeTarget.setFocus();
+      // Prevent infinite cycle:
+      if (browser.isFocusControl()) {
+        throw new IllegalStateException(
+            "Browser has focus. Make sure that the keystrokeTarget is not a parent of this SciRouterOutlet and," + //  
+                "that the keystrokeTarget can gain focus; i.e., it does not have the SWT.NO_FOCUS style bit set.");
+      }
+      getDisplay().post(event);
     });
   }
 
@@ -225,7 +240,7 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
           disposables.forEach(IDisposable::dispose);
         }
         else {
-          if (bridgeLoggerEnabled) {
+          if (BRIDGE_LOGGER_ENABLED) {
             Platform.getLog(SciRouterOutlet.class).info("[SciBridge] [client=>host] " + decodeBase64(base64json));
           }
           routerOutletProxy.postJsonMessage(base64json);
@@ -251,7 +266,7 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
    */
   private IDisposable installSciRouterOutletToClientMessageDispatcher() {
     return routerOutletProxy.onMessage(base64json -> {
-      if (bridgeLoggerEnabled) {
+      if (BRIDGE_LOGGER_ENABLED) {
         Platform.getLog(SciRouterOutlet.class).info("[SciBridge] [host=>client] " + decodeBase64(base64json));
       }
 
