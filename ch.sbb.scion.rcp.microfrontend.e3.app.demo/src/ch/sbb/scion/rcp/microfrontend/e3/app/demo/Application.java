@@ -12,7 +12,7 @@ import org.eclipse.ui.PlatformUI;
 public class Application implements IApplication {
 
   @Override
-  public Object start(IApplicationContext context) {
+  public Object start(final IApplicationContext context) {
     Display display = PlatformUI.createDisplay();
     try {
       int returnCode = PlatformUI.createAndRunWorkbench(display, new ApplicationWorkbenchAdvisor());
@@ -28,11 +28,15 @@ public class Application implements IApplication {
 
   @Override
   public void stop() {
-    if (!PlatformUI.isWorkbenchRunning()) return;
+    if (!PlatformUI.isWorkbenchRunning()) {
+      return;
+    }
     final IWorkbench workbench = PlatformUI.getWorkbench();
     final Display display = workbench.getDisplay();
     display.syncExec(() -> {
-      if (!display.isDisposed()) workbench.close();
+      if (!display.isDisposed()) {
+        workbench.close();
+      }
     });
   }
 }
