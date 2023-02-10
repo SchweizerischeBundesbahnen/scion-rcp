@@ -13,6 +13,8 @@ import ch.sbb.scion.rcp.microfrontend.MicrofrontendPlatform;
 import ch.sbb.scion.rcp.microfrontend.SciMessageClient;
 import ch.sbb.scion.rcp.microfrontend.interceptor.InterceptorChain;
 import ch.sbb.scion.rcp.microfrontend.model.IntentMessage;
+import ch.sbb.scion.rcp.workbench.popup.PopupCommand;
+import ch.sbb.scion.rcp.workbench.popup.PopupIntentInterceptor;
 import ch.sbb.scion.rcp.workbench.view.ViewIntentInterceptor;
 
 @Component(service = ScionWorkbenchInitializer.class, immediate = true)
@@ -27,6 +29,7 @@ public class ScionWorkbenchInitializer {
   @Activate
   private void activate() {
     installViewIntentInterceptor();
+    installPopupIntentInterceptor();
   }
 
   /**
@@ -49,5 +52,27 @@ public class ScionWorkbenchInitializer {
             Platform.getLog(ScionWorkbenchInitializer.class).error("Failed to intercept view intent", e);
           }
         });
+  }
+
+  /**
+   * Installs an interceptor to handle popup intents, i.e., to open Eclipse Workbench dialogs.
+   */
+  private void installPopupIntentInterceptor() {
+    microfrontendPlatform.registerIntentInterceptor("popup",
+        (final IntentMessage<PopupCommand> intentMessage, final InterceptorChain chain) -> {
+          try {
+            final var handled = PlatformUI.getWorkbench().getService(PopupIntentInterceptor.class).handle(intentMessage);
+            if (handled) {
+              chain.doSwallow();
+            }
+            else {
+              chain.doContinue(intentMessage);
+            }
+          }
+          catch (final Exception e) {
+            chain.doReject(e.getMessage());
+            Platform.getLog(ScionWorkbenchInitializer.class).error("Failed to intercept popup intent", e);
+          }
+        }, PopupCommand.class);
   }
 }

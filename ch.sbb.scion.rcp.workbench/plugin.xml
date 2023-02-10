@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension-point id="ch.sbb.scion.rcp.workbench.popupWindowProviders" name="Workbench Popup Window Providers" schema="schema/ch.sbb.scion.rcp.workbench.popupWindowProviders.exsd"/>
    <extension
          point="org.eclipse.ui.editors">
       <editor

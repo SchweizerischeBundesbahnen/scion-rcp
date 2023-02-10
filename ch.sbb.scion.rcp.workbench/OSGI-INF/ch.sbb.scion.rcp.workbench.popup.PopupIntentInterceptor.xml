@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.3.0" name="ch.sbb.scion.rcp.workbench.popup.PopupIntentInterceptor">
+   <service>
+      <provide interface="ch.sbb.scion.rcp.workbench.popup.PopupIntentInterceptor"/>
+   </service>
+   <reference cardinality="1..1" field="messageClient" interface="ch.sbb.scion.rcp.microfrontend.SciMessageClient" name="messageClient"/>
+   <reference cardinality="1..1" field="registry" interface="ch.sbb.scion.rcp.workbench.popup.PopupRegistry" name="registry"/>
+   <reference cardinality="1..1" field="workbench" interface="org.eclipse.ui.IWorkbench" name="workbench"/>
+   <implementation class="ch.sbb.scion.rcp.workbench.popup.PopupIntentInterceptor"/>
+</scr:component>
