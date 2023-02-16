@@ -14,17 +14,17 @@ import org.eclipse.ui.PartInitException;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import ch.sbb.scion.rcp.microfrontend.model.Capability;
+import ch.sbb.scion.rcp.microfrontend.model.Intent;
 import ch.sbb.scion.rcp.microfrontend.model.IntentMessage;
 import ch.sbb.scion.rcp.workbench.IScionWorkbenchView;
 import ch.sbb.scion.rcp.workbench.ParamsEditorInput;
 
 /**
- * Handles SCION Workbench view intents, instructing the Eclipse Workbench to open an Eclipse editor that
- * displays the associated microfrontend.
- * 
- * The RCP host can also provide view capabilities. Optionally, the host can associate the capability with an
- * Eclipse view or Eclipse editor by setting the properties "eclipseViewId" or "eclipseEditorId". If not specified,
- * the intent can be handled via {@link IntentClient}.
+ * Handles SCION Workbench view intents, instructing the Eclipse Workbench to open an Eclipse editor that displays the associated
+ * microfrontend. The RCP host can also provide view capabilities. Optionally, the host can associate the capability with an Eclipse view or
+ * Eclipse editor by setting the properties "eclipseViewId" or "eclipseEditorId". If not specified, the intent can be handled via
+ * {@link IntentClient}.
  */
 @Component(service = ViewIntentInterceptor.class)
 public class ViewIntentInterceptor {
@@ -32,7 +32,7 @@ public class ViewIntentInterceptor {
   @Reference
   private IWorkbench workbench;
 
-  public boolean handle(IntentMessage<Map<String, ?>> intentMessage) throws PartInitException {
+  public boolean handle(final IntentMessage<Map<String, ?>> intentMessage) throws PartInitException {
     var properties = intentMessage.capability.properties;
 
     // Handle view intent related to a microfrontend.
@@ -62,43 +62,55 @@ public class ViewIntentInterceptor {
     return false;
   }
 
-  private void openMicrofrontendEditor(IntentMessage<Map<String, ?>> intentMessage) throws PartInitException {
+  private void openMicrofrontendEditor(final IntentMessage<Map<String, ?>> intentMessage) throws PartInitException {
     var activePage = getActivePage();
     var capability = intentMessage.capability;
     var intent = intentMessage.intent;
-    var target = Optional.ofNullable(intentMessage.body).map(body -> (String) body.get("target")).orElse("default");
+    var target = Optional.ofNullable(intentMessage.body).map(body -> (String) body.get("target")).orElse("auto");
+    // TODO [ISW] Eclipse RCP ignores the `activate` flag passed to IWorkbenchPage.openEditor. The editor is always activated even if passing `false`.
+    var activate = Optional.ofNullable(intentMessage.body).map(body -> (Boolean) body.get("activate")).orElse(Boolean.TRUE).booleanValue();
 
     switch (target) {
-      case "blank": {
-        activePage.openEditor(new MicrofrontendViewEditorInput(capability, intent), MicrofrontendViewEditorPart.ID, true,
-            IWorkbenchPage.MATCH_NONE);
-        return;
-      }
-      case "self": {
-        var targetViewId = Optional.ofNullable(intentMessage.body).map(body -> (String) body.get("selfViewId")).orElse(null);
-        var editorInput = new MicrofrontendViewEditorInput(targetViewId, capability, intent);
-        var editor = (IReusableEditor) activePage.openEditor(editorInput, MicrofrontendViewEditorPart.ID, true,
-            IWorkbenchPage.MATCH_INPUT | IWorkbenchPage.MATCH_ID);
-        activePage.reuseEditor(editor, editorInput);
-        return;
-      }
-      default:
-        // Activate editor if already opened.
-        for (var editorRef : findMicrofrontendViewEditors()) {
-          var editorInput = (MicrofrontendViewEditorInput) editorRef.getEditorInput();
-          if (editorInput.matches(capability, intent)) {
-            var editor = (IReusableEditor) editorRef.getEditor(true);
-            if (editor != null) {
-              activePage.reuseEditor(editor, editorInput.copyWithIntent(intent));
-              activePage.activate(editor);
-              return;
-            }
-          }
-        }
-        // Open new editor.
-        activePage.openEditor(new MicrofrontendViewEditorInput(capability, intent), MicrofrontendViewEditorPart.ID, true,
-            IWorkbenchPage.MATCH_NONE);
+    case "blank": {
+      // Open new editor.
+      activePage.openEditor(new MicrofrontendViewEditorInput(capability, intent), MicrofrontendViewEditorPart.ID, activate,
+          IWorkbenchPage.MATCH_NONE);
+      return;
     }
+    case "auto": {
+      // Activate editor if already opened, otherwise open a new editor.
+      var editorRef = findMicrofrontendViewEditor(capability, intent);
+      var editor = editorRef != null ? (IReusableEditor) editorRef.getEditor(true) : null;
+      if (editor == null || editorRef == null) {
+        activePage.openEditor(new MicrofrontendViewEditorInput(capability, intent), MicrofrontendViewEditorPart.ID, activate,
+            IWorkbenchPage.MATCH_NONE);
+      }
+      else {
+        var editorInput = (MicrofrontendViewEditorInput) editorRef.getEditorInput();
+        activePage.reuseEditor(editor, editorInput.copyWithIntent(intent));
+        if (activate) {
+          activePage.activate(editor);
+        }
+      }
+      return;
+    }
+    default: {
+      var editorInput = new MicrofrontendViewEditorInput(target, capability, intent);
+      var editor = (IReusableEditor) activePage.openEditor(editorInput, MicrofrontendViewEditorPart.ID, activate,
+          IWorkbenchPage.MATCH_INPUT | IWorkbenchPage.MATCH_ID);
+      activePage.reuseEditor(editor, editorInput);
+    }
+    }
+  }
+
+  private IEditorReference findMicrofrontendViewEditor(final Capability capability, final Intent intent) throws PartInitException {
+    for (var editor : findMicrofrontendViewEditors()) {
+      var editorInput = (MicrofrontendViewEditorInput) editor.getEditorInput();
+      if (editorInput.matches(capability, intent)) {
+        return editor;
+      }
+    }
+    return null;
   }
 
   private Set<IEditorReference> findMicrofrontendViewEditors() {
@@ -119,7 +131,7 @@ public class ViewIntentInterceptor {
     return page;
   }
 
-  private boolean hasMicrofrontendViewEditorInput(IEditorReference editor) {
+  private boolean hasMicrofrontendViewEditorInput(final IEditorReference editor) {
     try {
       return editor.getEditorInput() instanceof MicrofrontendViewEditorInput;
     }
