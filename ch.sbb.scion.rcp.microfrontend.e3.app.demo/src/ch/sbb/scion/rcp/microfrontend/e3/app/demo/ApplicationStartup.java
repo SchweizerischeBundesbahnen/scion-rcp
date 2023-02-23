@@ -8,6 +8,7 @@ import ch.sbb.scion.rcp.microfrontend.MicrofrontendPlatform;
 import ch.sbb.scion.rcp.microfrontend.SciIntentClient;
 import ch.sbb.scion.rcp.microfrontend.model.ApplicationConfig;
 import ch.sbb.scion.rcp.microfrontend.model.Capability;
+import ch.sbb.scion.rcp.microfrontend.model.Capability.ParamDefinition;
 import ch.sbb.scion.rcp.microfrontend.model.HostConfig;
 import ch.sbb.scion.rcp.microfrontend.model.Intent;
 import ch.sbb.scion.rcp.microfrontend.model.Intention;
@@ -48,11 +49,15 @@ public class ApplicationStartup {
                         .set("eclipseViewId", "ch.sbb.scion.rcp.views.workbenchPopupService")),
                 new Capability().type("popup").qualifier(new Qualifier().set("test", "eclipse-popup")).isPrivate(Boolean.FALSE).properties(
                     new Properties().set("title", "Eclipse Test Popup").set("eclipsePopupId", "ch.sbb.scion.rcp.popups.TestPopupDialog")
-                        .set("size", new Properties().set("width", "500px").set("height", "600px")))
+                        .set("size", new Properties().set("width", "500px").set("height", "600px"))),
+                new Capability().type("view").qualifier(new Qualifier().set("test", "eclipse-view")).isPrivate(Boolean.FALSE)
+                    .params(List.of(new ParamDefinition().name("example").required(Boolean.FALSE).description("An example parameter")))
+                    .properties(new Properties().set("title", "Eclipse Test View").set("heading", "Eclipse Test View with input")
+                        .set("eclipseViewId", "ch.sbb.scion.rcp.views.testView"))
             //
             ))))
         .applications(List.of(new ApplicationConfig().symbolicName("client-app").manifestUrl("http://localhost:4201/manifest.json"),
-            new ApplicationConfig().symbolicName("tms-kast-demo").manifestUrl("http://localhost:4200/assets/manifest.json"),
+            new ApplicationConfig().symbolicName("tms-kast-demo").manifestUrl("https://localhost:4200/assets/manifest.json"),
             new ApplicationConfig().symbolicName("devtools")
                 .manifestUrl("https://scion-microfrontend-platform-devtools-v1-0-0-rc-12.vercel.app/assets/manifest.json")
                 .intentionCheckDisabled(Boolean.TRUE).scopeCheckDisabled(Boolean.TRUE)))

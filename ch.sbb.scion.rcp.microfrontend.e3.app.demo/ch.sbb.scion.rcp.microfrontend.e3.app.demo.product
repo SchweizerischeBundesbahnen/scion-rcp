@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="SCION RCP Demo Application" uid="ch.sbb.scion.rcp.microfrontend.e3.app.demo.product" id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.product" application="ch.sbb.scion.rcp.microfrontend.e3.app.demo.application" useFeatures="true" includeLaunchers="true" autoIncludeRequirements="true">
+<product name="SCION RCP Demo Application" uid="ch.sbb.scion.rcp.microfrontend.e3.app.demo.product" id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.product" application="ch.sbb.scion.rcp.microfrontend.e3.app.demo.application" useFeatures="true" includeLaunchers="true">
+
 
    <configIni use="default">
    </configIni>
@@ -13,13 +14,19 @@
       </vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
       </vmArgsMac>
+      <vmArgsWin>-Dorg.eclipse.swt.browser.EdgeArgs=--allow-insecure-localhost
+      </vmArgsWin>
    </launcherArgs>
+
+   <windowImages/>
+
 
    <launcher>
       <win useIco="false">
          <bmp/>
       </win>
    </launcher>
+
 
    <vm>
       <windows include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JRE-1.1</windows>
@@ -187,5 +194,12 @@
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.osgi" autoStart="true" startLevel="1" />
    </configurations>
+
+   <preferencesInfo>
+      <targetfile overwrite="false"/>
+   </preferencesInfo>
+
+   <cssInfo>
+   </cssInfo>
 
 </product>

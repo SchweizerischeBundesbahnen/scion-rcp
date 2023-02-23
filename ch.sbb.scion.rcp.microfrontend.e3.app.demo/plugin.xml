@@ -15,8 +15,8 @@
          point="org.eclipse.ui.perspectives">
       <perspective
             class="ch.sbb.scion.rcp.microfrontend.e3.app.demo.Perspective"
-            name="Perspective"
-            id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.perspective">
+            id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.perspective"
+            name="Perspective">
       </perspective>
    </extension>
    <extension
@@ -57,15 +57,28 @@
             name="Workbench Popup Service"
             restorable="true">
       </e4view>
+      <e4view
+            class="ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.TestView"
+            id="ch.sbb.scion.rcp.views.testView"
+            name="Test View"
+            restorable="true">
+      </e4view>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
-      <perspectiveExtension targetID="*">
+      <perspectiveExtension targetID="ch.sbb.scion.rcp.microfrontend.e3.app.demo.perspective">
          <view
                id="ch.sbb.scion.rcp.views.messageClient"
                minimized="false"
                relationship="stack"
                relative="org.eclipse.ui.editorss">
+         </view>
+         <view
+               id="ch.sbb.scion.rcp.views.workbenchPopupService"
+               minimized="false"
+               relationship="stack"
+               relative="org.eclipse.ui.editorss"
+               visible="false">
          </view>
       </perspectiveExtension>
    </extension>
