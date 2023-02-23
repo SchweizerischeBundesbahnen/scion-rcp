@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IReusableEditor;
 import org.eclipse.ui.IWorkbench;
@@ -17,7 +18,7 @@ import org.osgi.service.component.annotations.Reference;
 import ch.sbb.scion.rcp.microfrontend.model.Capability;
 import ch.sbb.scion.rcp.microfrontend.model.Intent;
 import ch.sbb.scion.rcp.microfrontend.model.IntentMessage;
-import ch.sbb.scion.rcp.workbench.IScionWorkbenchView;
+import ch.sbb.scion.rcp.workbench.ISciWorkbenchViewInput;
 import ch.sbb.scion.rcp.workbench.ParamsEditorInput;
 
 /**
@@ -43,12 +44,11 @@ public class ViewIntentInterceptor {
 
     // Handle view intent related to an Eclipse view.
     if (properties.has("eclipseViewId")) {
-      var view = getActivePage().showView((String) properties.get("eclipseViewId"));
-      // TODO [ISW] For E4 views, we get a wrapper instead of the actual view.
-      // Find another way to pass the intent to the view, e.g., via injection or similar.
-      if (view instanceof IScionWorkbenchView) {
-        ((IScionWorkbenchView) view).setInput(intentMessage.intent);
-      }
+      var activePage = getActivePage();
+      var context = activePage.getWorkbenchWindow().getService(IEclipseContext.class);
+      context.set(ISciWorkbenchViewInput.class, getViewInput(intentMessage));
+      activePage.showView((String) properties.get("eclipseViewId"));
+      context.remove(ISciWorkbenchViewInput.class);
       return true;
     }
 
@@ -62,18 +62,20 @@ public class ViewIntentInterceptor {
     return false;
   }
 
+  private ISciWorkbenchViewInput getViewInput(final IntentMessage<Map<String, ?>> intentMessage) {
+    return new ViewPartInput().intent(intentMessage.intent);
+  }
+
   private void openMicrofrontendEditor(final IntentMessage<Map<String, ?>> intentMessage) throws PartInitException {
     var activePage = getActivePage();
     var capability = intentMessage.capability;
     var intent = intentMessage.intent;
     var target = Optional.ofNullable(intentMessage.body).map(body -> (String) body.get("target")).orElse("auto");
-    // TODO [ISW] Eclipse RCP ignores the `activate` flag passed to IWorkbenchPage.openEditor. The editor is always activated even if passing `false`.
-    var activate = Optional.ofNullable(intentMessage.body).map(body -> (Boolean) body.get("activate")).orElse(Boolean.TRUE).booleanValue();
 
     switch (target) {
     case "blank": {
       // Open new editor.
-      activePage.openEditor(new MicrofrontendViewEditorInput(capability, intent), MicrofrontendViewEditorPart.ID, activate,
+      activePage.openEditor(new MicrofrontendViewEditorInput(capability, intent), MicrofrontendViewEditorPart.ID, true,
           IWorkbenchPage.MATCH_NONE);
       return;
     }
@@ -82,21 +84,19 @@ public class ViewIntentInterceptor {
       var editorRef = findMicrofrontendViewEditor(capability, intent);
       var editor = editorRef != null ? (IReusableEditor) editorRef.getEditor(true) : null;
       if (editor == null || editorRef == null) {
-        activePage.openEditor(new MicrofrontendViewEditorInput(capability, intent), MicrofrontendViewEditorPart.ID, activate,
+        activePage.openEditor(new MicrofrontendViewEditorInput(capability, intent), MicrofrontendViewEditorPart.ID, true,
             IWorkbenchPage.MATCH_NONE);
       }
       else {
         var editorInput = (MicrofrontendViewEditorInput) editorRef.getEditorInput();
         activePage.reuseEditor(editor, editorInput.copyWithIntent(intent));
-        if (activate) {
-          activePage.activate(editor);
-        }
+        activePage.activate(editor);
       }
       return;
     }
     default: {
       var editorInput = new MicrofrontendViewEditorInput(target, capability, intent);
-      var editor = (IReusableEditor) activePage.openEditor(editorInput, MicrofrontendViewEditorPart.ID, activate,
+      var editor = (IReusableEditor) activePage.openEditor(editorInput, MicrofrontendViewEditorPart.ID, true,
           IWorkbenchPage.MATCH_INPUT | IWorkbenchPage.MATCH_ID);
       activePage.reuseEditor(editor, editorInput);
     }
