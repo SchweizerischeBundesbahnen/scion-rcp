@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>ch.sbb.scion.rcp.coveragereport</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+	</buildSpec>
+	<linkedResources>
+		<link>
+			<name>.settings</name>
+			<type>2</type>
+			<locationURI>PARENT-1-PROJECT_LOC/ch.sbb.scion.rcp.eclipse.setup/.settings</locationURI>
+		</link>
+	</linkedResources>		
+	<natures>
+	</natures>
+</projectDescription>

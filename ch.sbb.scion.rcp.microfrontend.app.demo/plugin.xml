@@ -9,10 +9,6 @@
             application="org.eclipse.e4.ui.workbench.swt.E4Application"
             name="ch.sbb.scion.rcp.microfrontend.app.demo.product">
          <property
-               name="applicationCSS"
-               value="platform:/plugin/ch.sbb.scion.rcp.microfrontend.app.demo/css/default.css">
-         </property>
-         <property
                name="appName"
                value="ch.sbb.scion.rcp.microfrontend.app.demo.product">
          </property>

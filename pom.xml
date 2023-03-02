@@ -9,20 +9,69 @@
 	<packaging>pom</packaging>
 
 	<properties>
+		<java.version>11</java.version>
+		<maven.compiler.source>${java.version}</maven.compiler.source>
+		<maven.compiler.target>${java.version}</maven.compiler.target>
+		<maven.compiler.release>${java.version}</maven.compiler.release>
+
+		<tycho.version>2.7.4</tycho.version>
+		<surefire.plugin.version>2.22.2</surefire.plugin.version>
+		<jacoco.version>0.8.5</jacoco.version>
+
+		<eclipse.release>2022-06</eclipse.release>
+		<eclipse.orbit.release>R20220531185310</eclipse.orbit.release>
+
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<tycho.version>2.7.3</tycho.version>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 	</properties>
 
+	<repositories>
+		<repository>
+			<id>eclipse-platform</id>
+			<url>https://download.eclipse.org/releases/${eclipse.release}/</url>
+			<layout>p2</layout>
+		</repository>
+		<repository>
+			<id>eclipse-orbit</id>
+			<url>https://download.eclipse.org/tools/orbit/downloads/drops/${eclipse.orbit.release}/repository/</url>
+			<layout>p2</layout>
+		</repository>
+	</repositories>
+
 	<modules>
-		<module>ch.sbb.scion.rcp.microfrontend</module>
-		<module>ch.sbb.scion.rcp.workbench</module>
-		<module>ch.sbb.scion.rcp.microfrontend.app.demo</module>
-		<module>ch.sbb.scion.rcp.microfrontend.e3.app.demo</module>
+		<!-- Target Platform & features-->
 		<module>ch.sbb.scion.rcp.microfrontend.targetplatform</module>
+		<module>ch.sbb.scion.rcp.feature</module>
+		<module>ch.sbb.scion.rcp.feature.test</module>
+
+		<!-- Demo applications & products -->
+		<module>ch.sbb.scion.rcp.microfrontend.app.demo</module>
+		<module>ch.sbb.scion.rcp.microfrontend.app.demo.product</module>
+		<module>ch.sbb.scion.rcp.microfrontend.e3.app.demo</module>
+		<module>ch.sbb.scion.rcp.microfrontend.e3.app.demo.product</module>
+
+		<!-- modules & test fragements -->
+		<!-- Please note: whenever you add CodeCoverage relevant modules here       -->
+		<!-- Add the modules as Depdency in ch.sbb.scion.rcp.coveragereport/pom.xml -->
+		<!-- as well. -->
+		<module>ch.sbb.scion.rcp.microfrontend</module>
+		<module>ch.sbb.scion.rcp.microfrontend.test</module>
+		<module>ch.sbb.scion.rcp.workbench</module>
+		<!-- <module>ch.sbb.scion.rcp.workbench.test</module> -->
+
+		<!-- code quality -->
+		<module>ch.sbb.scion.rcp.coveragereport</module>
 	</modules>
 
 	<build>
 		<plugins>
+
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-director-plugin</artifactId>
+				<version>${tycho.version}</version>
+			</plugin>
+
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-packaging-plugin</artifactId>
@@ -39,17 +88,49 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-surefire-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<configuration>
+					<useUIHarness>false</useUIHarness>
+					<useUIThread>false</useUIThread>
+					<!-- even though thiese are the default patterns, they had to be given explicitly-->
+					<includes>
+						<include>**/*Test.*</include>
+						<include>**/*IT.*</include>
+					</includes>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco.version}</version>
+				<executions>
+					<execution>
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-maven-plugin</artifactId>
 				<version>${tycho.version}</version>
 				<extensions>true</extensions>
 			</plugin>
+
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-compiler-plugin</artifactId>
 				<version>${tycho.version}</version>
 			</plugin>
+
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-source-plugin</artifactId>
@@ -63,11 +144,13 @@
 					</execution>
 				</executions>
 			</plugin>
+
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-versions-plugin</artifactId>
 				<version>${tycho.version}</version>
 			</plugin>
+
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
@@ -81,11 +164,7 @@
 						</artifact>
 					</target>
 					<environments>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>x86_64</arch>
-						</environment>
+						<!-- Leaving Linux out of the binary creation -->
 						<environment>
 							<os>win32</os>
 							<ws>win32</ws>
