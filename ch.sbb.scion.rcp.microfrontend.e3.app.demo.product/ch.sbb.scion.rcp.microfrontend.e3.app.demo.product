@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="SCION RCP Demo Application" uid="ch.sbb.scion.rcp.microfrontend.e3.app.demo.product" id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.product" application="ch.sbb.scion.rcp.microfrontend.e3.app.demo.application" useFeatures="true" includeLaunchers="true">
-
+<product name="SCION RCP Demo Application" uid="ch.sbb.scion.rcp.microfrontend.e3.app.demo.product" id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.product" application="ch.sbb.scion.rcp.microfrontend.e3.app.demo.application" version="1.0.0.qualifier" useFeatures="true" includeLaunchers="true" autoIncludeRequirements="true">
 
    <configIni use="default">
    </configIni>
@@ -20,13 +19,11 @@
 
    <windowImages/>
 
-
    <launcher>
       <win useIco="false">
          <bmp/>
       </win>
    </launcher>
-
 
    <vm>
       <windows include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JRE-1.1</windows>
@@ -185,6 +182,7 @@
       <feature id="org.eclipse.emf.ecore" installMode="root"/>
       <feature id="org.eclipse.emf.common" installMode="root"/>
       <feature id="org.eclipse.rcp" installMode="root"/>
+      <feature id="org.eclipse.equinox.executable" installMode="root"/>
       <feature id="org.eclipse.e4.rcp" installMode="root"/>
    </features>
 

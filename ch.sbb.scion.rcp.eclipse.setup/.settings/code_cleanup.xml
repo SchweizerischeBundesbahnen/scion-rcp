@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <profiles version="2">
-    <profile kind="CleanUpProfile" name="Tms CapaOpt [Eclipse]" version="2">
+    <profile kind="CleanUpProfile" name="SCION RCP [Eclipse]" version="2">
         <setting id="cleanup.array_with_curly" value="false"/>
         <setting id="cleanup.use_autoboxing" value="false"/>
         <setting id="cleanup.always_use_this_for_non_static_method_access" value="false"/>
