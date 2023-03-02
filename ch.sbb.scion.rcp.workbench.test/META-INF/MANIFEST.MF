@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: SCION Workbench Test Fragment
+Bundle-SymbolicName: ch.sbb.scion.rcp.workbench.test;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Fragment-Host: ch.sbb.scion.rcp.workbench
+Automatic-Module-Name: ch.sbb.scion.rcp.workbench.test
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-Vendor: SBB and Contributors
+Require-Bundle: org.mockito.mockito-core,
+ org.hamcrest,
+ org.junit.jupiter.api

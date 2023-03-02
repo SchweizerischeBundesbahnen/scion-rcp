@@ -25,7 +25,7 @@ import ch.sbb.scion.rcp.workbench.ParamsEditorInput;
  * Handles SCION Workbench view intents, instructing the Eclipse Workbench to open an Eclipse editor that displays the associated
  * microfrontend. The RCP host can also provide view capabilities. Optionally, the host can associate the capability with an Eclipse view or
  * Eclipse editor by setting the properties "eclipseViewId" or "eclipseEditorId". If not specified, the intent can be handled via
- * {@link IntentClient}.
+ * <a href="https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html">IntentClient</a>
  */
 @Component(service = ViewIntentInterceptor.class)
 public class ViewIntentInterceptor {

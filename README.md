@@ -15,4 +15,8 @@ We don't have a formal contribution guideline yet. Please feel free to open an i
 
 ## License
 
-This project is provided under the [Eclipse Public License 2.0](LICENSE).
+This project is provided under the [Eclipse Public License 2.0](LICENSE)
+
+## HowTo
+
+Import repository clone root folder as "Existing Projects into Workspace" and select "Search for nested projects" before clicking "Finish".

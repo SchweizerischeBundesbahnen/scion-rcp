@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Product Plug-In for the e3.app.demo
+Bundle-SymbolicName: ch.sbb.scion.rcp.microfrontend.e3.app.demo.product
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: SBB and Contributors
+Automatic-Module-Name: ch.sbb.scion.rcp.microfrontend.e3.app.demo.product
+Require-Bundle: org.eclipse.core.runtime
