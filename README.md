@@ -19,4 +19,10 @@ This project is provided under the [Eclipse Public License 2.0](LICENSE)
 
 ## HowTo
 
+### Set up the project in eclipse
 Import repository clone root folder as "Existing Projects into Workspace" and select "Search for nested projects" before clicking "Finish".
+
+### Build & Release
+See [build.yml](.github/workflows/build.yml) for further infos about the build.
+See [release.yml](.github/workflows/release.yml) for further infos about the release.
+ 
