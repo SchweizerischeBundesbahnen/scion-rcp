@@ -1,0 +1,102 @@
+name: "Release"
+
+# Only trigger on push of tags, but continue only if the build workflow succeeded
+on:
+  push:
+    tags:
+      - "**"
+      
+jobs:
+  build:
+    name: 'Build'
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Setup JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: 11
+        distribution: temurin
+
+# TODO: we must pass the RELEASE_TAG variable to the actual build to control the artifact naming
+    - name: Run Maven
+      run: mvn -B clean verify -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
+    - name: 'Upload microfrontend library'
+      uses: actions/upload-artifact@v3
+      with:
+        name: microfrontend-library
+        path: ch.sbb.scion.rcp.microfrontend/target/*.jar
+
+    - name: 'Upload workbench library'
+      uses: actions/upload-artifact@v3
+      with:
+        name: workbench-library
+        path: ch.sbb.scion.rcp.workbench/target/*.jar
+
+  release:
+    name: 'Release'
+    runs-on: "ubuntu-latest"
+    needs: Build
+    steps:
+      - name: "Determine tag"
+        run: "echo \"RELEASE_TAG=${GITHUB_REF#refs/tags/}\" >> $GITHUB_ENV"
+
+      - name: "Create release"
+        uses: "actions/github-script@v6"
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          script: |
+            try {
+              const response = await github.rest.repos.createRelease({
+                draft: false,
+                generate_release_notes: true,
+                name: process.env.RELEASE_TAG,
+                owner: context.repo.owner,
+                prerelease: false,
+                repo: context.repo.repo,
+                tag_name: process.env.RELEASE_TAG,
+              });
+
+              core.exportVariable('RELEASE_ID', response.data.id);
+              core.exportVariable('RELEASE_UPLOAD_URL', response.data.upload_url);
+            } catch (error) {
+              core.setFailed(error.message);
+            }
+
+# This is a temporarily solution until wildcard would work
+      - name: 'Downloading microfrontend library'
+        uses: actions/download-artifact@v2
+        with:
+          name: microfrontend-library
+
+      - name: 'Upload microfrontend binary to release'
+        uses: svenstaro/upload-release-action@v2
+        with:
+         repo_token: ${{ secrets.GITHUB_TOKEN }}
+         file: ch.sbb.scion.rcp.microfrontend-1.0.0-SNAPSHOT.jar
+
+      - name: 'Upload microfrontend source to release'
+        uses: svenstaro/upload-release-action@v2
+        with:
+         repo_token: ${{ secrets.GITHUB_TOKEN }}
+         file: ch.sbb.scion.rcp.microfrontend-1.0.0-SNAPSHOT-sources.jar
+
+      - name: 'Downloading workbench library'
+        uses: actions/download-artifact@v2
+        with:
+          name: workbench-library
+
+      - name: 'Upload workbench binary to release'
+        uses: svenstaro/upload-release-action@v2
+        with:
+         repo_token: ${{ secrets.GITHUB_TOKEN }}
+         file: ch.sbb.scion.rcp.workbench-1.0.0-SNAPSHOT.jar
+
+      - name: 'Upload workbench source to release'
+        uses: svenstaro/upload-release-action@v2
+        with:
+         repo_token: ${{ secrets.GITHUB_TOKEN }}
+         file: ch.sbb.scion.rcp.workbench-1.0.0-SNAPSHOT-sources.jar
