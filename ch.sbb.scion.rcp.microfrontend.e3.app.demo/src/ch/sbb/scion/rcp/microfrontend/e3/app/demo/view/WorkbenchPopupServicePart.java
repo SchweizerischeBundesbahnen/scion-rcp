@@ -43,6 +43,11 @@ import ch.sbb.scion.rcp.workbench.SciWorkbenchPopupConfig;
 
 public class WorkbenchPopupServicePart {
 
+  /**
+   * This is a key to let swtbot identify our components more easily.
+   */
+  private static final String ORG_ECLIPSE_SWTBOT_WIDGET_KEY = "org.eclipse.swtbot.widget.key";
+
   @Inject
   private ISciWorkbenchPopupService popupService;
 
@@ -80,14 +85,14 @@ public class WorkbenchPopupServicePart {
     LabelFactory.newLabel(SWT.NONE).text("Qualifier")
         .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).align(SWT.BEGINNING, SWT.TOP).create()).create(group);
 
-    var qualifierComposite = createKeyValuePairViewerComposite(group, intentModel.getQualifiers());
+    var qualifierComposite = createKeyValuePairViewerComposite(group, intentModel.getQualifiers(), "qualifier");
     GridDataFactory.swtDefaults().span(4, 1).hint(SWT.DEFAULT, 100).align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(qualifierComposite);
 
     // Params
     LabelFactory.newLabel(SWT.NONE).text("Params")
         .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).align(SWT.BEGINNING, SWT.TOP).create()).create(group);
 
-    var paramComposite = createKeyValuePairViewerComposite(group, intentModel.getParams());
+    var paramComposite = createKeyValuePairViewerComposite(group, intentModel.getParams(), "params");
     GridDataFactory.swtDefaults().span(4, 1).hint(SWT.DEFAULT, 100).align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(paramComposite);
 
     // Options
@@ -107,6 +112,7 @@ public class WorkbenchPopupServicePart {
     // Publish button
     var openButton = ButtonFactory.newButton(SWT.NONE).text("Open").layoutData(GridDataFactory.fillDefaults().span(5, 1).create())
         .create(group);
+    openButton.setData(ORG_ECLIPSE_SWTBOT_WIDGET_KEY, "popup-open");
 
     openButton.addSelectionListener(new SelectionAdapter() {
 
@@ -119,7 +125,8 @@ public class WorkbenchPopupServicePart {
     return group;
   }
 
-  private Composite createKeyValuePairViewerComposite(final Composite parent, final IObservableList<Entry<String, String>> entryModel) {
+  private Composite createKeyValuePairViewerComposite(final Composite parent, final IObservableList<Entry<String, String>> entryModel,
+      final String swtBotDataValuePostfix) {
     var composite = CompositeFactory.newComposite(SWT.NONE).create(parent);
     GridLayoutFactory.swtDefaults().numColumns(4).margins(0, 0).applyTo(composite);
 
@@ -131,11 +138,14 @@ public class WorkbenchPopupServicePart {
 
     var addEntryButton = ButtonFactory.newButton(SWT.NONE).text("+").layoutData(GridDataFactory.fillDefaults().hint(30, 20).create())
         .create(composite);
+    addEntryButton.setData(ORG_ECLIPSE_SWTBOT_WIDGET_KEY, "add-" + swtBotDataValuePostfix);
 
     var removeEntryButton = ButtonFactory.newButton(SWT.NONE).text("-").enabled(false)
         .layoutData(GridDataFactory.fillDefaults().hint(30, 20).create()).create(composite);
+    removeEntryButton.setData(ORG_ECLIPSE_SWTBOT_WIDGET_KEY, "remove-" + swtBotDataValuePostfix);
 
     var tableViewer = createTableViewer(composite);
+    tableViewer.getTable().setData(ORG_ECLIPSE_SWTBOT_WIDGET_KEY, "table-" + swtBotDataValuePostfix);
     tableViewer.setInput(entryModel);
     tableViewer.addSelectionChangedListener(event -> removeEntryButton.setEnabled(!tableViewer.getSelection().isEmpty()));
 

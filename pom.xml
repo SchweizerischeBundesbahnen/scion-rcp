@@ -43,6 +43,7 @@
 		<module>ch.sbb.scion.rcp.microfrontend.targetplatform</module>
 		<module>ch.sbb.scion.rcp.feature</module>
 		<module>ch.sbb.scion.rcp.feature.test</module>
+		<module>ch.sbb.scion.rcp.swtbot.feature</module>
 
 		<!-- Demo applications & products -->
 		<module>ch.sbb.scion.rcp.microfrontend.app.demo</module>
@@ -51,13 +52,13 @@
 		<module>ch.sbb.scion.rcp.microfrontend.e3.app.demo.product</module>
 
 		<!-- modules & test fragements -->
-		<!-- Please note: whenever you add CodeCoverage relevant modules here       -->
-		<!-- Add the modules as Depdency in ch.sbb.scion.rcp.coveragereport/pom.xml -->
-		<!-- as well. -->
+		<!-- Please note: whenever you add a CodeCoverage-relevant module here,           -->
+		<!-- add the same module as dependency in ch.sbb.scion.rcp.coveragereport/pom.xml -->
 		<module>ch.sbb.scion.rcp.microfrontend</module>
 		<module>ch.sbb.scion.rcp.microfrontend.test</module>
 		<module>ch.sbb.scion.rcp.workbench</module>
-		<!-- <module>ch.sbb.scion.rcp.workbench.test</module> -->
+		<module>ch.sbb.scion.rcp.microfrontend.e3.app.demo.test</module>
+		<!-- does not work at the moment: <module>ch.sbb.scion.rcp.workbench.test</module> -->
 
 		<!-- code quality -->
 		<module>ch.sbb.scion.rcp.coveragereport</module>
@@ -96,6 +97,7 @@
 				<configuration>
 					<useUIHarness>false</useUIHarness>
 					<useUIThread>false</useUIThread>
+					<trimStackTrace>false</trimStackTrace>
 					<!-- even though thiese are the default patterns, they had to be given explicitly-->
 					<includes>
 						<include>**/*Test.*</include>
@@ -173,6 +175,11 @@
 						<environment>
 							<os>macosx</os>
 							<ws>cocoa</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
 							<arch>x86_64</arch>
 						</environment>
 					</environments>

@@ -17,6 +17,7 @@
 **/*.bak
 **/*.iml
 **/workspace
+**/AllTests.xml
 
 ### others ###
 **/dist/

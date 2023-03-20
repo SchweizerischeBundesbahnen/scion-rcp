@@ -29,13 +29,18 @@
       <windows include="false">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JRE-1.1</windows>
    </vm>
 
+   <plugins>
+   </plugins>
+
    <features>
-      <feature id="ch.sbb.scion.rcp.feature" installMode="root"/>
       <feature id="org.eclipse.emf.ecore" installMode="root"/>
       <feature id="org.eclipse.emf.common" installMode="root"/>
       <feature id="org.eclipse.rcp" installMode="root"/>
       <feature id="org.eclipse.equinox.executable" installMode="root"/>
       <feature id="org.eclipse.e4.rcp" installMode="root"/>
+      <feature id="ch.sbb.scion.rcp.feature" installMode="root"/>
+      <feature id="org.eclipse.swtbot.junit5" installMode="root"/>
+      <feature id="ch.sbb.scion.rcp.swtbot.feature" installMode="root"/>
    </features>
 
    <configurations>

@@ -26,3 +26,37 @@ Import repository clone root folder as "Existing Projects into Workspace" and se
 See [build.yml](.github/workflows/build.yml) for further infos about the build.
 See [release.yml](.github/workflows/release.yml) for further infos about the release.
  
+
+## Headless UI Testing with SWTBot (JUnit5)
+
+Headless testing on github doesn't work. SWTBot test can only be run locally.
+SWTTest bundles are organized in the ch.sbb.scion.rcp.swtbot.feature which must be 
+added to the product to be tested.
+
+### Launching on win32/x86_64
+
+java -Xms256M -Xmx768M \
+-jar ch.sbb.scion.rcp.microfrontend.e3.app.demo.product/target/products/ch.sbb.scion.rcp.microfrontend.e3.app.demo.product/win32/win32/x86_64/plugins/org.eclipse.equinox.launcher_1.6.400.v20210924-0641.jar \
+-application org.eclipse.swtbot.eclipse.junit5.headless.swtbottestapplication \
+-product ch.sbb.scion.rcp.microfrontend.e3.app.demo.product \
+-testApplication ch.sbb.scion.rcp.microfrontend.e3.app.demo.application \
+-data . \
+-testPluginName ch.sbb.scion.rcp.microfrontend.e3.app.demo.test \
+ formatter=org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter,./AllTests.xml \
+-classname ch.sbb.scion.rcp.microfrontend.e3.app.demo.test.PopupCapabilityTest \
+-os win32 -ws win32 -arch x86_64 \
+-consoleLog -debug
+
+### Launching on linux/gtk/x86_64
+
+java -Xms256M -Xmx768M \
+-jar ch.sbb.scion.rcp.microfrontend.e3.app.demo.product/target/products/ch.sbb.scion.rcp.microfrontend.e3.app.demo.product/linux/gtk/x86_64/plugins/org.eclipse.equinox.launcher_1.6.400.v20210924-0641.jar \
+-application org.eclipse.swtbot.eclipse.junit5.headless.swtbottestapplication \
+-product ch.sbb.scion.rcp.microfrontend.e3.app.demo.product \
+-testApplication ch.sbb.scion.rcp.microfrontend.e3.app.demo.application \
+-data . \
+-testPluginName ch.sbb.scion.rcp.microfrontend.e3.app.demo.test \
+ formatter=org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter,./AllTests.xml \ 
+-classname ch.sbb.scion.rcp.microfrontend.e3.app.demo.test.PopupCapabilityTest \
+-os linux -ws gtk -arch x86_64 \
+-consoleLog -debug

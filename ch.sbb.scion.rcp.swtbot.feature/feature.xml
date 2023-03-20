@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="ch.sbb.scion.rcp.swtbot.feature"
+      label="ch.sbb.scion.rcp.swtbot.feature"
+      version="1.0.0.qualifier">
+
+   <description url="https://github.com/SchweizerischeBundesbahnen/scion-rcp#readme">
+      This integration of the SCION Microfrontend Platform with Eclipse
+RCP allows embedding web-based microfrontends in native rich
+client applications.
+   </description>
+
+   <copyright url="https://company.sbb.ch/">
+      SBB/CFF/FFS
+   </copyright>
+
+   <license url="https://github.com/SchweizerischeBundesbahnen/scion-rcp/blob/master/LICENSE">
+      SchweizerischeBundesbahnen/scion-rcp is licensed under the
+Eclipse Public License 2.0
+This commercially-friendly copyleft license provides the ability
+to commercially license binaries; a modern royalty-free patent
+license grant; and the ability for linked works to use other
+licenses, including commercial ones.
+   </license>
+
+   <plugin
+         id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.test"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>
