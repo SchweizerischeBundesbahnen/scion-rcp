@@ -5,8 +5,43 @@
       version="1.0.0.qualifier"
       provider-name="SBB and Contributors">
 
+   <description url="https://github.com/SchweizerischeBundesbahnen/scion-rcp#readme">
+      This integration of the SCION Microfrontend Platform with Eclipse
+RCP allows embedding web-based microfrontends in native rich
+client applications.
+   </description>
+
+   <copyright url="https://company.sbb.ch/">
+      SBB/CFF/FFS
+   </copyright>
+
+   <license url="https://github.com/SchweizerischeBundesbahnen/scion-rcp/blob/master/LICENSE">
+      SchweizerischeBundesbahnen/scion-rcp is licensed under the
+Eclipse Public License 2.0
+This commercially-friendly copyleft license provides the ability
+to commercially license binaries; a modern royalty-free patent
+license grant; and the ability for linked works to use other
+licenses, including commercial ones.
+   </license>
+
    <includes
          id="ch.sbb.scion.rcp.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.swtbot"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.swtbot.eclipse"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.swtbot.forms"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.swtbot.junit5"
          version="0.0.0"/>
 
    <plugin
@@ -95,14 +130,21 @@
          unpack="false"/>
 
    <plugin
-         id="net.bytebuddy.byte-buddy"
+         id="org.apache.log4j"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="net.bytebuddy.byte-buddy-agent"
+         id="org.eclipse.equinox.ds"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.equinox.p2.ui"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -110,13 +152,6 @@
 
    <plugin
          id="org.hamcrest"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="wrapped.org.mockito.mockito-inline"
          download-size="0"
          install-size="0"
          version="0.0.0"
@@ -136,17 +171,22 @@
          version="0.0.0"
          unpack="false"/>
 
-<!--
    <plugin
-         id="ch.sbb.scion.rcp.workbench.test"
+         id="wrapped.org.mockito.mockito-inline"
          download-size="0"
          install-size="0"
          version="0.0.0"
-         fragment="true"
-         unpack="false"/> -->
+         unpack="false"/>
 
    <plugin
-         id="org.objenesis"
+         id="net.bytebuddy.byte-buddy"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="net.bytebuddy.byte-buddy-agent"
          download-size="0"
          install-size="0"
          version="0.0.0"

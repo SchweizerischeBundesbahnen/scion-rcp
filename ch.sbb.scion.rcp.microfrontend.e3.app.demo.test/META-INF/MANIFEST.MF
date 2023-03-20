@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: ch.sbb.scion.rcp.microfrontend.e3.app.demo.test
+Bundle-SymbolicName: ch.sbb.scion.rcp.microfrontend.e3.app.demo.test;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-ActivationPolicy: lazy
+Bundle-Vendor: SBB and Contributors
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Eclipse-RegisterBuddy: org.apache.log4j
+Require-Bundle: org.eclipse.swt,
+ org.junit.jupiter.api,
+ org.junit.jupiter.engine,
+ org.eclipse.swtbot.go,
+ org.eclipse.swtbot.e4.finder,
+ org.eclipse.swtbot.eclipse.junit5.headless,
+ org.apache.log4j
+Automatic-Module-Name: ch.sbb.scion.rcp.microfrontend.app.demo.test
+Export-Package: ch.sbb.scion.rcp.microfrontend.e3.app.demo.test
