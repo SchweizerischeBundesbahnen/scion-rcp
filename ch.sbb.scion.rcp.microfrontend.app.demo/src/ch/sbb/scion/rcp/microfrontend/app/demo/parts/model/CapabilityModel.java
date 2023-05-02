@@ -52,19 +52,19 @@ public class CapabilityModel {
   }
 
   public Capability getCapability() {
-    var capability = new Capability().type(type.getValue());
+    var capabilityBuilder = Capability.builder().type(type.getValue());
     if (!description.getValue().isEmpty()) {
-      capability.description(description.getValue());
+      capabilityBuilder.description(description.getValue());
     }
-    capability.isPrivate(isPrivate.getValue());
+    capabilityBuilder.isPrivate(isPrivate.getValue());
     if (!qualifiers.isEmpty()) {
       var qualifier = new Qualifier();
       qualifiers.stream().forEach(x -> qualifier.set(x.getKey(), x.getValue()));
-      capability.qualifier(qualifier);
+      capabilityBuilder.qualifier(qualifier);
     }
     if (!params.isEmpty()) {
-      capability.params(params);
+      capabilityBuilder.params(params);
     }
-    return capability;
+    return capabilityBuilder.build();
   }
 }
