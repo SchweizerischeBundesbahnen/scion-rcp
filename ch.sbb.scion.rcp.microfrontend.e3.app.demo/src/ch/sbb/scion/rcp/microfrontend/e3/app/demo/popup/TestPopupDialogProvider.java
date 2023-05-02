@@ -2,14 +2,14 @@ package ch.sbb.scion.rcp.microfrontend.e3.app.demo.popup;
 
 import org.eclipse.swt.widgets.Shell;
 
-import ch.sbb.scion.rcp.workbench.ISciWorkbenchPopup;
-import ch.sbb.scion.rcp.workbench.ISciWorkbenchPopupWindow;
-import ch.sbb.scion.rcp.workbench.ISciWorkbenchPopupWindowProvider;
+import ch.sbb.scion.rcp.workbench.IWorkbenchPopup;
+import ch.sbb.scion.rcp.workbench.IWorkbenchPopupWindow;
+import ch.sbb.scion.rcp.workbench.IWorkbenchPopupWindowProvider;
 
-public class TestPopupDialogProvider implements ISciWorkbenchPopupWindowProvider {
+public class TestPopupDialogProvider implements IWorkbenchPopupWindowProvider {
 
   @Override
-  public ISciWorkbenchPopupWindow create(final Shell parentShell, final ISciWorkbenchPopup popup) {
+  public IWorkbenchPopupWindow create(final Shell parentShell, final IWorkbenchPopup popup) {
     return new TestPopupDialog(parentShell, popup);
   }
 

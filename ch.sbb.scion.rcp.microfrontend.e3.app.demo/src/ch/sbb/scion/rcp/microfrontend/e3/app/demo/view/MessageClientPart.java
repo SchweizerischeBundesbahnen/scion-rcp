@@ -26,16 +26,16 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.google.gson.Gson;
 
-import ch.sbb.scion.rcp.microfrontend.SciMessageClient;
-import ch.sbb.scion.rcp.microfrontend.model.ISubscription;
+import ch.sbb.scion.rcp.microfrontend.MessageClient;
 import ch.sbb.scion.rcp.microfrontend.model.MessageHeaders;
 import ch.sbb.scion.rcp.microfrontend.model.PublishOptions;
 import ch.sbb.scion.rcp.microfrontend.model.TopicMessage;
+import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
 
 public class MessageClientPart {
 
   @Inject
-  private SciMessageClient messageClient;
+  private MessageClient messageClient;
 
   @PostConstruct
   public void createComposite(final Composite parent) {
@@ -71,7 +71,7 @@ public class MessageClientPart {
 
     // Publish button
     ButtonFactory.newButton(SWT.NONE).text("Publish")
-        .onSelect(e -> messageClient.publish(topic.getText(), message.getText(), new PublishOptions().retain(retain.getSelection())))
+        .onSelect(e -> messageClient.publish(topic.getText(), message.getText(), new PublishOptions(retain.getSelection())))
         .layoutData(GridDataFactory.fillDefaults().span(2, 1).create()).create(group);
 
     return group;
@@ -137,7 +137,7 @@ public class MessageClientPart {
       @Override
       public String getText(final Object object) {
         TopicMessage<String> topicMessage = getTopicMessageFromObject(object);
-        var params = topicMessage.headers;
+        var params = topicMessage.headers();
         return new Gson().toJson(params);
       }
     });
@@ -152,7 +152,7 @@ public class MessageClientPart {
       @Override
       public String getText(final Object object) {
         TopicMessage<String> topicMessage = getTopicMessageFromObject(object);
-        var params = topicMessage.params;
+        var params = topicMessage.params();
         return new Gson().toJson(params);
       }
     });
@@ -167,7 +167,7 @@ public class MessageClientPart {
       @Override
       public String getText(final Object object) {
         TopicMessage<String> topicMessage = getTopicMessageFromObject(object);
-        var timestamp = (Double) topicMessage.headers.get(MessageHeaders.Timestamp.value);
+        var timestamp = (Double) topicMessage.headers().get(MessageHeaders.TIMESTAMP.value);
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(Long.valueOf(timestamp.longValue()));
       }
     });
@@ -182,7 +182,7 @@ public class MessageClientPart {
       @Override
       public String getText(final Object object) {
         TopicMessage<String> topicMessage = getTopicMessageFromObject(object);
-        return topicMessage.body;
+        return topicMessage.body();
       }
     });
   }

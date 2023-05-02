@@ -12,7 +12,7 @@ import org.eclipse.jface.widgets.TextFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
-import ch.sbb.scion.rcp.microfrontend.SciRouterOutlet;
+import ch.sbb.scion.rcp.microfrontend.RouterOutlet;
 
 public class RouterOutletPart {
 
@@ -30,7 +30,7 @@ public class RouterOutletPart {
         .layoutData(GridDataFactory.fillDefaults().grab(true, false).create()).create(composite);
 
     // Router Outlet
-    var routerOutlet = new SciRouterOutlet(composite, SWT.BORDER, routerOutletName);
+    var routerOutlet = new RouterOutlet(composite, SWT.BORDER, routerOutletName);
     GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).span(2, 1).applyTo(routerOutlet);
 
     routerOutlet

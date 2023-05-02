@@ -7,7 +7,7 @@ import org.eclipse.core.databinding.observable.list.WritableList;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.WritableValue;
 
-import ch.sbb.scion.rcp.microfrontend.SciManifestService.ManifestObjectFilter;
+import ch.sbb.scion.rcp.microfrontend.ManifestService.ManifestObjectFilter;
 import ch.sbb.scion.rcp.microfrontend.model.Qualifier;
 
 public class ManifestObjectFilterModel {
@@ -44,7 +44,7 @@ public class ManifestObjectFilterModel {
   }
 
   public ManifestObjectFilter getFilter() {
-    var filter = new ManifestObjectFilter();
+    var filter = ManifestObjectFilter.builder();
     if (!id.getValue().isEmpty()) {
       filter.id(id.getValue());
     }
@@ -60,7 +60,7 @@ public class ManifestObjectFilterModel {
       filter.appSymbolicName(appSymbolicName.getValue());
     }
 
-    return filter;
+    return filter.build();
   }
 
 }

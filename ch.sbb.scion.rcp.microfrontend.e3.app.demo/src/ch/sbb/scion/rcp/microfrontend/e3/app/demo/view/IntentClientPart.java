@@ -54,12 +54,10 @@ import org.eclipse.swt.widgets.Text;
 
 import com.google.gson.Gson;
 
-import ch.sbb.scion.rcp.microfrontend.SciIntentClient;
-import ch.sbb.scion.rcp.microfrontend.SciMessageClient;
+import ch.sbb.scion.rcp.microfrontend.IntentClient;
+import ch.sbb.scion.rcp.microfrontend.MessageClient;
 import ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.model.IntentMessageModel;
 import ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.model.IntentSelectorModel;
-import ch.sbb.scion.rcp.microfrontend.model.ISubscriber;
-import ch.sbb.scion.rcp.microfrontend.model.ISubscription;
 import ch.sbb.scion.rcp.microfrontend.model.Intent;
 import ch.sbb.scion.rcp.microfrontend.model.IntentMessage;
 import ch.sbb.scion.rcp.microfrontend.model.MessageHeaders;
@@ -67,14 +65,16 @@ import ch.sbb.scion.rcp.microfrontend.model.PublishOptions;
 import ch.sbb.scion.rcp.microfrontend.model.RequestOptions;
 import ch.sbb.scion.rcp.microfrontend.model.ResponseStatusCodes;
 import ch.sbb.scion.rcp.microfrontend.model.TopicMessage;
+import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscriber;
+import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
 
 public class IntentClientPart {
 
   @Inject
-  private SciIntentClient intentClient;
+  private IntentClient intentClient;
 
   @Inject
-  private SciMessageClient messageClient;
+  private MessageClient messageClient;
 
   private final DataBindingContext ctx = new DataBindingContext();
 
@@ -166,11 +166,11 @@ public class IntentClientPart {
         }
         else if (intentModel.isRequestReply().getValue().booleanValue()) {
           publishButton.setText("Cancel");
-          var options = new RequestOptions().headers(headers).retain(intentModel.isRetain().getValue());
+          var options = new RequestOptions(headers, intentModel.isRetain().getValue());
           requestSubscription = request(intentModel.getIntent(), body, options);
         }
         else {
-          var options = new PublishOptions().headers(headers).retain(intentModel.isRetain().getValue());
+          var options = new PublishOptions(headers, intentModel.isRetain().getValue());
           publish(intentModel.getIntent(), body, options);
         }
       }
@@ -292,8 +292,8 @@ public class IntentClientPart {
       @Override
       public void onNext(final TopicMessage<String> next) {
         var replyBox = new MessageBox(validationLabel.getShell(), SWT.ICON_INFORMATION | SWT.OK);
-        replyBox.setText("Reply from application: " + next.headers.get(MessageHeaders.AppSymbolicName.value));
-        replyBox.setMessage(next.body);
+        replyBox.setText("Reply from application: " + next.headers().get(MessageHeaders.APP_SYMBOLIC_NAME.value));
+        replyBox.setMessage(next.body());
         if (replyBox.open() == SWT.OK) {
           cancelRequest();
         }
@@ -436,9 +436,9 @@ public class IntentClientPart {
       @Override
       public void widgetSelected(final SelectionEvent evnt) {
         var selectedIntentMessage = (IntentMessage) table.getSelection()[0].getData();
-        var replyTo = selectedIntentMessage.headers.get(MessageHeaders.ReplyTo.value).toString();
-        var headers = Map.of(MessageHeaders.Status.value, Integer.valueOf(ResponseStatusCodes.TERMINAL.value));
-        messageClient.publish(replyTo, "This is a reply.", new PublishOptions().headers(headers));
+        var replyTo = selectedIntentMessage.headers().get(MessageHeaders.REPLY_TO.value).toString();
+        var headers = Map.of(MessageHeaders.STATUS.value, Integer.valueOf(ResponseStatusCodes.TERMINAL.value));
+        messageClient.publish(replyTo, "This is a reply.", new PublishOptions(headers));
       }
     });
 
@@ -452,7 +452,7 @@ public class IntentClientPart {
         }
         if (table.getSelectionCount() > 0) {
           var selectedIntentMessage = (IntentMessage) table.getSelection()[0].getData();
-          if (selectedIntentMessage.headers == null || selectedIntentMessage.headers.get(MessageHeaders.ReplyTo.value) == null) {
+          if (selectedIntentMessage.headers() == null || selectedIntentMessage.headers().get(MessageHeaders.REPLY_TO.value) == null) {
             event.doit = false;
           }
         }
@@ -469,7 +469,7 @@ public class IntentClientPart {
       @SuppressWarnings("unchecked")
       @Override
       public String getText(final Object message) {
-        return ((IntentMessage<String>) message).body;
+        return ((IntentMessage<String>) message).body();
       }
     });
   }
@@ -483,7 +483,7 @@ public class IntentClientPart {
       @SuppressWarnings("unchecked")
       @Override
       public String getText(final Object message) {
-        var params = ((IntentMessage<Void>) message).intent.params;
+        var params = ((IntentMessage<Void>) message).intent().params();
         return new Gson().toJson(params);
       }
     });
@@ -498,7 +498,7 @@ public class IntentClientPart {
       @SuppressWarnings("unchecked")
       @Override
       public String getText(final Object message) {
-        var qualifier = ((IntentMessage<Void>) message).intent.qualifier;
+        var qualifier = ((IntentMessage<Void>) message).intent().qualifier();
         return new Gson().toJson(qualifier);
       }
     });
@@ -513,7 +513,7 @@ public class IntentClientPart {
       @SuppressWarnings("unchecked")
       @Override
       public String getText(final Object message) {
-        return ((IntentMessage<Void>) message).intent.type;
+        return ((IntentMessage<Void>) message).intent().type();
       }
     });
   }
@@ -527,8 +527,8 @@ public class IntentClientPart {
       @SuppressWarnings("unchecked")
       @Override
       public String getText(final Object message) {
-        var capability = ((IntentMessage<Void>) message).capability;
-        return capability.metadata.id;
+        var capability = ((IntentMessage<Void>) message).capability();
+        return capability.metadata().id();
       }
     });
   }
@@ -542,7 +542,7 @@ public class IntentClientPart {
       @SuppressWarnings("unchecked")
       @Override
       public String getText(final Object message) {
-        var headers = ((IntentMessage<Void>) message).headers;
+        var headers = ((IntentMessage<Void>) message).headers();
         return new Gson().toJson(headers);
       }
     });

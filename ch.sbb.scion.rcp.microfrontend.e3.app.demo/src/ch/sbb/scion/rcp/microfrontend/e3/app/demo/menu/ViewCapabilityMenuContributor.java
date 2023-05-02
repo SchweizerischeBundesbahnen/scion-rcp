@@ -13,12 +13,12 @@ public class ViewCapabilityMenuContributor extends CapabilityMenuContributor {
   }
 
   @Override
-  protected String getText(Capability capability) {
-    return (String) Optional.ofNullable(capability.properties).orElseGet(Properties::new).get("title");
+  protected String getText(final Capability capability) {
+    return (String) Optional.ofNullable(capability.properties()).orElseGet(Properties::new).get("title");
   }
 
   @Override
-  protected String getToolTipText(Capability capability) {
-    return (String) Optional.ofNullable(capability.properties).orElseGet(Properties::new).get("heading");
+  protected String getToolTipText(final Capability capability) {
+    return (String) Optional.ofNullable(capability.properties()).orElseGet(Properties::new).get("heading");
   }
 }

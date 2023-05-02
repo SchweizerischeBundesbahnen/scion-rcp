@@ -15,18 +15,18 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.google.gson.GsonBuilder;
 
-import ch.sbb.scion.rcp.workbench.ISciWorkbenchPopup;
-import ch.sbb.scion.rcp.workbench.ISciWorkbenchPopupWindow;
+import ch.sbb.scion.rcp.workbench.IWorkbenchPopup;
+import ch.sbb.scion.rcp.workbench.IWorkbenchPopupWindow;
 
-public class TestPopupDialog extends Dialog implements ISciWorkbenchPopupWindow {
+public class TestPopupDialog extends Dialog implements IWorkbenchPopupWindow {
 
   private static final int CLOSE_WITH_EXCEPTION_ID = IDialogConstants.CLIENT_ID + 1;
 
-  private final ISciWorkbenchPopup popup;
+  private final IWorkbenchPopup popup;
 
   private boolean activated = false;
 
-  protected TestPopupDialog(final Shell parentShell, final ISciWorkbenchPopup popup) {
+  protected TestPopupDialog(final Shell parentShell, final IWorkbenchPopup popup) {
     super(parentShell);
     this.popup = popup;
 
@@ -94,7 +94,7 @@ public class TestPopupDialog extends Dialog implements ISciWorkbenchPopupWindow 
   @Override
   protected void configureShell(final Shell newShell) {
     super.configureShell(newShell);
-    var properties = popup.getCapability().properties;
+    var properties = popup.getCapability().properties();
     newShell.setText(properties.has("title") ? properties.get("title") : "");
 
     var closeOnFocusLost = popup.closeOnFocusLost();
