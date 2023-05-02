@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import ch.sbb.scion.rcp.microfrontend.model.Capability;
+import ch.sbb.scion.rcp.microfrontend.model.Capability.Metadata;
 
 @Disabled(value = "We need to find a way to run eclipse ui tests on github build infrastructure")
 class MicrofrontendViewEditorInputTest {
@@ -29,9 +30,7 @@ class MicrofrontendViewEditorInputTest {
   }
 
   private Capability createCapability(final String metaDataId) {
-    Capability capability = new Capability();
-    capability.metadata = new Capability.Metadata();
-    capability.metadata.id = metaDataId;
+    Capability capability = Capability.builder().metadata(Metadata.builder().id(metaDataId).build()).build();
     return capability;
   }
 }
