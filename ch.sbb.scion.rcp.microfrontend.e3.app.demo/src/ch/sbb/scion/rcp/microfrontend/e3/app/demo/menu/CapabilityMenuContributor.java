@@ -12,13 +12,13 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
-import ch.sbb.scion.rcp.microfrontend.SciIntentClient;
-import ch.sbb.scion.rcp.microfrontend.SciManifestService;
-import ch.sbb.scion.rcp.microfrontend.SciManifestService.ManifestObjectFilter;
+import ch.sbb.scion.rcp.microfrontend.IntentClient;
+import ch.sbb.scion.rcp.microfrontend.ManifestService;
+import ch.sbb.scion.rcp.microfrontend.ManifestService.ManifestObjectFilter;
 import ch.sbb.scion.rcp.microfrontend.e3.app.demo.ContextInjectors;
 import ch.sbb.scion.rcp.microfrontend.model.Capability;
-import ch.sbb.scion.rcp.microfrontend.model.ISubscription;
 import ch.sbb.scion.rcp.microfrontend.model.Intent;
+import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
 
 /**
  * Contributes menu items for capabilities of a given type.
@@ -28,10 +28,10 @@ public abstract class CapabilityMenuContributor extends ContributionItem {
   private ISubscription subscription;
 
   @Inject
-  private SciManifestService sciManifestService;
+  private ManifestService sciManifestService;
 
   @Inject
-  private SciIntentClient sciIntentClient;
+  private IntentClient sciIntentClient;
 
   public CapabilityMenuContributor() {
     ContextInjectors.inject(this);
@@ -39,7 +39,7 @@ public abstract class CapabilityMenuContributor extends ContributionItem {
 
   @Override
   public void fill(final Menu menu, final int index) {
-    subscription = sciManifestService.lookupCapabilities(new ManifestObjectFilter().type(getCapabilityType()), capabilities -> {
+    subscription = sciManifestService.lookupCapabilities(ManifestObjectFilter.builder().type(getCapabilityType()).build(), capabilities -> {
       capabilities.forEach(capability -> {
         MenuItem menuItem = new MenuItem(menu, SWT.PUSH, index);
         menuItem.setText(Optional.ofNullable(getText(capability)).orElse("?"));
@@ -48,7 +48,7 @@ public abstract class CapabilityMenuContributor extends ContributionItem {
 
           @Override
           public void widgetSelected(final SelectionEvent event) {
-            sciIntentClient.publish(new Intent().type(capability.type).qualifier(capability.qualifier)).exceptionally(e -> {
+            sciIntentClient.publish(Intent.builder().type(capability.type()).qualifier(capability.qualifier()).build()).exceptionally(e -> {
               Platform.getLog(CapabilityMenuContributor.class).error("Failed to send intent", e);
               return null;
             });

@@ -11,8 +11,8 @@ import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.WritableValue;
 
 import ch.sbb.scion.rcp.microfrontend.model.Qualifier;
-import ch.sbb.scion.rcp.workbench.SciWorkbenchPopupConfig;
-import ch.sbb.scion.rcp.workbench.SciWorkbenchPopupOrigin;
+import ch.sbb.scion.rcp.workbench.WorkbenchPopupConfig;
+import ch.sbb.scion.rcp.workbench.WorkbenchPopupOrigin;
 
 public class WorkbenchPopupIntentMessageModel {
 
@@ -81,14 +81,9 @@ public class WorkbenchPopupIntentMessageModel {
     return qualifier;
   }
 
-  public SciWorkbenchPopupConfig getConfig() {
-    var config = new SciWorkbenchPopupConfig();
-    config.params(computeParams());
-    config.closeOnEscape(closeOnEscape.getValue());
-    config.closeOnFocusLost(closeOnFocusLost.getValue());
-    config.viewId(viewId);
-    config.anchor(getAnchor());
-    return config;
+  public WorkbenchPopupConfig getConfig() {
+    return WorkbenchPopupConfig.builder().params(computeParams()).closeOnEscape(closeOnEscape.getValue())
+        .closeOnFocusLost(closeOnFocusLost.getValue()).viewId(viewId).anchor(getAnchor()).build();
   }
 
   private HashMap<String, Object> computeParams() {
@@ -99,13 +94,12 @@ public class WorkbenchPopupIntentMessageModel {
     return paramsDict;
   }
 
-  private SciWorkbenchPopupOrigin getAnchor() {
-    var anchor = new SciWorkbenchPopupOrigin();
+  private WorkbenchPopupOrigin getAnchor() {
+    var anchor = WorkbenchPopupOrigin.builder();
     if (useTopLeftAnchor.getValue().booleanValue()) {
-      anchor.top = safeToInteger(anchorTop.getValue());
-      anchor.left = safeToInteger(anchorLeft.getValue());
+      anchor.top(safeToInteger(anchorTop.getValue())).left(safeToInteger(anchorLeft.getValue()));
     }
-    return anchor;
+    return anchor.build();
   }
 
   private static Integer safeToInteger(final String valueAsString) {

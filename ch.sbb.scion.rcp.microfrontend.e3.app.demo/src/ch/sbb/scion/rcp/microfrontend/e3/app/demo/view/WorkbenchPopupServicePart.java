@@ -38,8 +38,8 @@ import org.eclipse.swt.widgets.Text;
 
 import ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.model.WorkbenchPopupIntentMessageModel;
 import ch.sbb.scion.rcp.microfrontend.model.Qualifier;
-import ch.sbb.scion.rcp.workbench.ISciWorkbenchPopupService;
-import ch.sbb.scion.rcp.workbench.SciWorkbenchPopupConfig;
+import ch.sbb.scion.rcp.workbench.IWorkbenchPopupService;
+import ch.sbb.scion.rcp.workbench.WorkbenchPopupConfig;
 
 public class WorkbenchPopupServicePart {
 
@@ -49,7 +49,7 @@ public class WorkbenchPopupServicePart {
   private static final String ORG_ECLIPSE_SWTBOT_WIDGET_KEY = "org.eclipse.swtbot.widget.key";
 
   @Inject
-  private ISciWorkbenchPopupService popupService;
+  private IWorkbenchPopupService popupService;
 
   private final DataBindingContext ctx = new DataBindingContext();
 
@@ -220,7 +220,7 @@ public class WorkbenchPopupServicePart {
     return composite;
   }
 
-  private void requestPopup(final Qualifier qualifier, final SciWorkbenchPopupConfig config) {
+  private void requestPopup(final Qualifier qualifier, final WorkbenchPopupConfig config) {
     popupService.open(qualifier, config, String.class).whenComplete((result, ex) -> {
       if (ex != null) {
         validationMessage.setValue(ex.getMessage());

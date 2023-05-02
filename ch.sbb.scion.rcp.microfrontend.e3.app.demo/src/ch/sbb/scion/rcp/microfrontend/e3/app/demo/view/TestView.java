@@ -24,7 +24,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import ch.sbb.scion.rcp.microfrontend.model.Intent;
-import ch.sbb.scion.rcp.workbench.ISciWorkbenchViewInput;
+import ch.sbb.scion.rcp.workbench.IWorkbenchViewInput;
 
 /**
  * A test view for showcasing the injection of a view input.
@@ -33,7 +33,7 @@ public class TestView {
 
   @Inject
   @Optional
-  private ISciWorkbenchViewInput viewInput;
+  private IWorkbenchViewInput viewInput;
 
   private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
@@ -57,11 +57,11 @@ public class TestView {
 
   private static Map<String, Object> getCombinedParams(final Intent intent) {
     var params = new HashMap<String, Object>();
-    if (intent.getParams() != null) {
-      intent.getParams().forEach(params::put);
+    if (intent.params() != null) {
+      intent.params().forEach(params::put);
     }
-    if (intent.getQualifier() != null) {
-      intent.getQualifier().entries.forEach(params::put);
+    if (intent.qualifier() != null) {
+      intent.qualifier().entries().forEach(params::put);
     }
     return params;
   }

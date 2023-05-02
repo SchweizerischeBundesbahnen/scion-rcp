@@ -46,19 +46,19 @@ import org.eclipse.swt.widgets.Text;
 
 import com.google.gson.Gson;
 
-import ch.sbb.scion.rcp.microfrontend.SciManifestService;
-import ch.sbb.scion.rcp.microfrontend.SciManifestService.ManifestObjectFilter;
+import ch.sbb.scion.rcp.microfrontend.ManifestService;
+import ch.sbb.scion.rcp.microfrontend.ManifestService.ManifestObjectFilter;
 import ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.model.CapabilityModel;
 import ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.model.ManifestObjectFilterModel;
 import ch.sbb.scion.rcp.microfrontend.model.Capability;
 import ch.sbb.scion.rcp.microfrontend.model.Capability.ParamDefinition;
-import ch.sbb.scion.rcp.microfrontend.model.ISubscription;
+import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
 import ch.sbb.scion.rcp.microfrontend.model.TopicMessage;
 
 public class ManifestServicePart {
 
   @Inject
-  private SciManifestService manifestService;
+  private ManifestService manifestService;
 
   private final DataBindingContext dbc = new DataBindingContext();
   private Text validationText;
@@ -185,7 +185,7 @@ public class ManifestServicePart {
       @Override
       public void widgetSelected(final SelectionEvent e) {
         capabilityModel.getParams()
-            .add(new ParamDefinition().name(paramNameText.getText()).required(Boolean.valueOf(isRequired.getSelection())));
+            .add(ParamDefinition.builder().name(paramNameText.getText()).required(Boolean.valueOf(isRequired.getSelection())).build());
         paramNameText.setText("");
         isRequired.setSelection(true);
       }
@@ -457,7 +457,7 @@ public class ManifestServicePart {
 
       @Override
       public String getText(final Object message) {
-        return ((ParamDefinition) message).name;
+        return ((ParamDefinition) message).name();
       }
     });
 
@@ -468,7 +468,7 @@ public class ManifestServicePart {
 
       @Override
       public String getText(final Object message) {
-        return ((ParamDefinition) message).required.booleanValue() ? "True" : "False";
+        return ((ParamDefinition) message).required().booleanValue() ? "True" : "False";
       }
     });
   }
@@ -537,7 +537,7 @@ public class ManifestServicePart {
 
       @Override
       public String getText(final Object message) {
-        return ((Capability) message).description;
+        return ((Capability) message).description();
       }
     });
   }
@@ -550,7 +550,7 @@ public class ManifestServicePart {
 
       @Override
       public String getText(final Object message) {
-        var params = ((Capability) message).params;
+        var params = ((Capability) message).params();
         return new Gson().toJson(params);
       }
     });
@@ -564,7 +564,7 @@ public class ManifestServicePart {
 
       @Override
       public String getText(final Object message) {
-        var params = ((Capability) message).properties;
+        var params = ((Capability) message).properties();
         return new Gson().toJson(params);
       }
     });
@@ -578,7 +578,7 @@ public class ManifestServicePart {
 
       @Override
       public String getText(final Object message) {
-        var qualifier = ((Capability) message).qualifier;
+        var qualifier = ((Capability) message).qualifier();
         return new Gson().toJson(qualifier);
       }
     });
@@ -592,7 +592,7 @@ public class ManifestServicePart {
 
       @Override
       public String getText(final Object message) {
-        return ((Capability) message).isPrivate.booleanValue() ? "Private" : "Public";
+        return ((Capability) message).isPrivate().booleanValue() ? "Private" : "Public";
       }
     });
   }
@@ -605,7 +605,7 @@ public class ManifestServicePart {
 
       @Override
       public String getText(final Object message) {
-        return ((Capability) message).type;
+        return ((Capability) message).type();
       }
     });
   }
@@ -619,7 +619,7 @@ public class ManifestServicePart {
       @Override
       public String getText(final Object message) {
         var capability = (Capability) message;
-        return capability.metadata.id;
+        return capability.metadata().id();
       }
     });
   }
@@ -633,7 +633,7 @@ public class ManifestServicePart {
       @Override
       public String getText(final Object message) {
         var capability = (Capability) message;
-        return capability.metadata.appSymbolicName;
+        return capability.metadata().appSymbolicName();
       }
     });
   }

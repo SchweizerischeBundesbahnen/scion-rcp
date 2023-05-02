@@ -12,13 +12,13 @@ import org.eclipse.jface.widgets.TextFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
-import ch.sbb.scion.rcp.microfrontend.SciOutletRouter;
-import ch.sbb.scion.rcp.microfrontend.SciOutletRouter.NavigationOptions;
+import ch.sbb.scion.rcp.microfrontend.OutletRouter;
+import ch.sbb.scion.rcp.microfrontend.OutletRouter.NavigationOptions;
 
 public class OutletRouterPart {
 
   @Inject
-  private SciOutletRouter outletRouter;
+  private OutletRouter outletRouter;
 
   @PostConstruct
   public void createComposite(final Composite parent) {
@@ -45,8 +45,8 @@ public class OutletRouterPart {
     // Navigate button
     ButtonFactory.newButton(SWT.NONE).text("Navigate")
         .onSelect(e -> outletRouter.navigate(url.getText(),
-            new NavigationOptions().outlet(outlet.getText())
-                .pushStateToSessionHistoryStack(Boolean.valueOf(pushStateToSessionHistoryStack.getSelection()))))
+            NavigationOptions.builder().outlet(outlet.getText())
+                .pushStateToSessionHistoryStack(Boolean.valueOf(pushStateToSessionHistoryStack.getSelection())).build()))
         .layoutData(GridDataFactory.fillDefaults().span(2, 1).create()).create(group);
   }
 }

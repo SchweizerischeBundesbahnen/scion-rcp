@@ -10,12 +10,12 @@ public class TileCapabilityMenuContributor extends CapabilityMenuContributor {
   }
 
   @Override
-  protected String getText(Capability capability) {
-    return (String) capability.properties.get("title");
+  protected String getText(final Capability capability) {
+    return (String) capability.properties().get("title");
   }
 
   @Override
-  protected String getToolTipText(Capability capability) {
-    return (String) capability.properties.get("description");
+  protected String getToolTipText(final Capability capability) {
+    return (String) capability.properties().get("description");
   }
 }
