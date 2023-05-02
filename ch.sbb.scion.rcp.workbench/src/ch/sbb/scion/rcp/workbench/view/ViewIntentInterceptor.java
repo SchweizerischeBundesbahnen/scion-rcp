@@ -18,8 +18,7 @@ import org.osgi.service.component.annotations.Reference;
 import ch.sbb.scion.rcp.microfrontend.model.Capability;
 import ch.sbb.scion.rcp.microfrontend.model.Intent;
 import ch.sbb.scion.rcp.microfrontend.model.IntentMessage;
-import ch.sbb.scion.rcp.workbench.ISciWorkbenchViewInput;
-import ch.sbb.scion.rcp.workbench.ParamsEditorInput;
+import ch.sbb.scion.rcp.workbench.IWorkbenchViewInput;
 
 /**
  * Handles SCION Workbench view intents, instructing the Eclipse Workbench to open an Eclipse editor that displays the associated
@@ -34,7 +33,7 @@ public class ViewIntentInterceptor {
   private IWorkbench workbench;
 
   public boolean handle(final IntentMessage<Map<String, ?>> intentMessage) throws PartInitException {
-    var properties = intentMessage.capability.properties;
+    var properties = intentMessage.capability().properties();
 
     // Handle view intent related to a microfrontend.
     if (properties.has("path")) {
@@ -46,31 +45,31 @@ public class ViewIntentInterceptor {
     if (properties.has("eclipseViewId")) {
       var activePage = getActivePage();
       var context = activePage.getWorkbenchWindow().getService(IEclipseContext.class);
-      context.set(ISciWorkbenchViewInput.class, getViewInput(intentMessage));
+      context.set(IWorkbenchViewInput.class, getViewInput(intentMessage));
       activePage.showView((String) properties.get("eclipseViewId"));
-      context.remove(ISciWorkbenchViewInput.class);
+      context.remove(IWorkbenchViewInput.class);
       return true;
     }
 
     // Handle view intent related to an Eclipse part.
     if (properties.has("eclipseEditorId")) {
       var editorId = (String) properties.get("eclipseEditorId");
-      var editorInput = new ParamsEditorInput(intentMessage.intent.params);
+      var editorInput = new ParamsEditorInput(intentMessage.intent().params());
       getActivePage().openEditor(editorInput, editorId, true, IWorkbenchPage.MATCH_ID);
       return true;
     }
     return false;
   }
 
-  private ISciWorkbenchViewInput getViewInput(final IntentMessage<Map<String, ?>> intentMessage) {
-    return new ViewPartInput().intent(intentMessage.intent);
+  private IWorkbenchViewInput getViewInput(final IntentMessage<Map<String, ?>> intentMessage) {
+    return new ViewPartInput().intent(intentMessage.intent());
   }
 
   private void openMicrofrontendEditor(final IntentMessage<Map<String, ?>> intentMessage) throws PartInitException {
     var activePage = getActivePage();
-    var capability = intentMessage.capability;
-    var intent = intentMessage.intent;
-    var target = Optional.ofNullable(intentMessage.body).map(body -> (String) body.get("target")).orElse("auto");
+    var capability = intentMessage.capability();
+    var intent = intentMessage.intent();
+    var target = Optional.ofNullable(intentMessage.body()).map(body -> (String) body.get("target")).orElse("auto");
 
     switch (target) {
     case "blank": {

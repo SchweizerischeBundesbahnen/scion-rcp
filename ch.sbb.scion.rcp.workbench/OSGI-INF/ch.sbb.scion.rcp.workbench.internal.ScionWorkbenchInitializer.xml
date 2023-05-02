@@ -3,7 +3,7 @@
    <service>
       <provide interface="ch.sbb.scion.rcp.workbench.internal.ScionWorkbenchInitializer"/>
    </service>
-   <reference cardinality="1..1" field="messageClient" interface="ch.sbb.scion.rcp.microfrontend.SciMessageClient" name="messageClient"/>
+   <reference cardinality="1..1" field="messageClient" interface="ch.sbb.scion.rcp.microfrontend.MessageClient" name="messageClient"/>
    <reference cardinality="1..1" field="microfrontendPlatform" interface="ch.sbb.scion.rcp.microfrontend.MicrofrontendPlatform" name="microfrontendPlatform"/>
    <implementation class="ch.sbb.scion.rcp.workbench.internal.ScionWorkbenchInitializer"/>
 </scr:component>

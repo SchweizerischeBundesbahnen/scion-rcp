@@ -8,9 +8,9 @@ package ch.sbb.scion.rcp.workbench.view;
 import java.util.Objects;
 
 import ch.sbb.scion.rcp.microfrontend.model.Intent;
-import ch.sbb.scion.rcp.workbench.ISciWorkbenchViewInput;
+import ch.sbb.scion.rcp.workbench.IWorkbenchViewInput;
 
-public class ViewPartInput implements ISciWorkbenchViewInput {
+public class ViewPartInput implements IWorkbenchViewInput {
 
   private Intent intent;
 

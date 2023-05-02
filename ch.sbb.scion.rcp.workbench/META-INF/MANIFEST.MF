@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: SCION RCP Workbench
 Bundle-SymbolicName: rcp.workbench;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: ch.sbb.scion.rcp.workbench.internal.Activator
+Bundle-Activator: ch.sbb.scion.rcp.workbench.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  rcp.microfrontend,
@@ -11,7 +11,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.osgi.services,
  org.eclipse.e4.core.di,
  com.google.gson,
- org.eclipse.jface
+ org.eclipse.jface,
+ wrapped.org.projectlombok.lombok;resolution:=optional
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: rcp.workbench
 Bundle-ActivationPolicy: lazy

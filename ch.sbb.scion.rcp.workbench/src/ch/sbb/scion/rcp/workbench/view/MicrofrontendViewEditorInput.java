@@ -8,6 +8,7 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IPersistableElement;
 
 import ch.sbb.scion.rcp.microfrontend.model.Capability;
+import ch.sbb.scion.rcp.microfrontend.model.Capability.ParamDefinition;
 import ch.sbb.scion.rcp.microfrontend.model.Intent;
 
 /**
@@ -38,13 +39,13 @@ public class MicrofrontendViewEditorInput implements IEditorInput {
    */
   public boolean matches(final Capability capability, final Intent intent) {
     // Test whether the capability matches this input.
-    if (!capability.metadata.id.equals(this.capability.metadata.id)) {
+    if (!capability.metadata().id().equals(this.capability.metadata().id())) {
       return false;
     }
 
     // Test whether all "navigational" params match this input.
-    return capability.params.stream().filter(param -> param.required).map(param -> param.name)
-        .allMatch(param -> intent.params.get(param).equals(this.intent.params.get(param)));
+    return capability.params().stream().filter(ParamDefinition::required).map(ParamDefinition::name)
+        .allMatch(param -> intent.params().get(param).equals(this.intent.params().get(param)));
   }
 
   @Override

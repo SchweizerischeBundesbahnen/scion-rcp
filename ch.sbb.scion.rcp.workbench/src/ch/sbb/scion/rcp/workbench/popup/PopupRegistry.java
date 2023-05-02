@@ -6,7 +6,7 @@ import org.eclipse.core.runtime.IExtensionRegistry;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import ch.sbb.scion.rcp.workbench.ISciWorkbenchPopupWindowProvider;
+import ch.sbb.scion.rcp.workbench.IWorkbenchPopupWindowProvider;
 
 @Component(service = PopupRegistry.class)
 public class PopupRegistry {
@@ -16,12 +16,12 @@ public class PopupRegistry {
   @Reference
   private IExtensionRegistry extensionRegistry;
 
-  public ISciWorkbenchPopupWindowProvider get(final String eclipsePopupId) {
+  public IWorkbenchPopupWindowProvider get(final String eclipsePopupId) {
     Objects.requireNonNull(eclipsePopupId);
     for (var configurationElement : extensionRegistry.getConfigurationElementsFor(EXTENSION_POINT_ID)) {
       if (eclipsePopupId.equals(configurationElement.getAttribute("popupId"))) {
         try {
-          return (ISciWorkbenchPopupWindowProvider) configurationElement.createExecutableExtension("class");
+          return (IWorkbenchPopupWindowProvider) configurationElement.createExecutableExtension("class");
         }
         catch (Exception e) {
           throw new RuntimeException(e);

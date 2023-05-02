@@ -17,30 +17,30 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
-import ch.sbb.scion.rcp.microfrontend.SciManifestService;
-import ch.sbb.scion.rcp.microfrontend.SciMessageClient;
-import ch.sbb.scion.rcp.microfrontend.SciOutletRouter;
-import ch.sbb.scion.rcp.microfrontend.SciOutletRouter.NavigationOptions;
-import ch.sbb.scion.rcp.microfrontend.SciRouterOutlet;
+import ch.sbb.scion.rcp.microfrontend.ManifestService;
+import ch.sbb.scion.rcp.microfrontend.MessageClient;
+import ch.sbb.scion.rcp.microfrontend.OutletRouter;
+import ch.sbb.scion.rcp.microfrontend.OutletRouter.NavigationOptions;
+import ch.sbb.scion.rcp.microfrontend.RouterOutlet;
 import ch.sbb.scion.rcp.microfrontend.model.Application;
-import ch.sbb.scion.rcp.microfrontend.model.ISubscription;
-import ch.sbb.scion.rcp.workbench.ISciWorkbenchPopupWindow;
-import ch.sbb.scion.rcp.workbench.SciWorkbenchPopupOrigin;
+import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
+import ch.sbb.scion.rcp.workbench.IWorkbenchPopupWindow;
+import ch.sbb.scion.rcp.workbench.WorkbenchPopupOrigin;
 import ch.sbb.scion.rcp.workbench.internal.CompletableFutures;
 import ch.sbb.scion.rcp.workbench.internal.ContextInjectors;
 
-public class MicrofrontendPopupDialog extends Dialog implements ISciWorkbenchPopupWindow {
+public class MicrofrontendPopupDialog extends Dialog implements IWorkbenchPopupWindow {
 
   private static final String CLOSE_WITH_ERROR = "ɵWORKBENCH-POPUP:CLOSE_WITH_ERROR";
 
   @Inject
-  private SciOutletRouter outletRouter;
+  private OutletRouter outletRouter;
 
   @Inject
-  private SciManifestService manifestService;
+  private ManifestService manifestService;
 
   @Inject
-  private SciMessageClient messageClient;
+  private MessageClient messageClient;
 
   private final Popup popup;
 
@@ -48,7 +48,7 @@ public class MicrofrontendPopupDialog extends Dialog implements ISciWorkbenchPop
 
   private boolean activated = false;
 
-  private final CompletableFuture<SciWorkbenchPopupOrigin> whenInitialOrigin = new CompletableFuture<>();
+  private final CompletableFuture<WorkbenchPopupOrigin> whenInitialOrigin = new CompletableFuture<>();
 
   public MicrofrontendPopupDialog(final Shell parentShell, final Popup popup) {
     super(parentShell);
@@ -61,10 +61,10 @@ public class MicrofrontendPopupDialog extends Dialog implements ISciWorkbenchPop
   @Override
   public void init() {
     var capability = popup.getCapability();
-    var application = CompletableFutures.await(getApplication(capability.metadata.appSymbolicName));
-    var path = (String) capability.properties.get("path");
-    outletRouter.navigate(path, new NavigationOptions().outlet(getPopupId()).relativeTo(application.baseUrl).params(popup.getParams())
-        .pushStateToSessionHistoryStack(Boolean.FALSE));
+    var application = CompletableFutures.await(getApplication(capability.metadata().appSymbolicName()));
+    var path = (String) capability.properties().get("path");
+    outletRouter.navigate(path, NavigationOptions.builder().outlet(getPopupId()).relativeTo(application.baseUrl()).params(popup.getParams())
+        .pushStateToSessionHistoryStack(Boolean.FALSE).build());
 
     subscriptions.add(installCloseListener());
     subscriptions.add(installOriginListener());
@@ -72,7 +72,7 @@ public class MicrofrontendPopupDialog extends Dialog implements ISciWorkbenchPop
 
   private CompletableFuture<Application> getApplication(final String appSymbolicName) {
     return manifestService.getApplications().thenApply(
-        applications -> applications.stream().filter(application -> appSymbolicName.equals(application.symbolicName)).findFirst().get());
+        applications -> applications.stream().filter(application -> appSymbolicName.equals(application.symbolicName())).findFirst().get());
   }
 
   private void configureShellStyle() {
@@ -86,13 +86,13 @@ public class MicrofrontendPopupDialog extends Dialog implements ISciWorkbenchPop
 
   private ISubscription installCloseListener() {
     var topic = String.format("ɵworkbench/popups/%s/close", getPopupId());
-    return messageClient.subscribe(topic, closeMessage -> {
-      if (closeMessage.headers.containsKey(CLOSE_WITH_ERROR) && ((Boolean) closeMessage.headers.get(CLOSE_WITH_ERROR)).booleanValue()) {
-        popup.closeWithException(new PopupException((String) closeMessage.body));
+    return messageClient.subscribe(topic, Object.class, closeMessage -> {
+      if (closeMessage.headers().containsKey(CLOSE_WITH_ERROR) && ((Boolean) closeMessage.headers().get(CLOSE_WITH_ERROR)).booleanValue()) {
+        popup.closeWithException(new PopupException((String) closeMessage.body()));
         return;
       }
-      popup.close(closeMessage.body);
-    }, Object.class);
+      popup.close(closeMessage.body());
+    });
   }
 
   private ISubscription installOriginListener() {
@@ -109,7 +109,7 @@ public class MicrofrontendPopupDialog extends Dialog implements ISciWorkbenchPop
         .layoutData(GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, false).create()).create(area);
 
     // Create router outlet for hosting the microfrontend:
-    var sciRouterOutlet = new SciRouterOutlet(area, SWT.NONE, getPopupId(), keystrokeTarget);
+    var sciRouterOutlet = new RouterOutlet(area, SWT.NONE, getPopupId(), keystrokeTarget);
     var initialSize = popup.getInitialSize().orElse(new Point(SWT.DEFAULT, SWT.DEFAULT));
     GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).hint(initialSize).grab(true, true).applyTo(sciRouterOutlet);
 
@@ -130,7 +130,7 @@ public class MicrofrontendPopupDialog extends Dialog implements ISciWorkbenchPop
   @Override
   protected void configureShell(final Shell newShell) {
     super.configureShell(newShell);
-    var properties = popup.getCapability().properties;
+    var properties = popup.getCapability().properties();
     newShell.setText(properties.has("title") ? properties.get("title") : "");
 
     // Track active state:
@@ -159,12 +159,12 @@ public class MicrofrontendPopupDialog extends Dialog implements ISciWorkbenchPop
     }
     // If x and y are set, then the anchor is an Element. Currently, using an Element as anchor is not supported.
     // Note that in this case top and left are also set, hence we need to check x and y first:
-    if (initialOrigin.x != null && initialOrigin.y != null) {
+    if (initialOrigin.x() != null && initialOrigin.y() != null) {
       return super.getInitialLocation(initialSize);
     }
     // Support TopLeftPoint as anchor:
-    if (initialOrigin.top != null && initialOrigin.left != null) {
-      return parentShell.toDisplay(initialOrigin.left.intValue(), initialOrigin.top.intValue());
+    if (initialOrigin.top() != null && initialOrigin.left() != null) {
+      return parentShell.toDisplay(initialOrigin.left().intValue(), initialOrigin.top().intValue());
     }
     // Any other anchors are not supported:
     return super.getInitialLocation(initialSize);
