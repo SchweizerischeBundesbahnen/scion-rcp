@@ -8,24 +8,24 @@ import javax.inject.Inject;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
-import ch.sbb.scion.rcp.microfrontend.SciOutletRouter;
-import ch.sbb.scion.rcp.microfrontend.SciOutletRouter.NavigationOptions;
-import ch.sbb.scion.rcp.microfrontend.SciRouterOutlet;
+import ch.sbb.scion.rcp.microfrontend.OutletRouter;
+import ch.sbb.scion.rcp.microfrontend.OutletRouter.NavigationOptions;
+import ch.sbb.scion.rcp.microfrontend.RouterOutlet;
 
 public class RouterOutletExample1Part {
 
   private static final String PART_ID = "ch.sbb.scion.rcp.microfrontend.app.demo.part.router-outlet-example-1";
 
   @Inject
-  private SciOutletRouter outletRouter;
+  private OutletRouter outletRouter;
 
   @PostConstruct
   public void createComposite(final Composite parent) {
-    var routerOutlet = new SciRouterOutlet(parent, SWT.NONE, PART_ID);
+    var routerOutlet = new RouterOutlet(parent, SWT.NONE, PART_ID);
     routerOutlet
         .registerKeystrokes(Set.of("keydown.m", "keydown.O", "keydown.escape", "keydown.control.alt.enter", "keydown.control.space"));
 
-    outletRouter.navigate("http://localhost:4201", new NavigationOptions().outlet(PART_ID));
+    outletRouter.navigate("http://localhost:4201", NavigationOptions.builder().outlet(PART_ID).build());
 
     routerOutlet.addListener(SWT.KeyDown, (e) -> {
       var isCtrlPressed = ((e.stateMask & SWT.CTRL) != 0);

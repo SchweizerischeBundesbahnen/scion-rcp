@@ -56,18 +56,18 @@ public class IntentMessageModel {
   }
 
   public Intent getIntent() {
-    var newIntent = new Intent().type(type.getValue());
+    var intentBuilder = Intent.builder().type(type.getValue());
     if (!qualifiers.isEmpty()) {
       var qualifier = new Qualifier();
       qualifiers.stream().forEach(x -> qualifier.set(x.getKey(), x.getValue()));
-      newIntent.qualifier(qualifier);
+      intentBuilder.qualifier(qualifier);
     }
 
     if (!params.isEmpty()) {
-      newIntent.params(params.stream().collect(Collectors.toMap(x -> x.getKey(), x -> (Object) x.getValue())));
+      intentBuilder.params(params.stream().collect(Collectors.toMap(x -> x.getKey(), x -> (Object) x.getValue())));
     }
 
-    return newIntent;
+    return intentBuilder.build();
   }
 
 }

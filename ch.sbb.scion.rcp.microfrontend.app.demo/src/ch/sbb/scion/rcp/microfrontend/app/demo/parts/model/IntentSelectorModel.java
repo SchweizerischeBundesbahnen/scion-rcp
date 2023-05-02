@@ -7,7 +7,7 @@ import org.eclipse.core.databinding.observable.list.WritableList;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.WritableValue;
 
-import ch.sbb.scion.rcp.microfrontend.SciIntentClient.IntentSelector;
+import ch.sbb.scion.rcp.microfrontend.IntentClient.IntentSelector;
 import ch.sbb.scion.rcp.microfrontend.model.Qualifier;
 
 public class IntentSelectorModel {
@@ -25,7 +25,7 @@ public class IntentSelectorModel {
   }
 
   public IntentSelector getSelector() {
-    var selector = new IntentSelector();
+    var selector = IntentSelector.builder();
     if (!type.getValue().isEmpty()) {
       selector.type(type.getValue());
     }
@@ -35,7 +35,7 @@ public class IntentSelectorModel {
       selector.qualifier(qualifier);
     }
 
-    return selector;
+    return selector.build();
   }
 
 }
