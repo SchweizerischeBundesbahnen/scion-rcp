@@ -19,7 +19,7 @@ public class QualifierTypeAdapterFactory implements TypeAdapterFactory {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
+  public <T> TypeAdapter<T> create(final Gson gson, final TypeToken<T> type) {
     if (!Qualifier.class.isAssignableFrom(type.getRawType())) {
       return null;
     }
@@ -27,7 +27,7 @@ public class QualifierTypeAdapterFactory implements TypeAdapterFactory {
     return (TypeAdapter<T>) new TypeAdapter<Qualifier>() {
 
       @Override
-      public Qualifier read(JsonReader reader) throws IOException {
+      public Qualifier read(final JsonReader reader) throws IOException {
         if (reader.peek() == JsonToken.NULL) {
           reader.nextNull();
           return null;
@@ -55,14 +55,14 @@ public class QualifierTypeAdapterFactory implements TypeAdapterFactory {
       }
 
       @Override
-      public void write(JsonWriter writer, Qualifier qualifier) throws IOException {
+      public void write(final JsonWriter writer, final Qualifier qualifier) throws IOException {
         if (qualifier == null) {
           writer.nullValue();
           return;
         }
 
         writer.beginObject();
-        for (var entry : qualifier.entries.entrySet()) {
+        for (var entry : qualifier.entries().entrySet()) {
           var key = entry.getKey();
           var value = entry.getValue();
           var valueAdapter = gson.getAdapter((Class<Object>) value.getClass());

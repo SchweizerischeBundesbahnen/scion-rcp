@@ -1,16 +1,16 @@
 package ch.sbb.scion.rcp.microfrontend.model;
 
 /**
- * @see "https://scion-microfrontend-platform-api.vercel.app/enums/MessageHeaders.html"
+ * @see <a href="https://scion-microfrontend-platform-api.vercel.app/enums/MessageHeaders.html">MessageHeaders</a>
  */
 public enum MessageHeaders {
 
-  ClientId("ɵCLIENT_ID"),
-  AppSymbolicName("ɵAPP_SYMBOLIC_NAME"),
-  MessageId("ɵMESSAGE_ID"),
-  ReplyTo("ɵREPLY_TO"),
-  Status("ɵSTATUS"),
-  Timestamp("ɵTIMESTAMP");
+  CLIENT_ID("ɵCLIENT_ID"),
+  APP_SYMBOLIC_NAME("ɵAPP_SYMBOLIC_NAME"),
+  MESSAGE_ID("ɵMESSAGE_ID"),
+  REPLY_TO("ɵREPLY_TO"),
+  STATUS("ɵSTATUS"),
+  TIMESTAMP("ɵTIMESTAMP");
 
   public final String value;
 

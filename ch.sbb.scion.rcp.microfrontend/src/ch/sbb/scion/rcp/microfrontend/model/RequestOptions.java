@@ -2,19 +2,22 @@ package ch.sbb.scion.rcp.microfrontend.model;
 
 import java.util.Map;
 
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
 /**
- * @see "https://scion-microfrontend-platform-api.vercel.app/interfaces/RequestOptions.html"
+ * @see <a href="https://scion-microfrontend-platform-api.vercel.app/interfaces/RequestOptions.html">RequestOptions</a>
  */
-public class RequestOptions extends PublishOptions {
+@NoArgsConstructor
+@ToString(callSuper = true)
+public final class RequestOptions extends PublishOptions {
 
-  @Override
-  public RequestOptions headers(final Map<String, ?> headers) {
-    return (RequestOptions) super.headers(headers);
+  public RequestOptions(final Map<String, ?> headers) {
+    super(headers);
   }
 
-  @Override
-  public RequestOptions retain(final Boolean retain) {
-    super.retain(retain);
-    return this;
+  public RequestOptions(final Map<String, ?> headers, final Boolean retain) {
+    super(headers, retain);
   }
+
 }

@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.BrowserFunction;
 
-import ch.sbb.scion.rcp.microfrontend.model.IDisposable;
+import ch.sbb.scion.rcp.microfrontend.IDisposable;
 
 /**
  * Allows interaction from JavaScript with Java code. Injects a function to the {Window} of the currently loaded document that can be

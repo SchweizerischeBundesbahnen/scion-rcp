@@ -2,13 +2,34 @@ package ch.sbb.scion.rcp.microfrontend.model;
 
 import java.util.Map;
 
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lombok.experimental.Accessors;
+
 /**
- * @see "https://scion-microfrontend-platform-api.vercel.app/interfaces/TopicMessage.html"
+ * @see <a href="https://scion-microfrontend-platform-api.vercel.app/interfaces/TopicMessage.html">TopicMessage</a>
  */
+@Accessors(fluent = true)
+@Getter
+@NoArgsConstructor
+@ToString(callSuper = true)
 public class TopicMessage<T> extends Message {
 
-  public String topic;
-  public T body;
-  public Map<String, Object> params;
-  public boolean retain;
+  private String topic;
+  private T body;
+  private Map<String, Object> params;
+  private boolean retain;
+
+  @Builder
+  private TopicMessage(final Map<String, Object> headers, final String topic, final T body, final Map<String, Object> params,
+      final boolean retain) {
+    super(headers);
+    this.topic = topic;
+    this.body = body;
+    this.params = params;
+    this.retain = retain;
+  }
+
 }

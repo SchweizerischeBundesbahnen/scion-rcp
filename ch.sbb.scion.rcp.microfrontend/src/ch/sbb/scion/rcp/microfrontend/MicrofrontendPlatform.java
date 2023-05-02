@@ -1,5 +1,6 @@
 package ch.sbb.scion.rcp.microfrontend;
 
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 import java.lang.reflect.Type;
@@ -15,7 +16,7 @@ import ch.sbb.scion.rcp.microfrontend.model.MicrofrontendPlatformConfig;
 import ch.sbb.scion.rcp.microfrontend.model.Qualifier;
 
 /**
- * @see "https://scion-microfrontend-platform-api.vercel.app/classes/MicrofrontendPlatform.html"
+ * @see <a href="https://scion-microfrontend-platform-api.vercel.app/classes/MicrofrontendPlatform.html">MicrofrontendPlatform</a>
  */
 @Component(service = MicrofrontendPlatform.class)
 public class MicrofrontendPlatform {
@@ -29,6 +30,7 @@ public class MicrofrontendPlatform {
    * @see "https://scion-microfrontend-platform-api.vercel.app/classes/MicrofrontendPlatformHost.html#start"
    */
   public CompletableFuture<Browser> startHost(final MicrofrontendPlatformConfig config) {
+    Objects.requireNonNull(config);
     return microfrontendPlatformRcpHost.start(config);
   }
 
@@ -43,6 +45,9 @@ public class MicrofrontendPlatform {
    * Registers an interceptor for intercepting messages before being dispatched. Interceptors must be registered prior to starting the host.
    */
   public <T> void registerMessageInterceptor(final String topic, final MessageInterceptor<T> interceptor, final Type payloadClazz) {
+    Objects.requireNonNull(topic);
+    Objects.requireNonNull(interceptor);
+    Objects.requireNonNull(payloadClazz);
     microfrontendPlatformRcpHost.registerMessageInterceptor(topic, interceptor, payloadClazz);
   }
 
@@ -76,6 +81,9 @@ public class MicrofrontendPlatform {
    */
   public <T> void registerIntentInterceptor(final String type, final Qualifier qualifier, final IntentInterceptor<T> interceptor,
       final Type payloadClazz) {
+    Objects.requireNonNull(type);
+    Objects.requireNonNull(interceptor);
+    Objects.requireNonNull(payloadClazz);
     microfrontendPlatformRcpHost.registerIntentInterceptor(type, qualifier, interceptor, payloadClazz);
   }
 }

@@ -1,6 +1,7 @@
 package ch.sbb.scion.rcp.microfrontend;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -16,19 +17,26 @@ import ch.sbb.scion.rcp.microfrontend.internal.Resources;
 import ch.sbb.scion.rcp.microfrontend.internal.gson.GsonFactory;
 import ch.sbb.scion.rcp.microfrontend.model.Application;
 import ch.sbb.scion.rcp.microfrontend.model.Capability;
-import ch.sbb.scion.rcp.microfrontend.model.ISubscriber;
-import ch.sbb.scion.rcp.microfrontend.model.ISubscription;
 import ch.sbb.scion.rcp.microfrontend.model.Qualifier;
 import ch.sbb.scion.rcp.microfrontend.script.Script;
 import ch.sbb.scion.rcp.microfrontend.script.Script.Flags;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Helpers;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
+import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscriber;
+import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lombok.experimental.Accessors;
 
 /**
- * @see "https://scion-microfrontend-platform-api.vercel.app/classes/ManifestService.html"
+ * @see <a href="https://scion-microfrontend-platform-api.vercel.app/classes/ManifestService.html">ManifestService</a>
  */
-@Component(service = SciManifestService.class)
-public class SciManifestService {
+@Component(service = ManifestService.class)
+public class ManifestService {
 
   private CompletableFuture<List<Application>> applications;
 
@@ -40,7 +48,7 @@ public class SciManifestService {
    */
   public CompletableFuture<List<Application>> getApplications() {
     if (applications == null) {
-      applications = new CompletableFuture<List<Application>>();
+      applications = new CompletableFuture<>();
       new JavaCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
         applications.complete(GsonFactory.create().fromJson((String) args[0], new ParameterizedType(List.class, Application.class)));
       }).installOnce().thenAccept(callback -> {
@@ -63,7 +71,8 @@ public class SciManifestService {
   /**
    * @see "https://scion-microfrontend-platform-api.vercel.app/classes/ManifestService.html#lookupCapabilities"
    */
-  public ISubscription lookupCapabilities(final ManifestObjectFilter filter, final ISubscriber<List<Capability>> listener) {
+  public ISubscription lookupCapabilities(final ManifestObjectFilter filter, final ISubscriber<List<Capability>> subscriber) {
+    Objects.requireNonNull(subscriber);
     var manifestObjectFilter = Optional.ofNullable(filter).orElse(new ManifestObjectFilter());
     var observeIIFE = new Script(Resources.readString("js/sci-manifest-service/lookup-capabilities.iife.js"))
         .replacePlaceholder("refs.ManifestService", Refs.ManifestService)
@@ -75,13 +84,14 @@ public class SciManifestService {
 
     var observable = new RxJsObservable<List<Capability>>(microfrontendPlatformRcpHost.whenHostBrowser, observeIIFE,
         new ParameterizedType(List.class, Capability.class));
-    return observable.subscribe(listener);
+    return observable.subscribe(subscriber);
   }
 
   /**
    * @see "https://scion-microfrontend-platform-api.vercel.app/classes/ManifestService.html#registerCapability"
    */
   public CompletableFuture<String> registerCapability(final Capability capability) {
+    Objects.requireNonNull(capability);
     var registered = new CompletableFuture<String>();
     new JavaCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
       var error = args[0];
@@ -139,6 +149,12 @@ public class SciManifestService {
   /**
    * @see "https://scion-microfrontend-platform-api.vercel.app/interfaces/ManifestObjectFilter.html"
    */
+  @Accessors(fluent = true)
+  @Getter
+  @NoArgsConstructor
+  @AllArgsConstructor(access = AccessLevel.PRIVATE)
+  @Builder
+  @ToString
   public static class ManifestObjectFilter {
 
     private String id;
@@ -146,40 +162,5 @@ public class SciManifestService {
     private Qualifier qualifier;
     private String appSymbolicName;
 
-    public String getId() {
-      return id;
-    }
-
-    public ManifestObjectFilter id(final String id) {
-      this.id = id;
-      return this;
-    }
-
-    public String getType() {
-      return type;
-    }
-
-    public ManifestObjectFilter type(final String type) {
-      this.type = type;
-      return this;
-    }
-
-    public Qualifier getQualifier() {
-      return qualifier;
-    }
-
-    public ManifestObjectFilter qualifier(final Qualifier qualifier) {
-      this.qualifier = qualifier;
-      return this;
-    }
-
-    public String getAppSymbolicName() {
-      return appSymbolicName;
-    }
-
-    public ManifestObjectFilter appSymbolicName(final String appSymbolicName) {
-      this.appSymbolicName = appSymbolicName;
-      return this;
-    }
   }
 }
