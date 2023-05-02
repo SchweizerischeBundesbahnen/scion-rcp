@@ -3,6 +3,9 @@ name: Build
 on:
   push
 
+env:
+  LOMBOK_VERSION: 1.18.26
+
 jobs:
   build:
     name: Build
@@ -22,11 +25,17 @@ jobs:
         distribution: temurin
         gpg-private-key: "${{ secrets.GPG_PRIVATE_KEY }}"
         gpg-passphrase: GPG_PASSPHRASE # This is actually the default value
+        
+    - name: 'Setup Lombok'
+      run: |
+        mvn -B dependency:copy -Dartifact=org.projectlombok:lombok:$LOMBOK_VERSION:jar -DoutputDirectory=. -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
+        echo "lombok=lombok-$LOMBOK_VERSION.jar" >> "$GITHUB_ENV"
 
     - name: 'Run Maven'
       run: mvn -B clean verify -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
       env:
         GPG_PASSPHRASE: "${{ secrets.GPG_PASSPHRASE }}"
+        MAVEN_OPTS: "-javaagent:${{ env.lombok }}"
       
     - name: 'Upload microfrontend library'
       uses: actions/upload-artifact@v3

@@ -73,5 +73,15 @@
 				</dependency>
 			</dependencies>
 		</location>
+		<location includeDependencyDepth="direct" includeDependencyScopes="provided" includeSource="true" label="Lombok" missingManifest="generate" type="Maven">
+			<dependencies>
+				<dependency>
+					<groupId>org.projectlombok</groupId>
+					<artifactId>lombok</artifactId>
+					<version>1.18.26</version>
+					<type>jar</type>
+				</dependency>
+			</dependencies>
+		</location>
 	</locations>
 </target>

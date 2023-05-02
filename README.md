@@ -22,6 +22,11 @@ This project is provided under the [Eclipse Public License 2.0](LICENSE)
 ### Set up the project in eclipse
 Import repository clone root folder as "Existing Projects into Workspace" and select "Search for nested projects" before clicking "Finish".
 
+#### Lombok
+We use Lombok to generate boilerplate. Lombok is compatible with various IDEs, find the setup instructions here [Lombok Eclipse Setup](https://projectlombok.org/setup/eclipse).
+
+:information_source: A remark about building the project from the command line with Maven: Lombok must be loaded as a Java Agent to do its magic. As we use Tycho for our build, this can be achieved either by setting an environment variable `MAVEN_OPTS=-javaagent:<path-to-lombok-jar>` or, since Maven 3.3.1, via a jvm.config file that contains `-javaagent:<path-to-lombok-jar>`, see [Configuring Apache Maven](https://maven.apache.org/configure.html). The Lombok jar can either be the one that was downloaded for setting up Lombok, or the one in the local m2 repository, assuming the project dependencies were already resolved.
+
 ### Build & Release
 See [build.yml](.github/workflows/build.yml) for further infos about the build.
 See [release.yml](.github/workflows/release.yml) for further infos about the release.
