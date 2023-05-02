@@ -14,14 +14,14 @@ import org.eclipse.ui.IWorkbench;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import ch.sbb.scion.rcp.microfrontend.SciMessageClient;
+import ch.sbb.scion.rcp.microfrontend.MessageClient;
 import ch.sbb.scion.rcp.microfrontend.model.Intent;
 import ch.sbb.scion.rcp.microfrontend.model.IntentMessage;
 import ch.sbb.scion.rcp.microfrontend.model.MessageHeaders;
 import ch.sbb.scion.rcp.microfrontend.model.PublishOptions;
 import ch.sbb.scion.rcp.microfrontend.model.ResponseStatusCodes;
-import ch.sbb.scion.rcp.workbench.ISciWorkbenchPopupWindow;
-import ch.sbb.scion.rcp.workbench.ISciWorkbenchPopupWindowProvider;
+import ch.sbb.scion.rcp.workbench.IWorkbenchPopupWindow;
+import ch.sbb.scion.rcp.workbench.IWorkbenchPopupWindowProvider;
 
 /**
  * Handles SCION Workbench popup intents, instructing the Eclipse Workbench to open an Eclipse dialog that displays the associated
@@ -39,18 +39,18 @@ public class PopupIntentInterceptor {
   private IWorkbench workbench;
 
   @Reference
-  private SciMessageClient messageClient;
+  private MessageClient messageClient;
 
   @Reference
   private PopupRegistry registry;
 
   public boolean handle(final IntentMessage<PopupCommand> intentMessage) {
-    var popupId = intentMessage.body.popupId;
+    var popupId = intentMessage.body().popupId;
     if (openPopupDialogs.contains(popupId)) {
       return true;
     }
 
-    var properties = intentMessage.capability.properties;
+    var properties = intentMessage.capability().properties();
     if (properties.has(PATH)) {
       consumePopupIntent(intentMessage, popup -> new MicrofrontendPopupDialog(getActiveShell(), popup));
       return true;
@@ -70,12 +70,12 @@ public class PopupIntentInterceptor {
     return window.getShell();
   }
 
-  private ISciWorkbenchPopupWindow getEclipseDialog(final Shell parentShell, final Popup popup, final String eclipsePopupId) {
+  private IWorkbenchPopupWindow getEclipseDialog(final Shell parentShell, final Popup popup, final String eclipsePopupId) {
     var provider = getPopupDialogProvider(eclipsePopupId);
     return provider.create(parentShell, popup);
   }
 
-  private ISciWorkbenchPopupWindowProvider getPopupDialogProvider(final String eclipsePopupId) {
+  private IWorkbenchPopupWindowProvider getPopupDialogProvider(final String eclipsePopupId) {
     var provider = registry.get(eclipsePopupId);
     if (provider == null) {
       throw new IllegalStateException(String.format("No ISciWorkbenchPopupWindowProvider registered by id=%s", eclipsePopupId));
@@ -84,20 +84,20 @@ public class PopupIntentInterceptor {
   }
 
   private void consumePopupIntent(final IntentMessage<PopupCommand> intentMessage,
-      final Function<Popup, ISciWorkbenchPopupWindow> popupDialogSupplier) {
+      final Function<Popup, IWorkbenchPopupWindow> popupDialogSupplier) {
     // Prepare popup attributes:
-    var popupId = intentMessage.body.popupId;
-    var closeStrategy = resolveCloseStrategy(intentMessage.body.closeStrategy);
-    var referrer = intentMessage.body.referrer;
-    var params = getParams(intentMessage.intent);
+    var popupId = intentMessage.body().popupId;
+    var closeStrategy = resolveCloseStrategy(intentMessage.body().closeStrategy);
+    var referrer = intentMessage.body().referrer;
+    var params = getParams(intentMessage.intent());
 
     // Create popup dialog:
-    var popup = Popup.builder().popupId(popupId).capability(intentMessage.capability).params(params).closeStrategy(closeStrategy)
+    var popup = Popup.builder().popupId(popupId).capability(intentMessage.capability()).params(params).closeStrategy(closeStrategy)
         .referrer(referrer).build();
     var popupDialog = popupDialogSupplier.apply(popup);
 
     // Set up on close callback:
-    var replyTo = (String) intentMessage.headers.get(MessageHeaders.ReplyTo.value);
+    var replyTo = (String) intentMessage.headers().get(MessageHeaders.REPLY_TO.value);
     popup.whenClose.whenComplete((result, ex) -> this.onClose(result, ex, popupId, popupDialog, replyTo));
 
     // Initialize and open popup dialog asynchronously to not block the intent handling:
@@ -105,7 +105,7 @@ public class PopupIntentInterceptor {
     Display.getCurrent().asyncExec(() -> openPopupDialog(popupDialog, popup));
   }
 
-  private void onClose(final Object result, final Throwable ex, final String popupId, final ISciWorkbenchPopupWindow popupDialog,
+  private void onClose(final Object result, final Throwable ex, final String popupId, final IWorkbenchPopupWindow popupDialog,
       final String replyTo) {
     popupDialog.close();
     openPopupDialogs.remove(popupId);
@@ -122,15 +122,15 @@ public class PopupIntentInterceptor {
 
   private void reply(final String replyTo, final Object result) {
     logOnException(messageClient.publish(replyTo, result,
-        new PublishOptions().headers(Map.of(MessageHeaders.Status.value, Integer.valueOf(ResponseStatusCodes.TERMINAL.value)))));
+        new PublishOptions(Map.of(MessageHeaders.STATUS.value, Integer.valueOf(ResponseStatusCodes.TERMINAL.value)))));
   }
 
   private void replyWithError(final String replyTo, final String errorMessage) {
     logOnException(messageClient.publish(replyTo, errorMessage,
-        new PublishOptions().headers(Map.of(MessageHeaders.Status.value, Integer.valueOf(ResponseStatusCodes.ERROR.value)))));
+        new PublishOptions(Map.of(MessageHeaders.STATUS.value, Integer.valueOf(ResponseStatusCodes.ERROR.value)))));
   }
 
-  private void openPopupDialog(final ISciWorkbenchPopupWindow popupDialog, final Popup popup) {
+  private void openPopupDialog(final IWorkbenchPopupWindow popupDialog, final Popup popup) {
     try {
       popupDialog.init();
       popupDialog.setBlockOnOpen(false);
@@ -151,10 +151,10 @@ public class PopupIntentInterceptor {
 
   private static Map<String, Object> getParams(final Intent intent) {
     var params = new HashMap<String, Object>();
-    if (intent.params != null) {
-      params.putAll(intent.params);
+    if (intent.params() != null) {
+      params.putAll(intent.params());
     }
-    params.putAll(intent.qualifier.entries);
+    params.putAll(intent.qualifier().entries());
     return params;
   }
 

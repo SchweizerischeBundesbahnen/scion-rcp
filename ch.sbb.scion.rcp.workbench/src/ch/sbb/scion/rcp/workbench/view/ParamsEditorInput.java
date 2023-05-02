@@ -1,4 +1,4 @@
-package ch.sbb.scion.rcp.workbench;
+package ch.sbb.scion.rcp.workbench.view;
 
 import java.util.Map;
 

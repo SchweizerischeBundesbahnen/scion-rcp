@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.3.0" name="ch.sbb.scion.rcp.workbench.popup.PopupService">
    <service>
-      <provide interface="ch.sbb.scion.rcp.workbench.ISciWorkbenchPopupService"/>
+      <provide interface="ch.sbb.scion.rcp.workbench.IWorkbenchPopupService"/>
    </service>
-   <reference cardinality="1..1" field="intentClient" interface="ch.sbb.scion.rcp.microfrontend.SciIntentClient" name="intentClient"/>
-   <reference cardinality="1..1" field="messageClient" interface="ch.sbb.scion.rcp.microfrontend.SciMessageClient" name="messageClient"/>
+   <reference cardinality="1..1" field="intentClient" interface="ch.sbb.scion.rcp.microfrontend.IntentClient" name="intentClient"/>
+   <reference cardinality="1..1" field="messageClient" interface="ch.sbb.scion.rcp.microfrontend.MessageClient" name="messageClient"/>
    <implementation class="ch.sbb.scion.rcp.workbench.popup.PopupService"/>
 </scr:component>

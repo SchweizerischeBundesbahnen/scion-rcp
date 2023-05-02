@@ -10,17 +10,21 @@ import javax.inject.Inject;
 
 import org.eclipse.swt.graphics.Point;
 
-import ch.sbb.scion.rcp.microfrontend.SciMessageClient;
+import ch.sbb.scion.rcp.microfrontend.MessageClient;
 import ch.sbb.scion.rcp.microfrontend.model.Capability;
-import ch.sbb.scion.rcp.microfrontend.model.ISubscriber;
-import ch.sbb.scion.rcp.microfrontend.model.ISubscription;
 import ch.sbb.scion.rcp.microfrontend.model.Properties;
 import ch.sbb.scion.rcp.microfrontend.model.TopicMessage;
-import ch.sbb.scion.rcp.workbench.ISciWorkbenchPopup;
-import ch.sbb.scion.rcp.workbench.SciWorkbenchPopupOrigin;
+import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscriber;
+import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
+import ch.sbb.scion.rcp.workbench.IWorkbenchPopup;
+import ch.sbb.scion.rcp.workbench.WorkbenchPopupSize;
+import ch.sbb.scion.rcp.workbench.WorkbenchPopupOrigin;
 import ch.sbb.scion.rcp.workbench.internal.ContextInjectors;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
-public class Popup implements ISciWorkbenchPopup {
+public class Popup implements IWorkbenchPopup {
 
   public final PopupInput input;
 
@@ -33,7 +37,7 @@ public class Popup implements ISciWorkbenchPopup {
   private final Point initialSize;
 
   @Inject
-  private SciMessageClient messageClient;
+  private MessageClient messageClient;
 
   private Popup(final PopupInput input, final Capability capability, final PopupCloseStrategy closeStrategy, final Point size) {
     this.input = input;
@@ -89,13 +93,13 @@ public class Popup implements ISciWorkbenchPopup {
   }
 
   @Override
-  public ISubscription observePopupOrigin(final ISubscriber<SciWorkbenchPopupOrigin> subscriber) {
+  public ISubscription observePopupOrigin(final ISubscriber<WorkbenchPopupOrigin> subscriber) {
     var topic = String.format("ɵworkbench/popups/%s/origin", input.popupId);
-    return messageClient.subscribe(topic, new ISubscriber<TopicMessage<PopupOrigin>>() {
+    return messageClient.subscribe(topic, DoublePrecisionPopupOrigin.class, new ISubscriber<TopicMessage<DoublePrecisionPopupOrigin>>() {
 
       @Override
-      public void onNext(final TopicMessage<PopupOrigin> next) {
-        subscriber.onNext(next.body == null ? null : next.body.toSciWorkbenchPopupOrigin());
+      public void onNext(final TopicMessage<DoublePrecisionPopupOrigin> next) {
+        subscriber.onNext(next.body() == null ? null : next.body().toSciWorkbenchPopupOrigin());
       }
 
       @Override
@@ -108,7 +112,7 @@ public class Popup implements ISciWorkbenchPopup {
         subscriber.onComplete();
       }
 
-    }, PopupOrigin.class);
+    });
   }
 
   public static Builder builder() {
@@ -162,7 +166,7 @@ public class Popup implements ISciWorkbenchPopup {
       Objects.requireNonNull(closeStrategy);
 
       var popupCapability = createPopupCapability(capability);
-      var initialSize = coercePoint(popupCapability.properties.get("size"));
+      var initialSize = coercePoint(popupCapability.properties().get("size"));
 
       var input = new PopupInput().popupId(popupId).capability(popupCapability).params(params).referrer(referrer)
           .closeOnFocusLost(closeStrategy.onFocusLost.booleanValue());
@@ -173,29 +177,28 @@ public class Popup implements ISciWorkbenchPopup {
 
     private static Capability createPopupCapability(final Capability capability) {
       var properties = new Properties();
-      if (capability.properties != null) {
-        properties.set("path", capability.properties.get("path")).set("size", createPopupSize(capability.properties.get("size")))
-            .set("cssClass", capability.properties.get("cssClass"));
+      if (capability.properties() != null) {
+        properties.set("path", capability.properties().get("path")).set("size", createPopupSize(capability.properties().get("size")))
+            .set("cssClass", capability.properties().get("cssClass"));
       }
 
-      var popupCapability = new Capability().type(capability.type).qualifier(capability.qualifier).params(capability.params)
-          .isPrivate(capability.isPrivate).description(capability.description).properties(properties);
-      popupCapability.metadata = capability.metadata;
-      return popupCapability;
+      return Capability.builder().type(capability.type()).qualifier(capability.qualifier()).params(capability.params())
+          .isPrivate(capability.isPrivate()).description(capability.description()).properties(properties).metadata(capability.metadata())
+          .build();
     }
 
     @SuppressWarnings("unchecked")
-    private static PopupSize createPopupSize(final Object size) {
+    private static WorkbenchPopupSize createPopupSize(final Object size) {
       if (size == null) {
         return null;
       }
       var sizeMap = (Map<String, String>) size;
-      return new PopupSize().width(sizeMap.get("width")).height(sizeMap.get("height"));
+      return WorkbenchPopupSize.builder().width(sizeMap.get("width")).height(sizeMap.get("height")).build();
     }
 
-    private static Point coercePoint(final PopupSize popupSize) {
-      return (popupSize == null || popupSize.width == null || popupSize.height == null) ? null
-          : new Point(pixelValueToInt(popupSize.width), pixelValueToInt(popupSize.height));
+    private static Point coercePoint(final WorkbenchPopupSize popupSize) {
+      return (popupSize == null || popupSize.width() == null || popupSize.height() == null) ? null
+          : new Point(pixelValueToInt(popupSize.width()), pixelValueToInt(popupSize.height()));
     }
 
     private static int pixelValueToInt(final String pixelValue) {
@@ -206,20 +209,39 @@ public class Popup implements ISciWorkbenchPopup {
 
   }
 
-  private static class PopupSize {
+  @NoArgsConstructor(access = AccessLevel.PRIVATE)
+  @AllArgsConstructor(access = AccessLevel.PRIVATE)
+  private static final class DoublePrecisionPopupOrigin {
 
-    public String width;
+    private Double x;
 
-    public String height;
+    private Double y;
 
-    public PopupSize width(final String widht) {
-      this.width = widht;
-      return this;
+    private Double top;
+
+    private Double right;
+
+    private Double bottom;
+
+    private Double left;
+
+    private Double width;
+
+    private Double height;
+
+    public WorkbenchPopupOrigin toSciWorkbenchPopupOrigin() {
+      return WorkbenchPopupOrigin.builder().x(intValueOrNull(x)).y(intValueOrNull(y)).top(intValueOrNull(top))
+          .bottom(intValueOrNull(bottom)).left(intValueOrNull(left)).width(intValueOrNull(width)).height(intValueOrNull(height)).build();
     }
 
-    public PopupSize height(final String height) {
-      this.height = height;
-      return this;
+    @Override
+    public String toString() {
+      return String.format("{x=%.4f, y=%.4f, top=%.4f, right=%.4f, bottom=%.4f, left=%.4f, width=%.4f, height=%.4f}", x, y, top, right,
+          bottom, left, width, height);
+    }
+
+    private static Integer intValueOrNull(final Double doubleValue) {
+      return doubleValue == null ? null : Integer.valueOf(doubleValue.intValue());
     }
 
   }

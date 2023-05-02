@@ -22,16 +22,16 @@ import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
-import ch.sbb.scion.rcp.microfrontend.SciManifestService;
-import ch.sbb.scion.rcp.microfrontend.SciMessageClient;
-import ch.sbb.scion.rcp.microfrontend.SciOutletRouter;
-import ch.sbb.scion.rcp.microfrontend.SciOutletRouter.NavigationOptions;
-import ch.sbb.scion.rcp.microfrontend.SciRouterOutlet;
+import ch.sbb.scion.rcp.microfrontend.ManifestService;
+import ch.sbb.scion.rcp.microfrontend.MessageClient;
+import ch.sbb.scion.rcp.microfrontend.OutletRouter;
+import ch.sbb.scion.rcp.microfrontend.OutletRouter.NavigationOptions;
+import ch.sbb.scion.rcp.microfrontend.RouterOutlet;
 import ch.sbb.scion.rcp.microfrontend.model.Application;
-import ch.sbb.scion.rcp.microfrontend.model.ISubscription;
 import ch.sbb.scion.rcp.microfrontend.model.MessageHeaders;
 import ch.sbb.scion.rcp.microfrontend.model.PublishOptions;
 import ch.sbb.scion.rcp.microfrontend.model.ResponseStatusCodes;
+import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
 import ch.sbb.scion.rcp.workbench.internal.CompletableFutures;
 import ch.sbb.scion.rcp.workbench.internal.ContextInjectors;
 
@@ -43,15 +43,15 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
   public static final String ID = "ch.sbb.scion.rcp.workbench.editors.MicrofrontendViewEditor";
 
   @Inject
-  private SciOutletRouter outletRouter;
+  private OutletRouter outletRouter;
 
   @Inject
-  private SciManifestService manifestService;
+  private ManifestService manifestService;
 
   @Inject
-  private SciMessageClient messageClient;
+  private MessageClient messageClient;
 
-  private SciRouterOutlet sciRouterOutlet;
+  private RouterOutlet sciRouterOutlet;
   private CompletableFuture<Map<String, Application>> applications;
   private boolean dirty;
 
@@ -64,7 +64,7 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
   @Override
   public void init(final IEditorSite site, final IEditorInput input) throws PartInitException {
     applications = manifestService.getApplications().thenApply(applications -> {
-      return applications.stream().collect(Collectors.toMap(a -> a.symbolicName, Function.identity()));
+      return applications.stream().collect(Collectors.toMap(Application::symbolicName, Function.identity()));
     });
     setSite(site);
     setInput(input);
@@ -85,44 +85,44 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
     var capability = getEditorInput().capability;
 
     // Check if navigating to a new microfrontend.
-    if (prevCapability == null || !prevCapability.metadata.id.equals(capability.metadata.id)) {
-      setPartName(capability.properties.get("title"));
+    if (prevCapability == null || !prevCapability.metadata().id().equals(capability.metadata().id())) {
+      setPartName(capability.properties().get("title"));
       // TODO [ISW] Tooltip not displayed on the Eclipse tab
-      setTitleToolTip(capability.properties.get("heading"));
+      setTitleToolTip(capability.properties().get("heading"));
     }
 
     // Provide params and qualifier to the microfrontend.
     var params = new HashMap<String, Object>();
-    params.putAll(intent.params);
-    params.putAll(intent.qualifier.entries);
-    params.put("ɵViewCapabilityId", capability.metadata.id);
-    messageClient.publish(computeViewParamsTopic(), params, new PublishOptions().retain(Boolean.TRUE));
+    params.putAll(intent.params());
+    params.putAll(intent.qualifier().entries());
+    params.put("ɵViewCapabilityId", capability.metadata().id());
+    messageClient.publish(computeViewParamsTopic(), params, new PublishOptions(true));
 
     // When navigating to another view capability of the same app, wait until transported the params to consumers before loading the
     // new microfrontend into the iframe, allowing the currently loaded microfrontend to cleanup subscriptions. Params include the
     // capability id.
-    if (prevCapability != null && prevCapability.metadata.appSymbolicName.equals(capability.metadata.appSymbolicName)
-        && !prevCapability.metadata.id.equals(capability.metadata.id)) {
-      waitForCapabilityParam(capability.metadata.id);
+    if (prevCapability != null && prevCapability.metadata().appSymbolicName().equals(capability.metadata().appSymbolicName())
+        && !prevCapability.metadata().id().equals(capability.metadata().id())) {
+      waitForCapabilityParam(capability.metadata().id());
     }
 
     // Signal that the currently loaded microfrontend, if any, is about to be replaced by a microfrontend of another application.
-    if (prevCapability != null && !prevCapability.metadata.appSymbolicName.equals(capability.metadata.appSymbolicName)) {
+    if (prevCapability != null && !prevCapability.metadata().appSymbolicName().equals(capability.metadata().appSymbolicName())) {
       var topic = String.format("ɵworkbench/views/%s/unloading", getSciViewId());
       CompletableFutures.await(messageClient.publish(topic));
     }
 
     // Load the microfrontend
     var applications = CompletableFutures.await(this.applications);
-    var appSymbolicName = capability.metadata.appSymbolicName;
-    var path = (String) capability.properties.get("path");
-    outletRouter.navigate(path, new NavigationOptions().outlet(getSciViewId()).relativeTo(applications.get(appSymbolicName).baseUrl)
-        .params(params).pushStateToSessionHistoryStack(Boolean.TRUE));
+    var appSymbolicName = capability.metadata().appSymbolicName();
+    var path = (String) capability.properties().get("path");
+    outletRouter.navigate(path, NavigationOptions.builder().outlet(getSciViewId()).relativeTo(applications.get(appSymbolicName).baseUrl())
+        .params(params).pushStateToSessionHistoryStack(Boolean.TRUE).build());
   }
 
   @Override
   public void createPartControl(final Composite parent) {
-    sciRouterOutlet = new SciRouterOutlet(parent, SWT.NONE, getSciViewId());
+    sciRouterOutlet = new RouterOutlet(parent, SWT.NONE, getSciViewId());
     sciRouterOutlet.setContextValue("ɵworkbench.view.id", getSciViewId());
   }
 
@@ -152,14 +152,14 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
   @Override
   public void partVisible(final IWorkbenchPartReference partRef) {
     if (partRef.getPart(false) == this) {
-      messageClient.publish(computeViewActiveTopic(), Boolean.TRUE, new PublishOptions().retain(Boolean.TRUE));
+      messageClient.publish(computeViewActiveTopic(), Boolean.TRUE, new PublishOptions(true));
     }
   }
 
   @Override
   public void partHidden(final IWorkbenchPartReference partRef) {
     if (partRef.getPart(false) == this) {
-      messageClient.publish(computeViewActiveTopic(), Boolean.FALSE, new PublishOptions().retain(Boolean.TRUE));
+      messageClient.publish(computeViewActiveTopic(), Boolean.FALSE, new PublishOptions(true));
     }
   }
 
@@ -170,31 +170,31 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
 
   private void installViewTitleUpdater() {
     var topic = String.format("ɵworkbench/views/%s/title", getSciViewId());
-    subscriptions.add(messageClient.subscribe(topic, message -> setPartName(message.body)));
+    subscriptions.add(messageClient.subscribe(topic, message -> setPartName(message.body())));
   }
 
   private void installViewHeadingUpdater() {
     var topic = String.format("ɵworkbench/views/%s/heading", getSciViewId());
-    subscriptions.add(messageClient.subscribe(topic, message -> setTitleToolTip(message.body)));
+    subscriptions.add(messageClient.subscribe(topic, message -> setTitleToolTip(message.body())));
   }
 
   private void installViewDirtyUpdater() {
     var topic = String.format("ɵworkbench/views/%s/dirty", getSciViewId());
-    subscriptions.add(messageClient.subscribe(topic, message -> {
-      dirty = message.body.booleanValue();
+    subscriptions.add(messageClient.subscribe(topic, Boolean.class, message -> {
+      dirty = message.body().booleanValue();
       firePropertyChange(IEditorPart.PROP_DIRTY);
-    }, Boolean.class));
+    }));
   }
 
   private void installParamsUpdater() {
     var topic = String.format("ɵworkbench/views/%s/capabilities/:capabilityId/params/update", getSciViewId());
 
-    subscriptions.add(messageClient.subscribe(topic, message -> {
-      var replyTo = (String) message.headers.get(MessageHeaders.ReplyTo.value);
+    subscriptions.add(messageClient.subscribe(topic, Map.class, message -> {
+      var replyTo = (String) message.headers().get(MessageHeaders.REPLY_TO.value);
       var error = "Self navigation is not supported by the SCION RCP Workbench. This feature is expected to be removed from the SCION Workbench.";
       messageClient.publish(replyTo, error,
-          new PublishOptions().headers(Map.of(MessageHeaders.Status.value, Integer.valueOf(ResponseStatusCodes.ERROR.value))));
-    }, Map.class));
+          new PublishOptions(Map.of(MessageHeaders.STATUS.value, Integer.valueOf(ResponseStatusCodes.ERROR.value))));
+    }));
   }
 
   private String computeViewParamsTopic() {
@@ -211,11 +211,11 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
 
   private void waitForCapabilityParam(final String capabilityId) {
     var future = new CompletableFuture<Void>();
-    var subscription = messageClient.subscribe(computeViewParamsTopic(), message -> {
-      if (capabilityId.equals(message.body.get("ɵViewCapabilityId"))) {
+    var subscription = messageClient.subscribe(computeViewParamsTopic(), Map.class, message -> {
+      if (capabilityId.equals(message.body().get("ɵViewCapabilityId"))) {
         future.complete(null);
       }
-    }, Map.class);
+    });
     try {
       CompletableFutures.await(future);
     }
@@ -230,7 +230,7 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
     getSite().getPage().removePartListener(this);
     subscriptions.forEach(ISubscription::unsubscribe);
     // Delete retained messages
-    messageClient.publish(computeViewParamsTopic(), null, new PublishOptions().retain(Boolean.TRUE));
-    messageClient.publish(computeViewActiveTopic(), null, new PublishOptions().retain(Boolean.TRUE));
+    messageClient.publish(computeViewParamsTopic(), null, new PublishOptions(true));
+    messageClient.publish(computeViewActiveTopic(), null, new PublishOptions(true));
   }
 }

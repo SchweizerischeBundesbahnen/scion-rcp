@@ -10,7 +10,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import ch.sbb.scion.rcp.microfrontend.MicrofrontendPlatform;
-import ch.sbb.scion.rcp.microfrontend.SciMessageClient;
+import ch.sbb.scion.rcp.microfrontend.MessageClient;
 import ch.sbb.scion.rcp.microfrontend.interceptor.InterceptorChain;
 import ch.sbb.scion.rcp.microfrontend.model.IntentMessage;
 import ch.sbb.scion.rcp.workbench.popup.PopupCommand;
@@ -24,7 +24,7 @@ public class ScionWorkbenchInitializer {
   private MicrofrontendPlatform microfrontendPlatform;
 
   @Reference
-  private SciMessageClient messageClient;
+  private MessageClient messageClient;
 
   @Activate
   private void activate() {

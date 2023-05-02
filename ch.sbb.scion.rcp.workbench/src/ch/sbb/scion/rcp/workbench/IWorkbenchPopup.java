@@ -6,15 +6,15 @@ import java.util.Optional;
 import org.eclipse.swt.graphics.Point;
 
 import ch.sbb.scion.rcp.microfrontend.model.Capability;
-import ch.sbb.scion.rcp.microfrontend.model.ISubscriber;
-import ch.sbb.scion.rcp.microfrontend.model.ISubscription;
+import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscriber;
+import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
 
 /**
  * Provides means to interact with the RCP Scion Workbench Popup capability implementation. Dialogs that are intended to behave like Scion
  * Workbench Popups should get an instance of this interface to implement the Scion Workbench Popup functionalities. An instance of this
- * interface will be passed to the {@link ISciWorkbenchPopupWindowProvider} by the RCP Scion Workbench host.
+ * interface will be passed to the {@link IWorkbenchPopupWindowProvider} by the RCP Scion Workbench host.
  */
-public interface ISciWorkbenchPopup {
+public interface IWorkbenchPopup {
 
   /**
    * @return the unique id of this popup, never null
@@ -57,7 +57,7 @@ public interface ISciWorkbenchPopup {
    *
    * @return a subscription that can be used to unsubscribe from the popup origin topic
    */
-  ISubscription observePopupOrigin(ISubscriber<SciWorkbenchPopupOrigin> subscriber);
+  ISubscription observePopupOrigin(ISubscriber<WorkbenchPopupOrigin> subscriber);
 
   /**
    * Closes the popup and replies to the popup request with the provided result. The result may be null.
