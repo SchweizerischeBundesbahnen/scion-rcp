@@ -9,18 +9,20 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.jface,
  org.eclipse.e4.core.di,
  org.eclipse.e4.core.contexts,
- com.google.gson
+ com.google.gson,
+ wrapped.org.projectlombok.lombok;resolution:=optional
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Automatic-Module-Name: rcp.microfrontend
 Bundle-ActivationPolicy: lazy
 Export-Package: ch.sbb.scion.rcp.microfrontend,
  ch.sbb.scion.rcp.microfrontend.interceptor,
- ch.sbb.scion.rcp.microfrontend.model
-Service-Component: OSGI-INF/ch.sbb.scion.rcp.microfrontend.MicrofrontendPlatform.xml,
- OSGI-INF/ch.sbb.scion.rcp.microfrontend.SciIntentClient.xml,
- OSGI-INF/ch.sbb.scion.rcp.microfrontend.SciManifestService.xml,
- OSGI-INF/ch.sbb.scion.rcp.microfrontend.SciMessageClient.xml,
- OSGI-INF/ch.sbb.scion.rcp.microfrontend.SciOutletRouter.xml,
+ ch.sbb.scion.rcp.microfrontend.model,
+ ch.sbb.scion.rcp.microfrontend.subscriber
+Service-Component: OSGI-INF/ch.sbb.scion.rcp.microfrontend.IntentClient.xml,
+ OSGI-INF/ch.sbb.scion.rcp.microfrontend.ManifestService.xml,
+ OSGI-INF/ch.sbb.scion.rcp.microfrontend.MessageClient.xml,
+ OSGI-INF/ch.sbb.scion.rcp.microfrontend.MicrofrontendPlatform.xml,
+ OSGI-INF/ch.sbb.scion.rcp.microfrontend.OutletRouter.xml,
  OSGI-INF/ch.sbb.scion.rcp.microfrontend.host.IntentInterceptorInstaller.xml,
  OSGI-INF/ch.sbb.scion.rcp.microfrontend.host.MessageInterceptorInstaller.xml,
  OSGI-INF/ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost.xml,

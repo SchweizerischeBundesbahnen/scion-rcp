@@ -47,7 +47,7 @@ public class PropertiesTypeAdapterFactory implements TypeAdapterFactory {
           return;
         }
 
-        defaultMapAdapter.write(writer, properties.entries);
+        defaultMapAdapter.write(writer, properties.entries());
       }
     };
   }

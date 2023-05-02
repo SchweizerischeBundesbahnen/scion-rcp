@@ -1,6 +1,7 @@
 package ch.sbb.scion.rcp.microfrontend;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -15,12 +16,19 @@ import ch.sbb.scion.rcp.microfrontend.model.Qualifier;
 import ch.sbb.scion.rcp.microfrontend.script.Script.Flags;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Helpers;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lombok.experimental.Accessors;
 
 /**
- * @see "https://scion-microfrontend-platform-api.vercel.app/classes/OutletRouter.html"
+ * @see <a href="https://scion-microfrontend-platform-api.vercel.app/classes/OutletRouter.html">OutletRouter</a>
  */
-@Component(service = SciOutletRouter.class)
-public class SciOutletRouter {
+@Component(service = OutletRouter.class)
+public class OutletRouter {
 
   @Reference
   private MicrofrontendPlatformRcpHost microfrontendPlatformRcpHost;
@@ -54,6 +62,7 @@ public class SciOutletRouter {
   }
 
   private CompletableFuture<Void> navigateInternal(final Object target, final NavigationOptions navigationOptions) {
+    Objects.requireNonNull(target);
     var options = Optional.ofNullable(navigationOptions).orElse(new NavigationOptions());
 
     var navigated = new CompletableFuture<Void>();
@@ -82,6 +91,12 @@ public class SciOutletRouter {
   /**
    * @see "https://scion-microfrontend-platform-api.vercel.app/interfaces/NavigationOptions.html"
    */
+  @Accessors(fluent = true)
+  @Getter
+  @NoArgsConstructor
+  @AllArgsConstructor(access = AccessLevel.PRIVATE)
+  @Builder
+  @ToString
   public static class NavigationOptions {
 
     private String outlet;
@@ -89,24 +104,5 @@ public class SciOutletRouter {
     private Map<String, ?> params;
     private Boolean pushStateToSessionHistoryStack;
 
-    public NavigationOptions outlet(final String outlet) {
-      this.outlet = outlet;
-      return this;
-    }
-
-    public NavigationOptions relativeTo(final String relativeTo) {
-      this.relativeTo = relativeTo;
-      return this;
-    }
-
-    public NavigationOptions params(final Map<String, ?> params) {
-      this.params = params;
-      return this;
-    }
-
-    public NavigationOptions pushStateToSessionHistoryStack(final Boolean pushStateToSessionHistoryStack) {
-      this.pushStateToSessionHistoryStack = pushStateToSessionHistoryStack;
-      return this;
-    }
   }
 }

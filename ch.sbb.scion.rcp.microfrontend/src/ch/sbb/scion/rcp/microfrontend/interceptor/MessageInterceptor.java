@@ -6,6 +6,8 @@ import ch.sbb.scion.rcp.microfrontend.model.TopicMessage;
 /**
  * Allows intercepting messages prior to their publication. Interceptors are to be registered via
  * {@link MicrofrontendPlatform#registerMessageInterceptor} prior to starting the host.
+ *
+ * @see <a href="https://scion-microfrontend-platform-api.vercel.app/classes/MessageInterceptor.html">MessageInterceptor</a>
  */
 public interface MessageInterceptor<T> {
 

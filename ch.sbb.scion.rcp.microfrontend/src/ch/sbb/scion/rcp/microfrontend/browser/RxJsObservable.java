@@ -8,15 +8,15 @@ import java.util.concurrent.CompletableFuture;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.browser.Browser;
 
-import ch.sbb.scion.rcp.microfrontend.SciMessageClient;
+import ch.sbb.scion.rcp.microfrontend.IDisposable;
+import ch.sbb.scion.rcp.microfrontend.MessageClient;
 import ch.sbb.scion.rcp.microfrontend.internal.ParameterizedType;
 import ch.sbb.scion.rcp.microfrontend.internal.Resources;
 import ch.sbb.scion.rcp.microfrontend.internal.gson.GsonFactory;
-import ch.sbb.scion.rcp.microfrontend.model.IDisposable;
-import ch.sbb.scion.rcp.microfrontend.model.ISubscriber;
-import ch.sbb.scion.rcp.microfrontend.model.ISubscription;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Helpers;
+import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscriber;
+import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
 
 /**
  * Subscribes to an RxJS Observable in the browser.
@@ -57,7 +57,7 @@ public class RxJsObservable<T> {
         }
       }
       catch (RuntimeException e) {
-        Platform.getLog(SciMessageClient.class).error("Unhandled error in callback", e);
+        Platform.getLog(MessageClient.class).error("Unhandled error in callback", e);
       }
     }).addTo(disposables).install().thenAccept(callback -> {
       var uuid = UUID.randomUUID();

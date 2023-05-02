@@ -5,6 +5,7 @@ import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -34,7 +35,6 @@ import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
 import ch.sbb.scion.rcp.microfrontend.internal.ContextInjectors;
 import ch.sbb.scion.rcp.microfrontend.internal.Resources;
 import ch.sbb.scion.rcp.microfrontend.model.Application;
-import ch.sbb.scion.rcp.microfrontend.model.IDisposable;
 import ch.sbb.scion.rcp.microfrontend.model.MessageHeaders;
 import ch.sbb.scion.rcp.microfrontend.proxy.RouterOutletProxy;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts;
@@ -43,9 +43,9 @@ import ch.sbb.scion.rcp.microfrontend.script.Scripts.Helpers;
 /**
  * Widget to display a microfrontend. This widget acts as proxy for the SCION <sci-router-outlet> web component.
  *
- * @see "https://scion-microfrontend-platform-api.vercel.app/classes/SciRouterOutletElement.html"
+ * @see <a href="https://scion-microfrontend-platform-api.vercel.app/classes/SciRouterOutletElement.html">SciRouterOutletElement</a>
  */
-public class SciRouterOutlet extends Composite implements DisposeListener {
+public final class RouterOutlet extends Composite implements DisposeListener {
 
   private static final boolean BRIDGE_LOGGER_ENABLED = false;
 
@@ -59,18 +59,19 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
   private final Set<String> keystrokes = new HashSet<>();
 
   @Inject
-  private SciMessageClient messageClient;
+  private MessageClient messageClient;
 
   @Inject
-  private SciManifestService manifestService;
+  private ManifestService manifestService;
 
-  public SciRouterOutlet(final Composite parent, final int style, final String outletName) {
+  public RouterOutlet(final Composite parent, final int style, final String outletName) {
     this(parent, style, outletName, null);
   }
 
-  public SciRouterOutlet(final Composite parent, final int style, final String outletName, final Control keystrokeTarget) {
+  public RouterOutlet(final Composite parent, final int style, final String outletName, final Control keystrokeTarget) {
     super(parent, style);
     ContextInjectors.inject(this);
+    Objects.requireNonNull(outletName);
 
     setLayout(new FillLayout());
     addDisposeListener(this);
@@ -110,20 +111,20 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
       }
 
       try {
-        url = new URL(Optional.ofNullable(event.body).orElse("about:blank"));
+        url = new URL(Optional.ofNullable(event.body()).orElse("about:blank"));
 
         if (url.equals(prevUrl)) {
           return;
         }
 
-        var pushStateToSessionHistoryStack = Optional.ofNullable(event.headers.get("ɵPUSH_STATE_TO_SESSION_HISTORY_STACK"))
+        var pushStateToSessionHistoryStack = Optional.ofNullable(event.headers().get("ɵPUSH_STATE_TO_SESSION_HISTORY_STACK"))
             .orElse(Boolean.FALSE);
         new JavaScriptExecutor(browser, Resources.readString("js/sci-router-outlet/navigate.js")).replacePlaceholder("url", url)
             .replacePlaceholder("pushStateToSessionHistoryStack", pushStateToSessionHistoryStack).execute()
             .thenRun(() -> loadListeners.forEach(listener -> listener.onLoad(url)));
       }
       catch (MalformedURLException e) {
-        Platform.getLog(SciRouterOutlet.class).error(String.format("Failed to navigate in outlet [outlet=%s]", outletName), e);
+        Platform.getLog(RouterOutlet.class).error(String.format("Failed to navigate in outlet [outlet=%s]", outletName), e);
       }
     });
 
@@ -141,7 +142,7 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
       // Prevent infinite cycle:
       if (browser.isFocusControl()) {
         throw new IllegalStateException(
-            "Browser has focus. Make sure that the keystrokeTarget is not a parent of this SciRouterOutlet and," + //  
+            "Browser has focus. Make sure that the keystrokeTarget is not a parent of this SciRouterOutlet and," + //
                 "that the keystrokeTarget can gain focus; i.e., it does not have the SWT.NO_FOCUS style bit set.");
       }
       getDisplay().post(event);
@@ -149,11 +150,13 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
   }
 
   public IDisposable onLoad(final LoadListener listener) {
+    Objects.requireNonNull(listener);
     loadListeners.add(listener);
     return () -> loadListeners.remove(listener);
   }
 
   public IDisposable onUnload(final UnloadListener listener) {
+    Objects.requireNonNull(listener);
     unloadListeners.add(listener);
     return () -> unloadListeners.remove(listener);
   }
@@ -162,6 +165,7 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
    * Instructs the web application loaded into the outlet to dispatch given keystrokes.
    */
   public CompletableFuture<Void> registerKeystroke(final String keystroke) {
+    Objects.requireNonNull(keystroke);
     return registerKeystrokes(Set.of(keystroke));
   }
 
@@ -169,15 +173,18 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
    * Instructs the web application loaded into the outlet to dispatch given keystrokes.
    */
   public CompletableFuture<Void> registerKeystrokes(final Set<String> keystrokes) {
+    Objects.requireNonNull(keystrokes);
     this.keystrokes.addAll(keystrokes);
     return routerOutletProxy.registerKeystrokes(this.keystrokes);
   }
 
   public CompletableFuture<Void> unregisterKeystroke(final String keystroke) {
+    Objects.requireNonNull(keystroke);
     return unregisterKeystrokes(Set.of(keystroke));
   }
 
   public CompletableFuture<Void> unregisterKeystrokes(final Set<String> keystrokes) {
+    Objects.requireNonNull(keystrokes);
     this.keystrokes.removeAll(keystrokes);
     return routerOutletProxy.registerKeystrokes(this.keystrokes);
   }
@@ -189,6 +196,8 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
    * @see "https://scion-microfrontend-platform-api.vercel.app/classes/SciRouterOutletElement.html#setContextValue"
    */
   public CompletableFuture<Void> setContextValue(final String name, final Object value) {
+    Objects.requireNonNull(name);
+    Objects.requireNonNull(value);
     return routerOutletProxy.setContextValue(name, value);
   }
 
@@ -201,6 +210,7 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
    * @see "https://scion-microfrontend-platform-api.vercel.app/classes/SciRouterOutletElement.html#removeContextValue"
    */
   public CompletableFuture<Boolean> removeContextValue(final String name) {
+    Objects.requireNonNull(name);
     return routerOutletProxy.removeContextValue(name);
   }
 
@@ -223,25 +233,25 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
         // Also, when registering the applications, we set the applications "actual" message origin to the origin
         // of the host as SCION would reject messages otherwise.
         if (sender == null && !trustedOrigins.containsValue(origin)) {
-          Platform.getLog(SciRouterOutlet.class)
+          Platform.getLog(RouterOutlet.class)
               .info(String.format("[BLOCKED] Request blocked. Wrong origin [actual='%s', expectedOneOf='%s', envelope='%s']", origin,
                   trustedOrigins.values(), decodeBase64(base64json)));
           disposables.forEach(IDisposable::dispose);
         }
         else if (sender != null && !trustedOrigins.containsKey(sender)) {
-          Platform.getLog(SciRouterOutlet.class).info(
+          Platform.getLog(RouterOutlet.class).info(
               String.format("[BLOCKED] Request blocked. Unknown application [app='%s', envelope='%s']", sender, decodeBase64(base64json)));
           disposables.forEach(IDisposable::dispose);
         }
         else if (sender != null && !origin.equals(trustedOrigins.get(sender))) {
-          Platform.getLog(SciRouterOutlet.class)
+          Platform.getLog(RouterOutlet.class)
               .info(String.format("[BLOCKED] Request blocked. Wrong origin [app='%s', actual='%s', expected='%s', envelope='%s']", sender,
                   origin, trustedOrigins.get(sender), decodeBase64(base64json)));
           disposables.forEach(IDisposable::dispose);
         }
         else {
           if (BRIDGE_LOGGER_ENABLED) {
-            Platform.getLog(SciRouterOutlet.class).info("[SciBridge] [client=>host] " + decodeBase64(base64json));
+            Platform.getLog(RouterOutlet.class).info("[SciBridge] [client=>host] " + decodeBase64(base64json));
           }
           routerOutletProxy.postJsonMessage(base64json);
         }
@@ -249,7 +259,7 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
         var uuid = UUID.randomUUID();
         new JavaScriptExecutor(browser, Resources.readString("js/sci-router-outlet/install-client-message-dispatcher.js"))
             .replacePlaceholder("callback", callback.name).replacePlaceholder("helpers.toJson", Helpers.toJson)
-            .replacePlaceholder("headers.AppSymbolicName", MessageHeaders.AppSymbolicName).replacePlaceholder("storage", Scripts.Storage)
+            .replacePlaceholder("headers.AppSymbolicName", MessageHeaders.APP_SYMBOLIC_NAME).replacePlaceholder("storage", Scripts.Storage)
             .replacePlaceholder("uninstallStorageKey", uuid).execute();
 
         disposables
@@ -267,7 +277,7 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
   private IDisposable installSciRouterOutletToClientMessageDispatcher() {
     return routerOutletProxy.onMessage(base64json -> {
       if (BRIDGE_LOGGER_ENABLED) {
-        Platform.getLog(SciRouterOutlet.class).info("[SciBridge] [host=>client] " + decodeBase64(base64json));
+        Platform.getLog(RouterOutlet.class).info("[SciBridge] [host=>client] " + decodeBase64(base64json));
       }
 
       new JavaScriptExecutor(browser, "window.postMessage(/@@helpers.fromJson@@/('/@@base64json@@/', {decode: true}));")
@@ -279,9 +289,9 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
    * Creates a {@link Map} with the origins of the passed applications.
    */
   private Map<String, String> getTrustedOrigins(final List<Application> applications) {
-    return applications.stream().collect(Collectors.toMap(app -> app.symbolicName, app -> {
+    return applications.stream().collect(Collectors.toMap(Application::symbolicName, app -> {
       try {
-        var url = new URL(app.baseUrl);
+        var url = new URL(app.baseUrl());
         if (url.getPort() == -1) {
           return url.getProtocol() + "://" + url.getHost();
         }
@@ -300,7 +310,7 @@ public class SciRouterOutlet extends Composite implements DisposeListener {
       return URLDecoder.decode(new String(Base64.getUrlDecoder().decode(base64)), "utf-8");
     }
     catch (UnsupportedEncodingException | RuntimeException e) {
-      Platform.getLog(SciRouterOutlet.class).info("[SciRouterOutlet] Failed to decode base64-encoded value: " + base64, e);
+      Platform.getLog(RouterOutlet.class).info("[SciRouterOutlet] Failed to decode base64-encoded value: " + base64, e);
       return null;
     }
   }

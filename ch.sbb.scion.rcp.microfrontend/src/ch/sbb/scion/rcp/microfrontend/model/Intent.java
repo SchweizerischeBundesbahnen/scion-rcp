@@ -2,39 +2,27 @@ package ch.sbb.scion.rcp.microfrontend.model;
 
 import java.util.Map;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lombok.experimental.Accessors;
+
 /**
- * @see "https://scion-microfrontend-platform-api.vercel.app/interfaces/Intent.html"
+ * @see <a href="https://scion-microfrontend-platform-api.vercel.app/interfaces/Intent.html">Intent</a>
  */
+@Accessors(fluent = true)
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
+@ToString
 public class Intent {
 
-  public String type;
-  public Qualifier qualifier;
-  public Map<String, Object> params;
+  private String type;
+  private Qualifier qualifier;
+  private Map<String, Object> params;
 
-  public String getType() {
-    return type;
-  }
-
-  public Intent type(final String type) {
-    this.type = type;
-    return this;
-  }
-
-  public Qualifier getQualifier() {
-    return qualifier;
-  }
-
-  public Intent qualifier(final Qualifier qualifier) {
-    this.qualifier = qualifier;
-    return this;
-  }
-
-  public Map<String, Object> getParams() {
-    return params;
-  }
-
-  public Intent params(final Map<String, Object> params) {
-    this.params = params;
-    return this;
-  }
 }

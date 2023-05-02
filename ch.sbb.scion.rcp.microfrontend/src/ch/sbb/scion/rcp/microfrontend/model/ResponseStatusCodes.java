@@ -1,7 +1,7 @@
 package ch.sbb.scion.rcp.microfrontend.model;
 
 /**
- * @see "https://scion-microfrontend-platform-api.vercel.app/enums/ResponseStatusCodes.html"
+ * @see <a href="https://scion-microfrontend-platform-api.vercel.app/enums/ResponseStatusCodes.html">ResponseStatusCodes</a>
  */
 public enum ResponseStatusCodes {
 

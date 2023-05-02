@@ -1,4 +1,4 @@
-package ch.sbb.scion.rcp.microfrontend.model;
+package ch.sbb.scion.rcp.microfrontend.subscriber;
 
 import org.eclipse.core.runtime.Platform;
 

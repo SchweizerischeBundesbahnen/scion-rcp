@@ -1,14 +1,25 @@
 package ch.sbb.scion.rcp.microfrontend.model;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.ToString;
+
 /**
- * @see "https://scion-microfrontend-platform-api.vercel.app/interfaces/Qualifier.html"
+ * @see <a href="https://scion-microfrontend-platform-api.vercel.app/interfaces/Qualifier.html">Qualifier</a>
  */
+@ToString
 public class Qualifier {
 
-  public Map<String, Object> entries = new HashMap<>();
+  private final Map<String, Object> entries = new HashMap<>();
+
+  /**
+   * @return an unmodifiable view of the inserted entries
+   */
+  public Map<String, Object> entries() {
+    return Collections.unmodifiableMap(entries);
+  }
 
   public Qualifier set(final String key, final String value) {
     entries.put(key, value);
@@ -24,4 +35,5 @@ public class Qualifier {
     entries.put(key, Boolean.valueOf(value));
     return this;
   }
+
 }

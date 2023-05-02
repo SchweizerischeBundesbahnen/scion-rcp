@@ -1,5 +1,6 @@
 package ch.sbb.scion.rcp.microfrontend;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -15,8 +16,6 @@ import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost;
 import ch.sbb.scion.rcp.microfrontend.internal.ParameterizedType;
 import ch.sbb.scion.rcp.microfrontend.internal.Resources;
 import ch.sbb.scion.rcp.microfrontend.internal.gson.GsonFactory;
-import ch.sbb.scion.rcp.microfrontend.model.ISubscriber;
-import ch.sbb.scion.rcp.microfrontend.model.ISubscription;
 import ch.sbb.scion.rcp.microfrontend.model.Intent;
 import ch.sbb.scion.rcp.microfrontend.model.IntentMessage;
 import ch.sbb.scion.rcp.microfrontend.model.PublishOptions;
@@ -27,12 +26,21 @@ import ch.sbb.scion.rcp.microfrontend.script.Script;
 import ch.sbb.scion.rcp.microfrontend.script.Script.Flags;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Helpers;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
+import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscriber;
+import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lombok.experimental.Accessors;
 
 /**
- * @see "https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html"
+ * @see <a href="https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html">IntentClient</a>
  */
-@Component(service = SciIntentClient.class)
-public class SciIntentClient {
+@Component(service = IntentClient.class)
+public class IntentClient {
 
   @Reference
   private MicrofrontendPlatformRcpHost microfrontendPlatformRcpHost;
@@ -83,6 +91,8 @@ public class SciIntentClient {
    * @see "https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#observe_"
    */
   public <T> ISubscription subscribe(IntentSelector selector, final Class<T> clazz, final ISubscriber<IntentMessage<T>> subscriber) {
+    Objects.requireNonNull(clazz);
+    Objects.requireNonNull(subscriber);
     selector = Optional.ofNullable(selector).orElse(new IntentSelector());
     var observeIIFE = new Script(Resources.readString("js/sci-intent-client/observe.iife.js"))
         .replacePlaceholder("refs.IntentClient", Refs.IntentClient).replacePlaceholder("selector.type", selector.type, Flags.ToJson)
@@ -138,10 +148,13 @@ public class SciIntentClient {
    */
   private <T> ISubscription requestJson(final Intent intent, final String json, RequestOptions options, final Class<T> clazz,
       final ISubscriber<TopicMessage<T>> subscriber) {
+    Objects.requireNonNull(intent);
+    Objects.requireNonNull(clazz);
+    Objects.requireNonNull(subscriber);
     options = Optional.ofNullable(options).orElse(new RequestOptions());
     var requestIIFE = new Script(Resources.readString("js/sci-intent-client/request.iife.js"))
         .replacePlaceholder("refs.IntentClient", Refs.IntentClient).replacePlaceholder("intent", intent, Flags.ToJson)
-        .replacePlaceholder("body", json).replacePlaceholder("options.headers", options.getHeaders(), Flags.ToJson)
+        .replacePlaceholder("body", json).replacePlaceholder("options.headers", options.headers(), Flags.ToJson)
         .replacePlaceholder("options.retain", options.isRetain()).replacePlaceholder("helpers.fromJson", Helpers.fromJson).substitute();
 
     var observable = new RxJsObservable<TopicMessage<T>>(microfrontendPlatformRcpHost.whenHostBrowser, requestIIFE,
@@ -153,6 +166,7 @@ public class SciIntentClient {
    * @see "https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish"
    */
   private CompletableFuture<Void> publishJson(final Intent intent, final String json, final PublishOptions intentOptions) {
+    Objects.requireNonNull(intent);
     var options = Optional.ofNullable(intentOptions).orElse(new PublishOptions());
     var published = new CompletableFuture<Void>();
     new JavaCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
@@ -166,35 +180,24 @@ public class SciIntentClient {
     }).installOnce().thenAccept(callback -> {
       new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser, Resources.readString("js/sci-intent-client/publish.js"))
           .replacePlaceholder("callback", callback.name).replacePlaceholder("intent", intent, Flags.ToJson).replacePlaceholder("body", json)
-          .replacePlaceholder("options.headers", options.getHeaders(), Flags.ToJson)
-          .replacePlaceholder("options.retain", options.isRetain()).replacePlaceholder("refs.IntentClient", Refs.IntentClient)
-          .replacePlaceholder("helpers.fromJson", Helpers.fromJson).runInsideAsyncFunction().execute();
+          .replacePlaceholder("options.headers", options.headers(), Flags.ToJson).replacePlaceholder("options.retain", options.isRetain())
+          .replacePlaceholder("refs.IntentClient", Refs.IntentClient).replacePlaceholder("helpers.fromJson", Helpers.fromJson)
+          .runInsideAsyncFunction().execute();
     });
 
     return published;
   }
 
+  @Accessors(fluent = true)
+  @Getter
+  @NoArgsConstructor
+  @AllArgsConstructor(access = AccessLevel.PRIVATE)
+  @Builder
+  @ToString
   public static class IntentSelector {
 
     private String type;
     private Qualifier qualifier;
 
-    public String getType() {
-      return type;
-    }
-
-    public IntentSelector type(final String type) {
-      this.type = type;
-      return this;
-    }
-
-    public Qualifier getQualifier() {
-      return qualifier;
-    }
-
-    public IntentSelector qualifier(final Qualifier qualifier) {
-      this.qualifier = qualifier;
-      return this;
-    }
   }
 }

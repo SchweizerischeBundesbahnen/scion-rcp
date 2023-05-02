@@ -12,7 +12,8 @@ import javax.inject.Inject;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.widgets.Event;
 
-import ch.sbb.scion.rcp.microfrontend.SciRouterOutlet;
+import ch.sbb.scion.rcp.microfrontend.IDisposable;
+import ch.sbb.scion.rcp.microfrontend.RouterOutlet;
 import ch.sbb.scion.rcp.microfrontend.browser.JavaCallback;
 import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
 import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost;
@@ -20,7 +21,6 @@ import ch.sbb.scion.rcp.microfrontend.internal.ContextInjectors;
 import ch.sbb.scion.rcp.microfrontend.internal.Resources;
 import ch.sbb.scion.rcp.microfrontend.keyboard.JavaScriptKeyboardEvent;
 import ch.sbb.scion.rcp.microfrontend.keyboard.KeyboardEventMapper;
-import ch.sbb.scion.rcp.microfrontend.model.IDisposable;
 import ch.sbb.scion.rcp.microfrontend.script.Script.Flags;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Helpers;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
@@ -89,7 +89,7 @@ public class RouterOutletProxy {
   }
 
   /**
-   * Instructs the web application loaded into the {@link SciRouterOutlet outlet proxy} to dispatch given keystrokes.
+   * Instructs the web application loaded into the {@link RouterOutlet outlet proxy} to dispatch given keystrokes.
    */
   public CompletableFuture<Void> registerKeystrokes(final Set<String> keystrokes) {
     return new JavaScriptExecutor(whenOutlet, Resources.readString("js/router-outlet-proxy/register-keystrokes.js"))
@@ -116,7 +116,7 @@ public class RouterOutletProxy {
   }
 
   /**
-   * Posts given JSON message to the host in the name of the web application loaded into the the {@link SciRouterOutlet outlet proxy}.
+   * Posts given JSON message to the host in the name of the web application loaded into the the {@link RouterOutlet outlet proxy}.
    */
   public void postJsonMessage(final String base64json) {
     new JavaScriptExecutor(whenOutlet, Resources.readString("js/router-outlet-proxy/post-message-to-host.js"))
@@ -125,7 +125,7 @@ public class RouterOutletProxy {
   }
 
   /**
-   * Dispatches messages from the host which are intended for the web application loaded into the {@link SciRouterOutlet outlet proxy}.
+   * Dispatches messages from the host which are intended for the web application loaded into the {@link RouterOutlet outlet proxy}.
    */
   public IDisposable onMessage(final Consumer<String> messageListener) {
     outletToProxyMessageListeners.add(messageListener);
@@ -133,7 +133,7 @@ public class RouterOutletProxy {
   }
 
   /**
-   * Dispatches keystrokes originating from the web application loaded into the {@link SciRouterOutlet outlet proxy}.
+   * Dispatches keystrokes originating from the web application loaded into the {@link RouterOutlet outlet proxy}.
    */
   public IDisposable onKeystroke(final Consumer<Event> keystrokeListener) {
     outletToProxyKeystrokeListeners.add(keystrokeListener);
