@@ -45,14 +45,14 @@ licenses, including commercial ones.
          version="0.0.0"/>
 
    <plugin
-         id="ch.sbb.scion.rcp.microfrontend"
+         id="rcp.microfrontend"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
 
    <plugin
-         id="ch.sbb.scion.rcp.workbench"
+         id="rcp.workbench"
          download-size="0"
          install-size="0"
          version="0.0.0"

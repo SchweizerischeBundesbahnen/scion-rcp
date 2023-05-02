@@ -43,6 +43,7 @@ java -Xms256M -Xmx768M \
 -data . \
 -testPluginName ch.sbb.scion.rcp.microfrontend.e3.app.demo.test \
  formatter=org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter,./AllTests.xml \
+ formatter=org.apache.tools.ant.taskdefs.optional.junit.PlainJUnitResultFormatter \
 -classname ch.sbb.scion.rcp.microfrontend.e3.app.demo.test.PopupCapabilityTest \
 -os win32 -ws win32 -arch x86_64 \
 -consoleLog -debug
@@ -56,7 +57,8 @@ java -Xms256M -Xmx768M \
 -testApplication ch.sbb.scion.rcp.microfrontend.e3.app.demo.application \
 -data . \
 -testPluginName ch.sbb.scion.rcp.microfrontend.e3.app.demo.test \
- formatter=org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter,./AllTests.xml \ 
+ formatter=org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter,./AllTests.xml \
+ formatter=org.apache.tools.ant.taskdefs.optional.junit.PlainJUnitResultFormatter \ 
 -classname ch.sbb.scion.rcp.microfrontend.e3.app.demo.test.PopupCapabilityTest \
 -os linux -ws gtk -arch x86_64 \
 -consoleLog -debug

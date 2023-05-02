@@ -1,11 +1,11 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SCION Microfrontend Platform Test Fragment
-Bundle-SymbolicName: ch.sbb.scion.rcp.microfrontend.test;singleton:=true
+Bundle-SymbolicName: rcp.microfrontend.test;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: SBB and Contributors
-Fragment-Host: ch.sbb.scion.rcp.microfrontend
-Automatic-Module-Name: ch.sbb.scion.rcp.microfrontend.test
+Fragment-Host: rcp.microfrontend
+Automatic-Module-Name: rcp.microfrontend.test
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.junit.jupiter.api,
  org.mockito.mockito-core,
