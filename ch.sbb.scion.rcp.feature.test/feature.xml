@@ -45,7 +45,7 @@ licenses, including commercial ones.
          version="0.0.0"/>
 
    <plugin
-         id="ch.sbb.scion.rcp.microfrontend.test"
+         id="rcp.microfrontend.test"
          download-size="0"
          install-size="0"
          version="0.0.0"

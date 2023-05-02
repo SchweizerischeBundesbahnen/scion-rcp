@@ -1,19 +1,19 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SCION RCP Workbench
-Bundle-SymbolicName: ch.sbb.scion.rcp.workbench;singleton:=true
+Bundle-SymbolicName: rcp.workbench;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: ch.sbb.scion.rcp.workbench.internal.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- ch.sbb.scion.rcp.microfrontend,
+ rcp.microfrontend,
  org.eclipse.e4.core.contexts,
  org.eclipse.osgi.services,
  org.eclipse.e4.core.di,
  com.google.gson,
  org.eclipse.jface
 Bundle-RequiredExecutionEnvironment: JavaSE-11
-Automatic-Module-Name: ch.sbb.scion.rcp.workbench
+Automatic-Module-Name: rcp.workbench
 Bundle-ActivationPolicy: lazy
 Import-Package: javax.annotation,
  javax.inject

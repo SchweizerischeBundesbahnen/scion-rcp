@@ -14,12 +14,12 @@
 	<dependencies>
 		<dependency>
 			<groupId>ch.sbb.scion</groupId>
-			<artifactId>ch.sbb.scion.rcp.microfrontend</artifactId>
+			<artifactId>rcp.microfrontend</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>ch.sbb.scion</groupId>
-			<artifactId>ch.sbb.scion.rcp.microfrontend.test</artifactId>
+			<artifactId>rcp.microfrontend.test</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
