@@ -20,21 +20,30 @@ jobs:
       with:
         java-version: 11
         distribution: temurin
+        gpg-private-key: "${{ secrets.GPG_PRIVATE_KEY }}"
+        gpg-passphrase: GPG_PASSPHRASE # This is actually the default value
 
 # TODO: we must pass the RELEASE_TAG variable to the actual build to control the artifact naming
     - name: Run Maven
       run: mvn -B clean verify -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
+      env:
+        GPG_PASSPHRASE: "${{ secrets.GPG_PASSPHRASE }}"
+      
     - name: 'Upload microfrontend library'
       uses: actions/upload-artifact@v3
       with:
         name: microfrontend-library
-        path: ch.sbb.scion.rcp.microfrontend/target/*.jar
+        path: | 
+          ch.sbb.scion.rcp.microfrontend/target/*.jar
+          ch.sbb.scion.rcp.microfrontend/target/*.jar.asc
 
     - name: 'Upload workbench library'
       uses: actions/upload-artifact@v3
       with:
         name: workbench-library
-        path: ch.sbb.scion.rcp.workbench/target/*.jar
+        path: |
+          ch.sbb.scion.rcp.workbench/target/*.jar
+          ch.sbb.scion.rcp.workbench/target/*.jar.asc
 
   release:
     name: 'Release'

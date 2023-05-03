@@ -17,6 +17,7 @@
 		<tycho.version>2.7.4</tycho.version>
 		<surefire.plugin.version>2.22.2</surefire.plugin.version>
 		<jacoco.version>0.8.5</jacoco.version>
+		<gpg.plugin.version>3.0.1</gpg.plugin.version>
 
 		<eclipse.release>2022-06</eclipse.release>
 		<eclipse.orbit.release>R20220531185310</eclipse.orbit.release>
