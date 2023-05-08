@@ -41,7 +41,7 @@ import ch.sbb.scion.rcp.microfrontend.script.Scripts;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Helpers;
 
 /**
- * Widget to display a microfrontend. This widget acts as proxy for the SCION <sci-router-outlet> web component.
+ * Widget to display a microfrontend. This widget acts as proxy for the SCION &lt;sci-router-outlet&gt; web component.
  *
  * @see <a href="https://scion-microfrontend-platform-api.vercel.app/classes/SciRouterOutletElement.html">SciRouterOutletElement</a>
  */
@@ -191,7 +191,7 @@ public final class RouterOutlet extends Composite implements DisposeListener {
 
   /**
    * Makes contextual data available to embedded content. Embedded content can lookup contextual data using the
-   * {@link "org.eclipse.ui.internal.contexts.ContextService"}. Contextual data must be serializable with the structured clone algorithm.
+   * <code>org.eclipse.ui.internal.contexts.ContextService</code>. Contextual data must be serializable with the structured clone algorithm.
    *
    * @see "https://scion-microfrontend-platform-api.vercel.app/classes/SciRouterOutletElement.html#setContextValue"
    */
@@ -203,7 +203,7 @@ public final class RouterOutlet extends Composite implements DisposeListener {
 
   /**
    * Removes data registered under the given key from the context. Removal does not affect parent contexts, so it is possible that a
-   * subsequent call to {@link "org.eclipse.ui.internal.contexts.ContextService.observe()"} with the same name will return a non-null
+   * subsequent call to <code>org.eclipse.ui.internal.contexts.ContextService.observe()</code> with the same name will return a non-null
    * result, due to a value being stored in a parent context.
    *
    * @return `true` if removed the value from the outlet context; otherwise `false`.
@@ -215,7 +215,7 @@ public final class RouterOutlet extends Composite implements DisposeListener {
   }
 
   /**
-   * Taps messages from the client and dispatches them to the <sci-router-outlet>.
+   * Taps messages from the client and dispatches them to the &lt;sci-router-outlet&gt;.
    */
   private IDisposable installClientToSciRouterOutletMessageDispatcher() {
     var disposables = new ArrayList<IDisposable>();
@@ -272,7 +272,7 @@ public final class RouterOutlet extends Composite implements DisposeListener {
   }
 
   /**
-   * Dispatches messages from the <sci-router-outlet> to the client.
+   * Dispatches messages from the &lt;sci-router-outlet&gt; to the client.
    */
   private IDisposable installSciRouterOutletToClientMessageDispatcher() {
     return routerOutletProxy.onMessage(base64json -> {

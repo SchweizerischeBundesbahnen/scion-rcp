@@ -21,7 +21,7 @@ jobs:
     - name: Setup JDK
       uses: actions/setup-java@v3
       with:
-        java-version: 11
+        java-version: 17
         distribution: temurin
         gpg-private-key: "${{ secrets.GPG_PRIVATE_KEY }}"
         gpg-passphrase: GPG_PASSPHRASE # This is actually the default value
@@ -33,7 +33,7 @@ jobs:
 
 # TODO: we must pass the RELEASE_TAG variable to the actual build to control the artifact naming
     - name: Run Maven
-      run: mvn -B clean verify -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
+      run: mvn -B clean verify -P release -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
       env:
         GPG_PASSPHRASE: "${{ secrets.GPG_PASSPHRASE }}"
         MAVEN_OPTS: "-javaagent:${{ env.lombok }}"

@@ -35,8 +35,8 @@ public class Intention {
   private Qualifier qualifier;
   /**
    * Metadata about this intention (read-only, exclusively managed by the platform).
-   *
-   * @ignore
+   * <p>
+   * ignore
    */
   private Metadata metadata;
 

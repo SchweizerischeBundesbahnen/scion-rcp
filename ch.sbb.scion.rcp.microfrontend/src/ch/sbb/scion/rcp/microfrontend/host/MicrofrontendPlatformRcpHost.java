@@ -37,9 +37,9 @@ import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
 
 /**
  * Represents the RCP host for the SCION Microfrontend Platform that is started in an invisible shell in a web browser. When instantiating
- * the {@link RouterOutlet} SWT component, an <sci-router-outlet> web component is added to the DOM of the RCP host application. From the
- * perspective of the SCION Microfrontend Platform Host, the microfrontend is embedded directly into this outlet. {@link RouterOutlet}
- * effectively acts as a proxy, bridging traffic between <sci-router-outlet> and {@link RouterOutlet}.
+ * the {@link RouterOutlet} SWT component, an &lt;sci-router-outlet&gt; web component is added to the DOM of the RCP host application. From
+ * the perspective of the SCION Microfrontend Platform Host, the microfrontend is embedded directly into this outlet. {@link RouterOutlet}
+ * effectively acts as a proxy, bridging traffic between &lt;sci-router-outlet&gt; and {@link RouterOutlet}.
  */
 @Component(service = MicrofrontendPlatformRcpHost.class)
 public class MicrofrontendPlatformRcpHost {

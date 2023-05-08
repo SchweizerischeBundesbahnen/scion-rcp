@@ -21,8 +21,8 @@ public interface GsonFactory {
   public static final PropertiesTypeAdapterFactory PROPERTIES_TYPE_ADAPTER_FACTORY = new PropertiesTypeAdapterFactory();
 
   /**
-   * Use to create a {@link Gson} instance to be used in conjunction with {@link "helpers.js#fromJson"} and {@link "helpers.js#toJson"} in
-   * JavaScript.
+   * Use to create a {@link Gson} instance to be used in conjunction with <a href="file:../../../../../../../js/helper.js">helper.js</a> to-
+   * and FromJson in Javascript.
    */
   public static Gson create() {
     return new GsonBuilder().registerTypeAdapterFactory(MAP_OBJECT_TYPE_ADAPTER_FACTORY)
