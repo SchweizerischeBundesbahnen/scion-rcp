@@ -26,7 +26,7 @@ import ch.sbb.scion.rcp.microfrontend.script.Scripts.Helpers;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
 
 /**
- * Proxy for the actual <sci-router-outlet> mounted in the RCP host application.
+ * Proxy for the actual &lt;sci-router-outlet&gt; mounted in the RCP host application.
  */
 public class RouterOutletProxy {
 

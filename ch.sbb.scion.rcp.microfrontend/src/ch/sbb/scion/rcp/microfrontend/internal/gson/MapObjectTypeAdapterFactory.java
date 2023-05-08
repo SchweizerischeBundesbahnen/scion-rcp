@@ -17,7 +17,7 @@ import com.google.gson.stream.JsonWriter;
  * Custom GSON adapter to convert a Java `Map` to a JSON object literal and vice versa, which is necessary because JSON has no
  * representation for the Map data type. By default, GSON converts a Java `Map` to a JSON object literal, so there is no way to determine in
  * JavaScript whether it is a Map or a dictionary. Format of the JSON object literal: `{__type: 'Map', __value: [...[key, value]]}` This
- * adapter is to be used together with {@link "helpers.js#fromJson"} and {@link "helpers.js#toJson"} in JavaScript.
+ * adapter is to be used together with <a href="file:../../../../../../../js/helper.js">helper.js</a> to- and FromJson in Javascript.
  *
  * @see "com.google.gson.internal.bind.MapTypeAdapterFactory"
  * @see "helpers.js#fromJson"

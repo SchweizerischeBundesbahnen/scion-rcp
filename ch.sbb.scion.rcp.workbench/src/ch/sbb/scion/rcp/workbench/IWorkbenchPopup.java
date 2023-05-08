@@ -69,8 +69,8 @@ public interface IWorkbenchPopup {
    *
    * @param ex
    *          the exception
-   * @throws {@link
-   *           NullPointerException} if ex is null
+   * @throws NullPointerException
+   *           if ex is null
    */
   void closeWithException(Exception ex);
 

@@ -58,8 +58,8 @@ public class Capability {
   private Properties properties;
   /**
    * Metadata about the capability (read-only, exclusively managed by the platform).
-   *
-   * @ignore
+   * <p>
+   * ignore
    */
   private Metadata metadata;
 

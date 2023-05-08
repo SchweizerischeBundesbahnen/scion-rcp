@@ -58,7 +58,7 @@ public class MicrofrontendPlatformConfig {
    */
   private Long heartbeatInterval;;
   /**
-   * Defines user-defined properties which can be read by micro applications via {@link "PlatformPropertyService"}.
+   * Defines user-defined properties which can be read by micro applications via <code>PlatformPropertyService</code>.
    */
   private Properties properties;
 

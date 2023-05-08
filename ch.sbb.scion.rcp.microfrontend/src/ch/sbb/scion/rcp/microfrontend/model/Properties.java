@@ -15,8 +15,8 @@ import lombok.ToString;
  * [key: string]: any
  * </pre>
  *
- * Do not use Map<String, ?> in these cases as a Java Map will be deserialized to a JavaScript Map. The Typescript string index signature
- * represents an ordinary JavaScript object, however.
+ * Do not use Map&lt;String, ?&gt; in these cases as a Java Map will be deserialized to a JavaScript Map. The Typescript string index
+ * signature represents an ordinary JavaScript object, however.
  */
 @ToString
 public class Properties {
