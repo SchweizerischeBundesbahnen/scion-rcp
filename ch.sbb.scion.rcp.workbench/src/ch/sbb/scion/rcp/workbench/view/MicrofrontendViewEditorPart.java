@@ -117,7 +117,7 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
     var appSymbolicName = capability.metadata().appSymbolicName();
     var path = (String) capability.properties().get("path");
     outletRouter.navigate(path, NavigationOptions.builder().outlet(getSciViewId()).relativeTo(applications.get(appSymbolicName).baseUrl())
-        .params(params).pushStateToSessionHistoryStack(Boolean.TRUE).build());
+        .params(params).pushStateToSessionHistoryStack(Boolean.FALSE).build());
   }
 
   @Override
