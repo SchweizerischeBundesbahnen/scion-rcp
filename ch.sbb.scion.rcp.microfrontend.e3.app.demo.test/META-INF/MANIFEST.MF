@@ -5,7 +5,7 @@ Bundle-SymbolicName: ch.sbb.scion.rcp.microfrontend.e3.app.demo.test;singleton:=
 Bundle-Version: 1.0.0.qualifier
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: SBB and Contributors
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Eclipse-RegisterBuddy: org.apache.log4j
 Require-Bundle: org.eclipse.swt,
  org.junit.jupiter.api,

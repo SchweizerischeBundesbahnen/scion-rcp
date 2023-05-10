@@ -15,12 +15,12 @@
 		<maven.compiler.release>${java.version}</maven.compiler.release>
 
 		<tycho.version>3.0.4</tycho.version>
-		<surefire.plugin.version>2.22.2</surefire.plugin.version>
+		<surefire.plugin.version>3.1.0</surefire.plugin.version>
 		<jacoco.version>0.8.10</jacoco.version>
 		<gpg.plugin.version>3.0.1</gpg.plugin.version>
 
-		<eclipse.release>2022-06</eclipse.release>
-		<eclipse.orbit.release>R20220531185310</eclipse.orbit.release>
+		<eclipse.release>2023-03</eclipse.release>
+		<eclipse.orbit.release>R20230302014618</eclipse.orbit.release>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -110,7 +110,7 @@
 					<useUIHarness>false</useUIHarness>
 					<useUIThread>false</useUIThread>
 					<trimStackTrace>false</trimStackTrace>
-					<!-- even though thiese are the default patterns, they had to be given explicitly-->
+					<!-- even though these are the default patterns, they had to be given explicitly-->
 					<includes>
 						<include>**/*Test.*</include>
 						<include>**/*IT.*</include>
@@ -191,7 +191,6 @@
 						</artifact>
 					</target>
 					<environments>
-						<!-- Leaving Linux out of the binary creation -->
 						<environment>
 							<os>win32</os>
 							<ws>win32</ws>

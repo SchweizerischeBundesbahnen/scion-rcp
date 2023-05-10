@@ -6,7 +6,7 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: SBB and Contributors
 Fragment-Host: rcp.microfrontend
 Automatic-Module-Name: rcp.microfrontend.test
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.junit.jupiter.api,
  org.mockito.mockito-core,
  org.hamcrest,
