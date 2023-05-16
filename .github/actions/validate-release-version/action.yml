@@ -1,0 +1,18 @@
+name: 'validate-release-version'
+description: 'Validate the provided release version'
+inputs:
+  release-version:
+    description: 'The release version to validate'
+    required: true
+  release-version-pattern:
+    description: 'The release version pattern, must contain a major, minor and patch group'
+    required: false
+    default: '(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)'
+outputs:
+  release-version:
+    description: 'The validated release version'
+  develop-version:
+    description: 'The next development iteration version according to the release version'
+runs:
+  using: 'node16'
+  main: 'dist/index.js'

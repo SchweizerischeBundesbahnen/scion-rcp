@@ -3,44 +3,63 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>rcp.microfrontend</artifactId>
+	<artifactId>rcp-microfrontend</artifactId>
 	<packaging>eclipse-plugin</packaging>
 
 	<parent>
 		<groupId>ch.sbb.scion</groupId>
 		<artifactId>scion-parent</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>0.0.18-SNAPSHOT</version>
 	</parent>
+
+	<name>SCION Eclipse RCP Microfrontend Platform</name>
+	<description>The SCION Eclipse RCP Microfrontend Platform open source library that enables the implementation of a web-framework-agnostic microfrontend architecture using browser widgets.</description>
+	<url>https://github.com/SchweizerischeBundesbahnen/scion-rcp/tree/master/ch.sbb.scion.rcp.microfrontend</url>
+
+	<profiles>
+		<profile>
+			<!-- Only sign artifacts and generate javadocs when releasing -->
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 	<build>
 		<plugins>
 			<plugin>
-				<!-- Added here and not in the parent pom to prevent signing all projects -->
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-gpg-plugin</artifactId>
-				<version>${gpg.plugin.version}</version>
-				<executions>
-					<execution>
-						<id>sign-artifacts</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>sign</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<!-- We must generate a -javadoc JAR file to publish on Maven Central -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<configuration>
+					<skip>false</skip>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

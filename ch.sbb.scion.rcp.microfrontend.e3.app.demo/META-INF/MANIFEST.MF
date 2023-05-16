@@ -2,14 +2,14 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Demo
 Bundle-SymbolicName: ch.sbb.scion.rcp.microfrontend.e3.app.demo;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 0.0.18.qualifier
 Bundle-Activator: ch.sbb.scion.rcp.microfrontend.e3.app.demo.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.apache.felix.scr,
  org.eclipse.equinox.event,
- rcp.microfrontend,
- rcp.workbench,
+ rcp-microfrontend,
+ rcp-workbench,
  org.eclipse.e4.ui.workbench,
  org.eclipse.e4.ui.model.workbench,
  org.eclipse.e4.core.di.annotations,

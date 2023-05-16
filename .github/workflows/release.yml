@@ -1,120 +1,75 @@
 name: "Release"
 
-# Only trigger on push of tags, but continue only if the build workflow succeeded
+# Trigger manually
 on:
-  push:
-    tags:
-      - "**"
+  workflow_dispatch:
+    inputs:
+      release-version:
+        required: true
 
 env:
   LOMBOK_VERSION: 1.18.26
 
 jobs:
-  build:
-    name: 'Build'
+  release-guard:
+    name: 'Guard release'
+    runs-on: ubuntu-latest
+    outputs:
+      release-version: ${{ steps.validate-release-version.outputs.release-version }}
+      develop-version: ${{ steps.validate-release-version.outputs.develop-version }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: 'Validate release version'
+        uses: ./.github/actions/validate-release-version
+        id: validate-release-version
+        with:
+          release-version: ${{ github.event.inputs.release-version }}
+
+  release:
+    name: 'Make release'
+    needs: release-guard
     runs-on: ubuntu-latest
     steps:
 
     - name: Checkout
       uses: actions/checkout@v3
 
-    - name: Setup JDK
+    - name: 'Setup JDK'
       uses: actions/setup-java@v3
       with:
         java-version: 17
         distribution: temurin
         gpg-private-key: "${{ secrets.GPG_PRIVATE_KEY }}"
         gpg-passphrase: GPG_PASSPHRASE # This is actually the default value
+        server-id: ossrh
+        server-username: SERVER_USERNAME
+        server-password: SERVER_PASSWORD
         
     - name: 'Setup Lombok'
       run: |
         mvn -B dependency:copy -Dartifact=org.projectlombok:lombok:$LOMBOK_VERSION:jar -DoutputDirectory=. -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
         echo "lombok=lombok-$LOMBOK_VERSION.jar" >> "$GITHUB_ENV"
 
-# TODO: we must pass the RELEASE_TAG variable to the actual build to control the artifact naming
-    - name: Run Maven
-      run: mvn -B clean verify -P release -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
+    - name: 'Run release script'
+      run: ./.github/scripts/release.sh
+      shell: bash
       env:
         GPG_PASSPHRASE: "${{ secrets.GPG_PASSPHRASE }}"
         MAVEN_OPTS: "-javaagent:${{ env.lombok }}"
+        RELEASE_VERSION: "${{ needs.release-guard.outputs.release-version }}"
+        DEVELOP_VERSION: "${{ needs.release-guard.outputs.develop-version }}"
+        STAGING_PROFILE_ID: "${{ vars.STAGING_PROFILE_ID }}"
+        SERVER_USERNAME: "${{ vars.SERVER_USERNAME }}"
+        SERVER_PASSWORD: "${{ secrets.SERVER_PASSWORD }}"
 
     - name: 'Upload microfrontend library'
       uses: actions/upload-artifact@v3
       with:
         name: microfrontend-library
-        path: | 
-          ch.sbb.scion.rcp.microfrontend/target/*.jar
-          ch.sbb.scion.rcp.microfrontend/target/*.jar.asc
+        path: ch.sbb.scion.rcp.microfrontend/target/*.jar
 
     - name: 'Upload workbench library'
       uses: actions/upload-artifact@v3
       with:
         name: workbench-library
-        path: |
-          ch.sbb.scion.rcp.workbench/target/*.jar
-          ch.sbb.scion.rcp.workbench/target/*.jar.asc
-
-  release:
-    name: 'Release'
-    runs-on: "ubuntu-latest"
-    needs: Build
-    steps:
-      - name: "Determine tag"
-        run: "echo \"RELEASE_TAG=${GITHUB_REF#refs/tags/}\" >> $GITHUB_ENV"
-
-      - name: "Create release"
-        uses: "actions/github-script@v6"
-        with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
-          script: |
-            try {
-              const response = await github.rest.repos.createRelease({
-                draft: false,
-                generate_release_notes: true,
-                name: process.env.RELEASE_TAG,
-                owner: context.repo.owner,
-                prerelease: false,
-                repo: context.repo.repo,
-                tag_name: process.env.RELEASE_TAG,
-              });
-
-              core.exportVariable('RELEASE_ID', response.data.id);
-              core.exportVariable('RELEASE_UPLOAD_URL', response.data.upload_url);
-            } catch (error) {
-              core.setFailed(error.message);
-            }
-
-# This is a temporarily solution until wildcard would work
-      - name: 'Downloading microfrontend library'
-        uses: actions/download-artifact@v2
-        with:
-          name: microfrontend-library
-
-      - name: 'Upload microfrontend binary to release'
-        uses: svenstaro/upload-release-action@v2
-        with:
-         repo_token: ${{ secrets.GITHUB_TOKEN }}
-         file: ch.sbb.scion.rcp.microfrontend-1.0.0-SNAPSHOT.jar
-
-      - name: 'Upload microfrontend source to release'
-        uses: svenstaro/upload-release-action@v2
-        with:
-         repo_token: ${{ secrets.GITHUB_TOKEN }}
-         file: ch.sbb.scion.rcp.microfrontend-1.0.0-SNAPSHOT-sources.jar
-
-      - name: 'Downloading workbench library'
-        uses: actions/download-artifact@v2
-        with:
-          name: workbench-library
-
-      - name: 'Upload workbench binary to release'
-        uses: svenstaro/upload-release-action@v2
-        with:
-         repo_token: ${{ secrets.GITHUB_TOKEN }}
-         file: ch.sbb.scion.rcp.workbench-1.0.0-SNAPSHOT.jar
-
-      - name: 'Upload workbench source to release'
-        uses: svenstaro/upload-release-action@v2
-        with:
-         repo_token: ${{ secrets.GITHUB_TOKEN }}
-         file: ch.sbb.scion.rcp.workbench-1.0.0-SNAPSHOT-sources.jar
+        path: ch.sbb.scion.rcp.workbench/target/*.jar

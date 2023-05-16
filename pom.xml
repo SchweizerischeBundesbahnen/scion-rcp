@@ -5,8 +5,37 @@
 
 	<groupId>ch.sbb.scion</groupId>
 	<artifactId>scion-parent</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>0.0.18-SNAPSHOT</version>
 	<packaging>pom</packaging>
+
+	<licenses>
+		<license>
+			<name>Eclipse Public License - v 2.0</name>
+			<url>https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.txt</url>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>Gilles Iachelini</name>
+			<email>gilles.iachelini@sbb.ch</email>
+			<organization>Swiss Federal Railways (SBB)</organization>
+			<organizationUrl>https://www.sbb.ch</organizationUrl>
+		</developer>
+		<developer>
+			<name>Adrian Ruckli</name>
+			<email>adrian.ruckli@sbb.ch</email>
+			<organization>Swiss Federal Railways (SBB)</organization>
+			<organizationUrl>https://www.sbb.ch</organizationUrl>
+		</developer>
+	</developers>
+
+	<scm>
+		<!--connection>scm:git:ssh://github.com/SchweizerischeBundesbahnen/scion-rcp.git</connection> -->
+		<developerConnection>scm:git:git@github.com:SchweizerischeBundesbahnen/scion-rcp.git</developerConnection>
+		<url>https://github.com/SchweizerischeBundesbahnen/scion-rcp/tree/master</url>
+		<tag>HEAD</tag>
+	</scm>
 
 	<properties>
 		<java.version>17</java.version>
@@ -17,7 +46,12 @@
 		<tycho.version>3.0.4</tycho.version>
 		<surefire.plugin.version>3.1.0</surefire.plugin.version>
 		<jacoco.version>0.8.10</jacoco.version>
-		<gpg.plugin.version>3.0.1</gpg.plugin.version>
+		<gpg-plugin.version>3.0.1</gpg-plugin.version>
+		<flatten-maven-plugin.version>1.4.1</flatten-maven-plugin.version>
+		<scm-plugin.version>2.0.0</scm-plugin.version>
+		<release-plugin.version>3.0.0</release-plugin.version>
+		<deploy-plugin.version>3.1.1</deploy-plugin.version>
+		<javadoc-plugin.version>2.9.1</javadoc-plugin.version>
 
 		<eclipse.release>2023-03</eclipse.release>
 		<eclipse.orbit.release>R20230302014618</eclipse.orbit.release>
@@ -40,7 +74,7 @@
 	</repositories>
 
 	<modules>
-		<!-- Target Platform & features-->
+		<!-- Target Platform & features -->
 		<module>ch.sbb.scion.rcp.microfrontend.targetplatform</module>
 		<module>ch.sbb.scion.rcp.feature</module>
 		<module>ch.sbb.scion.rcp.feature.test</module>
@@ -53,7 +87,7 @@
 		<module>ch.sbb.scion.rcp.microfrontend.e3.app.demo.product</module>
 
 		<!-- modules & test fragements -->
-		<!-- Please note: whenever you add a CodeCoverage-relevant module here,           -->
+		<!-- Please note: whenever you add a CodeCoverage-relevant module here, -->
 		<!-- add the same module as dependency in ch.sbb.scion.rcp.coveragereport/pom.xml -->
 		<module>ch.sbb.scion.rcp.microfrontend</module>
 		<module>ch.sbb.scion.rcp.microfrontend.test</module>
@@ -67,16 +101,6 @@
 
 
 	<build>
-
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>2.9.1</version>
-				</plugin>
-			</plugins>
-		</pluginManagement>
 
 		<plugins>
 			<plugin>
@@ -110,7 +134,8 @@
 					<useUIHarness>false</useUIHarness>
 					<useUIThread>false</useUIThread>
 					<trimStackTrace>false</trimStackTrace>
-					<!-- even though these are the default patterns, they had to be given explicitly-->
+					<!-- even though thiese are the default patterns, they had to be given 
+						explicitly -->
 					<includes>
 						<include>**/*Test.*</include>
 						<include>**/*IT.*</include>
@@ -209,24 +234,114 @@
 					</environments>
 				</configuration>
 			</plugin>
+
+			<plugin>
+				<!-- The flatten-maven-plugin must be in the build section so it doesn't 
+					have to be repeated in all child projects. However, the build of this parent 
+					POM must not execute flatten-flatten and flatten-clean. This is accomplished 
+					by binding them to the phase 'none' and setting the 'inherited' flag for 
+					the plugin's configuration to 'false'. Child projects will inherit the build 
+					step but with the configuration from the pluginManagement section. -->
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>flatten-maven-plugin</artifactId>
+				<inherited>false</inherited>
+				<executions>
+					<execution>
+						<id>flatten-flatten</id>
+						<phase>none</phase>
+					</execution>
+					<execution>
+						<id>flatten-clean</id>
+						<phase>none</phase>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<version>${deploy-plugin.version}</version>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>${release-plugin.version}</version>
+				<configuration>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+					<useReleaseProfile>false</useReleaseProfile>
+					<releaseProfiles>release</releaseProfiles>
+					<pushChanges>false</pushChanges>
+					<preparationGoals>tycho-versions:update-eclipse-metadata scm:add</preparationGoals>
+					<completionGoals>tycho-versions:update-eclipse-metadata scm:add</completionGoals>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-scm-plugin</artifactId>
+				<version>${scm-plugin.version}</version>
+				<configuration>
+					<includes>**/MANIFEST.MF,**/*.product,**/feature.xml</includes>
+					<excludes>**/target/**</excludes>
+				</configuration>
+			</plugin>
+
 		</plugins>
+
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>${javadoc-plugin.version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>flatten-maven-plugin</artifactId>
+					<version>${flatten-maven-plugin.version}</version>
+					<executions>
+						<!-- Create flattened POM: -->
+						<execution>
+							<id>flatten-flatten</id>
+							<phase>process-resources</phase>
+							<goals>
+								<goal>flatten</goal>
+							</goals>
+						</execution>
+						<!-- Remove generated files -->
+						<execution>
+							<id>flatten-clean</id>
+							<phase>clean</phase>
+							<goals>
+								<goal>clean</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<flattenMode>ossrh</flattenMode>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-gpg-plugin</artifactId>
+					<version>${gpg-plugin.version}</version>
+					<executions>
+						<execution>
+							<id>sign-artifacts</id>
+							<phase>verify</phase>
+							<goals>
+								<goal>sign</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+
 	</build>
 
-	<profiles>
-		<!-- For releases, we need to generate javadoc and sources JAR -->
-		<profile>
-			<id>release</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-javadoc-plugin</artifactId>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
 </project>

@@ -1,11 +1,11 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SCION Workbench Test Fragment
-Bundle-SymbolicName: rcp.workbench.test;singleton:=true
+Bundle-SymbolicName: rcp-workbench-test;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Fragment-Host: rcp.workbench
-Automatic-Module-Name: rcp.workbench.test
 Bundle-RequiredExecutionEnvironment: JavaSE-17
+Fragment-Host: rcp-workbench
+Automatic-Module-Name: rcp-workbench-test
 Bundle-Vendor: SBB and Contributors
 Require-Bundle: org.mockito.mockito-core,
  org.hamcrest,

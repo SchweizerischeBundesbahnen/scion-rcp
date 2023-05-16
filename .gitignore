@@ -21,8 +21,11 @@
 
 ### others ###
 **/dist/
+!.github/actions/*/dist
 **/out-tsc/
 **/node_modules
 **/.angular/cache
 **/.parcel-cache
 **/.sass-cache/
+**/.flattened-pom.xml
+.mvn
