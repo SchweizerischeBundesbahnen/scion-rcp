@@ -47,8 +47,12 @@ jobs:
         
     - name: 'Setup Lombok'
       run: |
-        mvn -B dependency:copy -Dartifact=org.projectlombok:lombok:$LOMBOK_VERSION:jar -DoutputDirectory=. -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
-        echo "lombok=lombok-$LOMBOK_VERSION.jar" >> "$GITHUB_ENV"
+        work_dir=$(pwd)
+        mkdir lombok
+        cd ./lombok
+        mvn -B org.apache.maven.plugins:maven-dependency-plugin:3.5.0:copy -Dartifact=org.projectlombok:lombok:$LOMBOK_VERSION:jar -DoutputDirectory=. -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
+        echo "lombok=$(pwd)/lombok-$LOMBOK_VERSION.jar" >> "$GITHUB_ENV"
+        cd $work_dir
 
     - name: 'Run release script'
       run: ./.github/scripts/release.sh
@@ -66,10 +70,10 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: microfrontend-library
-        path: ch.sbb.scion.rcp.microfrontend/target/*.jar
+        path: ./target/checkout/ch.sbb.scion.rcp.microfrontend/target/*.jar
 
     - name: 'Upload workbench library'
       uses: actions/upload-artifact@v3
       with:
         name: workbench-library
-        path: ch.sbb.scion.rcp.workbench/target/*.jar
+        path: ./target/checkout/ch.sbb.scion.rcp.workbench/target/*.jar

@@ -32,7 +32,7 @@
 
 	<scm>
 		<!--connection>scm:git:ssh://github.com/SchweizerischeBundesbahnen/scion-rcp.git</connection> -->
-		<developerConnection>scm:git:git@github.com:SchweizerischeBundesbahnen/scion-rcp.git</developerConnection>
+		<developerConnection>scm:git:https://github.com/SchweizerischeBundesbahnen/scion-rcp.git</developerConnection>
 		<url>https://github.com/SchweizerischeBundesbahnen/scion-rcp/tree/master</url>
 		<tag>HEAD</tag>
 	</scm>
