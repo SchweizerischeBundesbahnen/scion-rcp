@@ -1,0 +1,19 @@
+name: 'Setup Lombok'
+description: 'Install Lombok in a known location so that it can be referenced for compilation'
+inputs:
+  lombok-version:
+    description: 'The version of Lombok that should be installed'
+    required: true
+  install-dir:
+    description: 'Path to directory where Lombok should be installed, must exist'
+    required: false
+outputs:
+  lombok-jar:
+    description: "Path to the installed Lombok jar file"
+    value: ${{ steps.install-lombok.outputs.lombok-jar }}
+runs:
+  using: "composite"
+  steps:
+    - id: install-lombok
+      run: ./.github/actions/setup-lombok/install-lombok.sh "${{ inputs.lombok-version }}" "${{ inputs.install-dir }}"
+      shell: bash

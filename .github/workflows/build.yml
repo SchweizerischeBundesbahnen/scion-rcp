@@ -1,10 +1,9 @@
 name: Build
 
 on:
-  push
-
-env:
-  LOMBOK_VERSION: 1.18.26
+  push:
+  pull_request:
+    types: [opened]
 
 jobs:
   build:
@@ -25,14 +24,15 @@ jobs:
         distribution: temurin
         
     - name: 'Setup Lombok'
-      run: |
-        mvn -B dependency:copy -Dartifact=org.projectlombok:lombok:$LOMBOK_VERSION:jar -DoutputDirectory=. -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
-        echo "lombok=lombok-$LOMBOK_VERSION.jar" >> "$GITHUB_ENV"
+      uses: ./.github/actions/setup-lombok
+      id: setup-lombok
+      with:
+        lombok-version: 1.18.26
 
     - name: 'Run Maven'
       run: mvn -B clean verify -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
       env:
-        MAVEN_OPTS: "-javaagent:${{ env.lombok }}"
+        MAVEN_OPTS: "-javaagent:${{ steps.setup-lombok.outputs.lombok-jar }}"
       
     - name: 'Upload microfrontend library'
       uses: actions/upload-artifact@v3

@@ -7,12 +7,10 @@ on:
       release-version:
         required: true
 
-env:
-  LOMBOK_VERSION: 1.18.26
-
 jobs:
   release-guard:
     name: 'Guard release'
+    if: startsWith(github.ref, 'refs/heads/release/') # Ensure release branch
     runs-on: ubuntu-latest
     outputs:
       release-version: ${{ steps.validate-release-version.outputs.release-version }}
@@ -44,22 +42,19 @@ jobs:
         server-id: ossrh
         server-username: SERVER_USERNAME
         server-password: SERVER_PASSWORD
-        
+     
     - name: 'Setup Lombok'
-      run: |
-        work_dir=$(pwd)
-        mkdir lombok
-        cd ./lombok
-        mvn -B org.apache.maven.plugins:maven-dependency-plugin:3.5.0:copy -Dartifact=org.projectlombok:lombok:$LOMBOK_VERSION:jar -DoutputDirectory=. -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
-        echo "lombok=$(pwd)/lombok-$LOMBOK_VERSION.jar" >> "$GITHUB_ENV"
-        cd $work_dir
+      uses: ./.github/actions/setup-lombok
+      id: setup-lombok
+      with:
+        lombok-version: 1.18.26
 
     - name: 'Run release script'
       run: ./.github/scripts/release.sh
       shell: bash
       env:
         GPG_PASSPHRASE: "${{ secrets.GPG_PASSPHRASE }}"
-        MAVEN_OPTS: "-javaagent:${{ env.lombok }}"
+        MAVEN_OPTS: "-javaagent:${{ steps.setup-lombok.outputs.lombok-jar }}"
         RELEASE_VERSION: "${{ needs.release-guard.outputs.release-version }}"
         DEVELOP_VERSION: "${{ needs.release-guard.outputs.develop-version }}"
         STAGING_PROFILE_ID: "${{ vars.STAGING_PROFILE_ID }}"
