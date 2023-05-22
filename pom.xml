@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- (c) Copyright by SBB AG, 2019 - Alle Rechte vorbehalten -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>ch.sbb.scion</groupId>
@@ -17,14 +19,32 @@
 
 	<developers>
 		<developer>
+			<name>Marc Hoffmann</name>
+			<email>marc.hoffmann@sbb.ch</email>
+			<organization>Swiss Federal Railways (SBB)</organization>
+			<organizationUrl>https://www.sbb.ch</organizationUrl>
+		</developer>
+		<developer>
 			<name>Gilles Iachelini</name>
 			<email>gilles.iachelini@sbb.ch</email>
 			<organization>Swiss Federal Railways (SBB)</organization>
 			<organizationUrl>https://www.sbb.ch</organizationUrl>
 		</developer>
 		<developer>
+			<name>István Lőrincz</name>
+			<email>istvan.lorincz@sbb.ch</email>
+			<organization>Swiss Federal Railways (SBB)</organization>
+			<organizationUrl>https://www.sbb.ch</organizationUrl>
+		</developer>
+		<developer>
 			<name>Adrian Ruckli</name>
 			<email>adrian.ruckli@sbb.ch</email>
+			<organization>Swiss Federal Railways (SBB)</organization>
+			<organizationUrl>https://www.sbb.ch</organizationUrl>
+		</developer>
+		<developer>
+			<name>Daniel Wiehl</name>
+			<email>daniel.wiehl@sbb.ch</email>
 			<organization>Swiss Federal Railways (SBB)</organization>
 			<organizationUrl>https://www.sbb.ch</organizationUrl>
 		</developer>
@@ -52,12 +72,16 @@
 		<release-plugin.version>3.0.0</release-plugin.version>
 		<deploy-plugin.version>3.1.1</deploy-plugin.version>
 		<javadoc-plugin.version>2.9.1</javadoc-plugin.version>
+		<exec-plugin.version>3.1.0</exec-plugin.version>
 
-		<eclipse.release>2023-03</eclipse.release>
-		<eclipse.orbit.release>R20230302014618</eclipse.orbit.release>
+		<eclipse.release>2022-03</eclipse.release>
+		<eclipse.orbit.release>R20220302172233</eclipse.orbit.release>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		
+		<!-- Scripts are executed in child modules only: -->
+		<scripts.location>${project.parent.basedir}/.github/scripts</scripts.location>
 	</properties>
 
 	<repositories>
@@ -290,6 +314,19 @@
 				</configuration>
 			</plugin>
 
+			<plugin>
+				<!-- Do not attempt to replace packaging in parent pom! -->
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<inherited>false</inherited>
+				<executions>
+					<execution>
+						<id>exec-exec</id>
+						<phase>none</phase>
+					</execution>
+				</executions>
+			</plugin>
+
 		</plugins>
 
 		<pluginManagement>
@@ -325,6 +362,33 @@
 						<flattenMode>ossrh</flattenMode>
 					</configuration>
 				</plugin>
+
+				<plugin>
+					<!-- Replace packaging type 'eclipse-plugin', that is required by the 
+						tycho build, with packaging type 'jar' in the flattened POMs. Otherwise we 
+						cannot use the released artifacts as standard Maven dependencies. -->
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>exec-maven-plugin</artifactId>
+					<version>${exec-plugin.version}</version>
+					<executions>
+						<execution>
+							<id>exec-exec</id>
+							<!-- Bind to a phase that is after compilation but before verification. -->
+							<phase>prepare-package</phase>
+							<goals>
+								<goal>exec</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<executable>bash</executable>
+						<arguments>
+							<argument>${scripts.location}/replace-packaging.sh</argument>
+							<argument>${basedir}/.flattened-pom.xml</argument>
+						</arguments>
+					</configuration>
+				</plugin>
+
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-gpg-plugin</artifactId>
