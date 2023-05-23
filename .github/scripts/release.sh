@@ -83,7 +83,9 @@ mvn -B org.sonatype.plugins:nexus-staging-maven-plugin:1.6.13:deploy-staged-repo
   -DnexusUrl="https://oss.sonatype.org" \
   -DserverId="ossrh" \
   -DrepositoryDirectory=. \
-  -DstagingProfileId="$staging_profile_id"
+  -DstagingProfileId="$staging_profile_id" \
+  -DskipStagingRepositoryClose=true
+exit_if_failed "$?" "Upload staged artifacts to remote stage failed, exiting"
 echo "Returning to $work_dir"
 cd $work_dir
 

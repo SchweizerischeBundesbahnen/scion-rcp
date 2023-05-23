@@ -14,7 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Downgrade Eclipse release and Eclipse Orbit release from 2023-03 to 2022-03.
-- Set packaging type of Eclipse plugins to jar in flattened POM.
+- Replace packaging type with implied packaging type - i.e., jar - in the tycho consumer pom, which is the final pom that will be deployed.
+- Skip closing the remotely staged repository during the upload step. Recently, the connection between the Github build server and the Nexus Repository timed out while waiting for the closing result, frequently. Close the staged repository manually, directly in the Nexus Repository.
 
 ## [0.0.1] - 2023-05-17
 
