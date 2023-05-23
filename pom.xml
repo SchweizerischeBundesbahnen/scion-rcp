@@ -72,16 +72,12 @@
 		<release-plugin.version>3.0.0</release-plugin.version>
 		<deploy-plugin.version>3.1.1</deploy-plugin.version>
 		<javadoc-plugin.version>2.9.1</javadoc-plugin.version>
-		<exec-plugin.version>3.1.0</exec-plugin.version>
 
 		<eclipse.release>2022-03</eclipse.release>
 		<eclipse.orbit.release>R20220302172233</eclipse.orbit.release>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		
-		<!-- Scripts are executed in child modules only: -->
-		<scripts.location>${project.parent.basedir}/.github/scripts</scripts.location>
 	</properties>
 
 	<repositories>
@@ -139,6 +135,7 @@
 				<version>${tycho.version}</version>
 				<configuration>
 					<strictVersions>false</strictVersions>
+					<replacePackagingType>true</replacePackagingType>
 				</configuration>
 				<executions>
 					<execution>
@@ -314,19 +311,6 @@
 				</configuration>
 			</plugin>
 
-			<plugin>
-				<!-- Do not attempt to replace packaging in parent pom! -->
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin</artifactId>
-				<inherited>false</inherited>
-				<executions>
-					<execution>
-						<id>exec-exec</id>
-						<phase>none</phase>
-					</execution>
-				</executions>
-			</plugin>
-
 		</plugins>
 
 		<pluginManagement>
@@ -360,32 +344,6 @@
 					</executions>
 					<configuration>
 						<flattenMode>ossrh</flattenMode>
-					</configuration>
-				</plugin>
-
-				<plugin>
-					<!-- Replace packaging type 'eclipse-plugin', that is required by the 
-						tycho build, with packaging type 'jar' in the flattened POMs. Otherwise we 
-						cannot use the released artifacts as standard Maven dependencies. -->
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>exec-maven-plugin</artifactId>
-					<version>${exec-plugin.version}</version>
-					<executions>
-						<execution>
-							<id>exec-exec</id>
-							<!-- Bind to a phase that is after compilation but before verification. -->
-							<phase>prepare-package</phase>
-							<goals>
-								<goal>exec</goal>
-							</goals>
-						</execution>
-					</executions>
-					<configuration>
-						<executable>bash</executable>
-						<arguments>
-							<argument>${scripts.location}/replace-packaging.sh</argument>
-							<argument>${basedir}/.flattened-pom.xml</argument>
-						</arguments>
 					</configuration>
 				</plugin>
 
