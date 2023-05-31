@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.3] - 2023-05-31
+
 ### Changed
 
 - Reduce required execution environment of the Scion RCP microfrontend and the Scion RCP workbench bundles from Java 17 to Java 11.
