@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="SCION RCP Demo Application" uid="ch.sbb.scion.rcp.microfrontend.e3.app.demo.product" id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.product" application="ch.sbb.scion.rcp.microfrontend.e3.app.demo.application" version="0.0.4.qualifier" useFeatures="true" includeLaunchers="true" autoIncludeRequirements="true">
+<product name="SCION RCP Demo Application" uid="ch.sbb.scion.rcp.microfrontend.e3.app.demo.product" id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.product" application="ch.sbb.scion.rcp.microfrontend.e3.app.demo.application" version="0.0.4" useFeatures="true" includeLaunchers="true" autoIncludeRequirements="true">
 
    <configIni use="default">
    </configIni>
