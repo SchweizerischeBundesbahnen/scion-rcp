@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Compile with Java Runtime version 55
+
 ## [0.0.3] - 2023-05-31
 
 ### Changed
