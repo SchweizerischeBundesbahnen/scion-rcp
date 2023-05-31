@@ -2,7 +2,7 @@
 <feature
       id="ch.sbb.scion.rcp.swtbot.feature"
       label="ch.sbb.scion.rcp.swtbot.feature"
-      version="0.0.4">
+      version="0.0.5.qualifier">
 
    <description url="https://github.com/SchweizerischeBundesbahnen/scion-rcp#readme">
       This integration of the SCION Microfrontend Platform with Eclipse
