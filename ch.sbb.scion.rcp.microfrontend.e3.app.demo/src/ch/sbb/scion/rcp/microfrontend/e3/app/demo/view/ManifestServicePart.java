@@ -47,13 +47,13 @@ import org.eclipse.swt.widgets.Text;
 import com.google.gson.Gson;
 
 import ch.sbb.scion.rcp.microfrontend.ManifestService;
-import ch.sbb.scion.rcp.microfrontend.ManifestService.ManifestObjectFilter;
 import ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.model.CapabilityModel;
 import ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.model.ManifestObjectFilterModel;
 import ch.sbb.scion.rcp.microfrontend.model.Capability;
 import ch.sbb.scion.rcp.microfrontend.model.Capability.ParamDefinition;
-import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
+import ch.sbb.scion.rcp.microfrontend.model.ManifestObjectFilter;
 import ch.sbb.scion.rcp.microfrontend.model.TopicMessage;
+import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
 
 public class ManifestServicePart {
 

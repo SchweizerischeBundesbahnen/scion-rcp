@@ -9,8 +9,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
 import ch.sbb.scion.rcp.microfrontend.OutletRouter;
-import ch.sbb.scion.rcp.microfrontend.OutletRouter.NavigationOptions;
 import ch.sbb.scion.rcp.microfrontend.RouterOutlet;
+import ch.sbb.scion.rcp.microfrontend.model.NavigationOptions;
 
 public class RouterOutletExample1Part {
 

@@ -54,8 +54,8 @@ import org.eclipse.swt.widgets.Text;
 
 import com.google.gson.Gson;
 
-import ch.sbb.scion.rcp.microfrontend.IntentClient;
 import ch.sbb.scion.rcp.microfrontend.MessageClient;
+import ch.sbb.scion.rcp.microfrontend.IntentClient;
 import ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.model.IntentMessageModel;
 import ch.sbb.scion.rcp.microfrontend.e3.app.demo.view.model.IntentSelectorModel;
 import ch.sbb.scion.rcp.microfrontend.model.Intent;

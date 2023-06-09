@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Extract interfaces from Scion microfrontend services, and move nested classes to model
+
 ## [0.0.4] - 2023-05-31
 
 ### Changed

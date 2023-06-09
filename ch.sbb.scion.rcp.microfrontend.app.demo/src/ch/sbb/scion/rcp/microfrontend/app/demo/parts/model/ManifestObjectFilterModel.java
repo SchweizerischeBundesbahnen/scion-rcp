@@ -7,7 +7,7 @@ import org.eclipse.core.databinding.observable.list.WritableList;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.WritableValue;
 
-import ch.sbb.scion.rcp.microfrontend.ManifestService.ManifestObjectFilter;
+import ch.sbb.scion.rcp.microfrontend.model.ManifestObjectFilter;
 import ch.sbb.scion.rcp.microfrontend.model.Qualifier;
 
 public class ManifestObjectFilterModel {

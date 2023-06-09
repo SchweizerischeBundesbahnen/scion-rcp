@@ -7,7 +7,7 @@ import org.eclipse.core.databinding.observable.list.WritableList;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.WritableValue;
 
-import ch.sbb.scion.rcp.microfrontend.IntentClient.IntentSelector;
+import ch.sbb.scion.rcp.microfrontend.model.IntentSelector;
 import ch.sbb.scion.rcp.microfrontend.model.Qualifier;
 
 public class IntentSelectorModel {
