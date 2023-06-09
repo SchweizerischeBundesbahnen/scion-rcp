@@ -5,8 +5,8 @@ import java.util.concurrent.CompletableFuture;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import ch.sbb.scion.rcp.microfrontend.IntentClient;
 import ch.sbb.scion.rcp.microfrontend.MessageClient;
+import ch.sbb.scion.rcp.microfrontend.IntentClient;
 import ch.sbb.scion.rcp.microfrontend.model.Intent;
 import ch.sbb.scion.rcp.microfrontend.model.PublishOptions;
 import ch.sbb.scion.rcp.microfrontend.model.Qualifier;

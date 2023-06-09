@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.eclipse.e4.ui.workbench.lifecycle.PostContextCreate;
 
-import ch.sbb.scion.rcp.microfrontend.IntentClient;
 import ch.sbb.scion.rcp.microfrontend.MicrofrontendPlatform;
+import ch.sbb.scion.rcp.microfrontend.IntentClient;
 import ch.sbb.scion.rcp.microfrontend.model.ApplicationConfig;
 import ch.sbb.scion.rcp.microfrontend.model.Capability;
 import ch.sbb.scion.rcp.microfrontend.model.Capability.ParamDefinition;
@@ -14,8 +14,8 @@ import ch.sbb.scion.rcp.microfrontend.model.Intent;
 import ch.sbb.scion.rcp.microfrontend.model.Intention;
 import ch.sbb.scion.rcp.microfrontend.model.Manifest;
 import ch.sbb.scion.rcp.microfrontend.model.MicrofrontendPlatformConfig;
-import ch.sbb.scion.rcp.microfrontend.model.Qualifier;
 import ch.sbb.scion.rcp.microfrontend.model.Properties;
+import ch.sbb.scion.rcp.microfrontend.model.Qualifier;
 import ch.sbb.scion.rcp.workbench.WorkbenchPopupSize;
 
 public class ApplicationStartup {
@@ -31,9 +31,9 @@ public class ApplicationStartup {
                     Intention.builder().type("tile").qualifier(new Qualifier().set("*", "*")).build(),
                     Intention.builder().type("popup").qualifier(new Qualifier().set("*", "*")).build()))
                 .capabilities(List.of(
-                    Capability.builder().type("view").qualifier(new Qualifier().set("component", "messageClient")).isPrivate(Boolean.FALSE)
-                        .properties(new Properties().set("title", "Message Client")
-                            .set("heading", "Microfrontend Platform Test Page")
+                    Capability
+                        .builder().type("view").qualifier(new Qualifier().set("component", "messageClient")).isPrivate(Boolean.FALSE)
+                        .properties(new Properties().set("title", "Message Client").set("heading", "Microfrontend Platform Test Page")
                             .set("eclipseViewId", "ch.sbb.scion.rcp.views.messageClient"))
                         .build(),
                     Capability.builder().type("view").qualifier(new Qualifier().set("component", "intentClient")).isPrivate(Boolean.FALSE)
@@ -43,22 +43,21 @@ public class ApplicationStartup {
                         .build(),
                     Capability.builder().type("view").qualifier(new Qualifier().set("component", "manifestService"))
                         .isPrivate(Boolean.FALSE)
-                        .properties(
-                            new Properties().set("title", "Manifest Service").set("heading", "Microfrontend Platform Test Page")
-                                .set("eclipseViewId", "ch.sbb.scion.rcp.views.manifestService"))
+                        .properties(new Properties().set("title", "Manifest Service").set("heading", "Microfrontend Platform Test Page")
+                            .set("eclipseViewId", "ch.sbb.scion.rcp.views.manifestService"))
                         .build(),
                     Capability.builder().type("view").qualifier(new Qualifier().set("component", "outletRouter")).isPrivate(Boolean.FALSE)
-                        .properties(new Properties().set("title", "Outlet Router")
-                            .set("heading", "Microfrontend Platform Test Page").set("eclipseViewId", "ch.sbb.scion.rcp.views.outletRouter"))
+                        .properties(new Properties().set("title", "Outlet Router").set("heading", "Microfrontend Platform Test Page")
+                            .set("eclipseViewId", "ch.sbb.scion.rcp.views.outletRouter"))
                         .build(),
                     Capability.builder().type("view").qualifier(new Qualifier().set("component", "sciRouterOutlet"))
-                        .properties(new Properties().set("title", "Router Outlet")
-                            .set("heading", "Microfrontend Platform Test Page").set("eclipseViewId", "ch.sbb.scion.rcp.views.routerOutlet"))
+                        .properties(new Properties().set("title", "Router Outlet").set("heading", "Microfrontend Platform Test Page")
+                            .set("eclipseViewId", "ch.sbb.scion.rcp.views.routerOutlet"))
                         .build(),
                     Capability.builder().type("view").qualifier(new Qualifier().set("component", "workbenchPopupService"))
-                        .properties(new Properties().set("title", "Workbench Popup Service")
-                            .set("heading", "Microfrontend Platform Test Page")
-                            .set("eclipseViewId", "ch.sbb.scion.rcp.views.workbenchPopupService"))
+                        .properties(
+                            new Properties().set("title", "Workbench Popup Service").set("heading", "Microfrontend Platform Test Page")
+                                .set("eclipseViewId", "ch.sbb.scion.rcp.views.workbenchPopupService"))
                         .build(),
                     Capability.builder().type("popup").qualifier(new Qualifier().set("test", "eclipse-popup")).isPrivate(Boolean.FALSE)
                         .properties(new Properties().set("title", "Eclipse Test Popup")
@@ -68,8 +67,8 @@ public class ApplicationStartup {
                     Capability.builder().type("view").qualifier(new Qualifier().set("test", "eclipse-view")).isPrivate(Boolean.FALSE)
                         .params(List.of(
                             ParamDefinition.builder().name("example").required(Boolean.FALSE).description("An example parameter").build()))
-                        .properties(new Properties().set("title", "Eclipse Test View")
-                            .set("heading", "Eclipse Test View with input").set("eclipseViewId", "ch.sbb.scion.rcp.views.testView"))
+                        .properties(new Properties().set("title", "Eclipse Test View").set("heading", "Eclipse Test View with input")
+                            .set("eclipseViewId", "ch.sbb.scion.rcp.views.testView"))
                         .build()
                 //
                 ))).build())

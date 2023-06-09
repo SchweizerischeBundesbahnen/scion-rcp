@@ -22,13 +22,13 @@ import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
+import ch.sbb.scion.rcp.microfrontend.OutletRouter;
 import ch.sbb.scion.rcp.microfrontend.ManifestService;
 import ch.sbb.scion.rcp.microfrontend.MessageClient;
-import ch.sbb.scion.rcp.microfrontend.OutletRouter;
-import ch.sbb.scion.rcp.microfrontend.OutletRouter.NavigationOptions;
 import ch.sbb.scion.rcp.microfrontend.RouterOutlet;
 import ch.sbb.scion.rcp.microfrontend.model.Application;
 import ch.sbb.scion.rcp.microfrontend.model.MessageHeaders;
+import ch.sbb.scion.rcp.microfrontend.model.NavigationOptions;
 import ch.sbb.scion.rcp.microfrontend.model.PublishOptions;
 import ch.sbb.scion.rcp.microfrontend.model.ResponseStatusCodes;
 import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;

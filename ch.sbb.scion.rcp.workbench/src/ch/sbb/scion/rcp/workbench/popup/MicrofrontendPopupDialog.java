@@ -17,12 +17,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
+import ch.sbb.scion.rcp.microfrontend.OutletRouter;
 import ch.sbb.scion.rcp.microfrontend.ManifestService;
 import ch.sbb.scion.rcp.microfrontend.MessageClient;
-import ch.sbb.scion.rcp.microfrontend.OutletRouter;
-import ch.sbb.scion.rcp.microfrontend.OutletRouter.NavigationOptions;
 import ch.sbb.scion.rcp.microfrontend.RouterOutlet;
 import ch.sbb.scion.rcp.microfrontend.model.Application;
+import ch.sbb.scion.rcp.microfrontend.model.NavigationOptions;
 import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
 import ch.sbb.scion.rcp.workbench.IWorkbenchPopupWindow;
 import ch.sbb.scion.rcp.workbench.WorkbenchPopupOrigin;

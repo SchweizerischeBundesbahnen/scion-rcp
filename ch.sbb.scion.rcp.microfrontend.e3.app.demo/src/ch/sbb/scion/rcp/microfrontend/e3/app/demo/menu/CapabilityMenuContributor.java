@@ -12,12 +12,12 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
-import ch.sbb.scion.rcp.microfrontend.IntentClient;
 import ch.sbb.scion.rcp.microfrontend.ManifestService;
-import ch.sbb.scion.rcp.microfrontend.ManifestService.ManifestObjectFilter;
+import ch.sbb.scion.rcp.microfrontend.IntentClient;
 import ch.sbb.scion.rcp.microfrontend.e3.app.demo.ContextInjectors;
 import ch.sbb.scion.rcp.microfrontend.model.Capability;
 import ch.sbb.scion.rcp.microfrontend.model.Intent;
+import ch.sbb.scion.rcp.microfrontend.model.ManifestObjectFilter;
 import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
 
 /**
