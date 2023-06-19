@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SCION Microfrontend Platform Test Fragment
 Bundle-SymbolicName: rcp-microfrontend-test;singleton:=true
-Bundle-Version: 0.0.5.qualifier
+Bundle-Version: 0.0.5
 Bundle-Vendor: SBB and Contributors
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Fragment-Host: rcp-microfrontend
