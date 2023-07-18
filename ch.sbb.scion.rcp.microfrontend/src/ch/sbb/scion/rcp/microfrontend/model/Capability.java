@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.google.gson.annotations.SerializedName;
 
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,7 +17,7 @@ import lombok.experimental.Accessors;
 @Accessors(fluent = true)
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 @Builder
 @ToString
 public class Capability {

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Make all argument constructors of model classes public. This change allows to extend these classes, which was effectively inhibited previously - there is no decision against allowing the extension of model classes, currently.
+
 ## [0.0.5] - 2023-06-19
 
 ### Changed
