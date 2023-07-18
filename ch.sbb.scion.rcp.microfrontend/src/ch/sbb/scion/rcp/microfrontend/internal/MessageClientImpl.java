@@ -148,4 +148,16 @@ public class MessageClientImpl implements MessageClient {
 
     return published;
   }
+
+  @Override
+  public ISubscription subscribeToSubscriberCount(final String topic, final ISubscriber<Number> subscriber) {
+    Objects.requireNonNull(topic);
+    Objects.requireNonNull(subscriber);
+    var observeIIFE = new Script(Resources.readString("js/sci-message-client/subscriber-count.iife.js"))
+        .replacePlaceholder("refs.MessageClient", Refs.MessageClient).replacePlaceholder("topic", topic, Flags.ToJson)
+        .replacePlaceholder("helpers.fromJson", Helpers.fromJson).substitute();
+
+    var observable = new RxJsObservable<Number>(microfrontendPlatformRcpHost.whenHostBrowser, observeIIFE, Number.class);
+    return observable.subscribe(subscriber);
+  }
 }

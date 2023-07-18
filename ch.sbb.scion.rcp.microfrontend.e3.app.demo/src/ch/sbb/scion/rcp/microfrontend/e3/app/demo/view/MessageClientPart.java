@@ -34,6 +34,8 @@ import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
 
 public class MessageClientPart {
 
+  private static final String NAN = "NaN";
+
   @Inject
   private MessageClient messageClient;
 
@@ -47,6 +49,9 @@ public class MessageClientPart {
 
     var subscribeGroup = createSubscribeGroup(composite);
     GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(subscribeGroup);
+
+    var subscriberCountGroup = createSubscriberCountGroup(composite);
+    GridDataFactory.swtDefaults().align(SWT.FILL, SWT.BOTTOM).grab(true, false).applyTo(subscriberCountGroup);
   }
 
   private Composite createPublishGroup(final Composite parent) {
@@ -101,7 +106,7 @@ public class MessageClientPart {
     createTopicParamsColumn(messagesTableViewer);
     GridDataFactory.swtDefaults().span(2, 1).align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(messagesTableViewer.getControl());
 
-    messagesTableViewer.setInput(Collections.EMPTY_LIST);
+    messagesTableViewer.setInput(Collections.emptyList());
 
     var subscription = new AtomicReference<ISubscription>();
     subscribeButton.addSelectionListener(new SelectionAdapter() {
@@ -117,7 +122,7 @@ public class MessageClientPart {
         }
         else {
           messages.clear();
-          messagesTableViewer.setInput(Collections.EMPTY_LIST);
+          messagesTableViewer.setInput(Collections.emptyList());
           subscription.getAndSet(null).unsubscribe();
           subscribeButton.setText("Subscribe");
         }
@@ -187,8 +192,52 @@ public class MessageClientPart {
     });
   }
 
+  private Composite createSubscriberCountGroup(final Composite parent) {
+    var group = GroupFactory.newGroup(SWT.NONE).text("Subscriber count").create(parent);
+    GridLayoutFactory.swtDefaults().numColumns(2).margins(5, 10).spacing(20, 7).applyTo(group);
+
+    // Topic
+    LabelFactory.newLabel(SWT.NONE).text("Topic")
+        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).align(SWT.BEGINNING, SWT.CENTER).create()).create(group);
+    var topic = TextFactory.newText(SWT.SINGLE | SWT.BORDER).layoutData(GridDataFactory.fillDefaults().grab(true, false).create())
+        .create(group);
+
+    // Count
+    LabelFactory.newLabel(SWT.NONE).text("Count")
+        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).align(SWT.BEGINNING, SWT.CENTER).create()).create(group);
+    var count = LabelFactory.newLabel(SWT.NONE).text(NAN)
+        .layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).align(SWT.BEGINNING, SWT.CENTER).create()).create(group);
+
+    // Subscribe button
+    var subscribeButton = ButtonFactory.newButton(SWT.NONE).text("Subscribe").layoutData(GridDataFactory.fillDefaults().span(2, 1).create())
+        .create(group);
+
+    var subscription = new AtomicReference<ISubscription>();
+    subscribeButton.addSelectionListener(new SelectionAdapter() {
+
+      @Override
+      public void widgetSelected(final SelectionEvent e) {
+        if (subscription.get() == null) {
+          subscription.set(messageClient.subscribeToSubscriberCount(topic.getText(), countNumber -> {
+            var countAsString = countNumber == null ? NAN : String.valueOf(countNumber.intValue());
+            count.setText(countAsString);
+          }));
+          subscribeButton.setText("Unsubscribe from subscriber count");
+        }
+        else {
+          count.setText(NAN);
+          subscription.getAndSet(null).unsubscribe();
+          subscribeButton.setText("Subscribe to subscriber count");
+        }
+        topic.setEnabled(subscription.get() == null);
+      }
+    });
+
+    return group;
+  }
+
   @SuppressWarnings("unchecked") // due to the fact that those ColumnLabelProviders are not type safe
-  private final static TopicMessage<String> getTopicMessageFromObject(final Object o) {
+  private static final TopicMessage<String> getTopicMessageFromObject(final Object o) {
     return (TopicMessage<String>) o;
   }
 }
