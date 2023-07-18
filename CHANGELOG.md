@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Support tracking subscriber count of messaging topic. This change allows cleaning up unsubscribed intent reply subscriptions. Previously, there were no means to detect whether the intent issuer is still subscribed to the reply observable.
+
 ### Changed
 
 - Make all argument constructors of model classes public. This change allows to extend these classes, which was effectively inhibited previously - there is no decision against allowing the extension of model classes, currently.

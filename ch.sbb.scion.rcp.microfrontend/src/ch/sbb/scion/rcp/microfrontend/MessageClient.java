@@ -78,4 +78,9 @@ public interface MessageClient {
    */
   <T> ISubscription subscribe(final String topic, final Class<T> clazz, final ISubscriber<TopicMessage<T>> subscriber);
 
+  /**
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/MessageClient.html#subscriberCount_"
+   */
+  ISubscription subscribeToSubscriberCount(final String topic, final ISubscriber<Number> subscriber);
+
 }
