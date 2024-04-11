@@ -22,9 +22,9 @@ import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
-import ch.sbb.scion.rcp.microfrontend.OutletRouter;
 import ch.sbb.scion.rcp.microfrontend.ManifestService;
 import ch.sbb.scion.rcp.microfrontend.MessageClient;
+import ch.sbb.scion.rcp.microfrontend.OutletRouter;
 import ch.sbb.scion.rcp.microfrontend.RouterOutlet;
 import ch.sbb.scion.rcp.microfrontend.model.Application;
 import ch.sbb.scion.rcp.microfrontend.model.MessageHeaders;
@@ -32,15 +32,17 @@ import ch.sbb.scion.rcp.microfrontend.model.NavigationOptions;
 import ch.sbb.scion.rcp.microfrontend.model.PublishOptions;
 import ch.sbb.scion.rcp.microfrontend.model.ResponseStatusCodes;
 import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
+import ch.sbb.scion.rcp.workbench.IMicrofrontendViewPart;
 import ch.sbb.scion.rcp.workbench.internal.CompletableFutures;
 import ch.sbb.scion.rcp.workbench.internal.ContextInjectors;
 
 /**
  * Embeds the microfrontend of a view capability. See `MicrofrontendViewComponent` in SCION Workbench.
  */
-public class MicrofrontendViewEditorPart extends EditorPart implements IReusableEditor, IPartListener2 {
+public class MicrofrontendViewEditorPart extends EditorPart implements IReusableEditor, IPartListener2, IMicrofrontendViewPart {
 
-  public static final String ID = "ch.sbb.scion.rcp.workbench.editors.MicrofrontendViewEditor";
+  // TODO: Remove and use ID defined on interface?
+  public static final String ID = IMicrofrontendViewPart.ID;
 
   @Inject
   private OutletRouter outletRouter;
@@ -108,7 +110,7 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
 
     // Signal that the currently loaded microfrontend, if any, is about to be replaced by a microfrontend of another application.
     if (prevCapability != null && !prevCapability.metadata().appSymbolicName().equals(capability.metadata().appSymbolicName())) {
-      var topic = String.format("ɵworkbench/views/%s/unloading", getSciViewId());
+      var topic = String.format("ɵworkbench/views/%s/unloading", getViewId());
       CompletableFutures.await(messageClient.publish(topic));
     }
 
@@ -116,14 +118,14 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
     var applications = CompletableFutures.await(this.applications);
     var appSymbolicName = capability.metadata().appSymbolicName();
     var path = (String) capability.properties().get("path");
-    outletRouter.navigate(path, NavigationOptions.builder().outlet(getSciViewId()).relativeTo(applications.get(appSymbolicName).baseUrl())
+    outletRouter.navigate(path, NavigationOptions.builder().outlet(getViewId()).relativeTo(applications.get(appSymbolicName).baseUrl())
         .params(params).pushStateToSessionHistoryStack(Boolean.FALSE).build());
   }
 
   @Override
   public void createPartControl(final Composite parent) {
-    sciRouterOutlet = new RouterOutlet(parent, SWT.NONE, getSciViewId());
-    sciRouterOutlet.setContextValue("ɵworkbench.view.id", getSciViewId());
+    sciRouterOutlet = new RouterOutlet(parent, SWT.NONE, getViewId());
+    sciRouterOutlet.setContextValue("ɵworkbench.view.id", getViewId());
   }
 
   @Override
@@ -169,17 +171,17 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
   }
 
   private void installViewTitleUpdater() {
-    var topic = String.format("ɵworkbench/views/%s/title", getSciViewId());
+    var topic = String.format("ɵworkbench/views/%s/title", getViewId());
     subscriptions.add(messageClient.subscribe(topic, message -> setPartName(message.body())));
   }
 
   private void installViewHeadingUpdater() {
-    var topic = String.format("ɵworkbench/views/%s/heading", getSciViewId());
+    var topic = String.format("ɵworkbench/views/%s/heading", getViewId());
     subscriptions.add(messageClient.subscribe(topic, message -> setTitleToolTip(message.body())));
   }
 
   private void installViewDirtyUpdater() {
-    var topic = String.format("ɵworkbench/views/%s/dirty", getSciViewId());
+    var topic = String.format("ɵworkbench/views/%s/dirty", getViewId());
     subscriptions.add(messageClient.subscribe(topic, Boolean.class, message -> {
       dirty = message.body().booleanValue();
       firePropertyChange(IEditorPart.PROP_DIRTY);
@@ -187,7 +189,7 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
   }
 
   private void installParamsUpdater() {
-    var topic = String.format("ɵworkbench/views/%s/capabilities/:capabilityId/params/update", getSciViewId());
+    var topic = String.format("ɵworkbench/views/%s/capabilities/:capabilityId/params/update", getViewId());
 
     subscriptions.add(messageClient.subscribe(topic, Map.class, message -> {
       var replyTo = (String) message.headers().get(MessageHeaders.REPLY_TO.value);
@@ -198,14 +200,15 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
   }
 
   private String computeViewParamsTopic() {
-    return String.format("ɵworkbench/views/%s/params", getSciViewId());
+    return String.format("ɵworkbench/views/%s/params", getViewId());
   }
 
   private String computeViewActiveTopic() {
-    return String.format("ɵworkbench/views/%s/active", getSciViewId());
+    return String.format("ɵworkbench/views/%s/active", getViewId());
   }
 
-  public String getSciViewId() {
+  @Override
+  public String getViewId() {
     return getEditorInput().sciViewId;
   }
 
