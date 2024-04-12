@@ -35,6 +35,7 @@ import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
 import ch.sbb.scion.rcp.workbench.IMicrofrontendViewPart;
 import ch.sbb.scion.rcp.workbench.internal.CompletableFutures;
 import ch.sbb.scion.rcp.workbench.internal.ContextInjectors;
+import ch.sbb.scion.rcp.workbench.internal.SelectionProvider;
 
 /**
  * Embeds the microfrontend of a view capability. See `MicrofrontendViewComponent` in SCION Workbench.
@@ -75,6 +76,7 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
     installViewDirtyUpdater();
     installParamsUpdater();
 
+    getSite().setSelectionProvider(new SelectionProvider());
     getSite().getPage().addPartListener(this);
   }
 
