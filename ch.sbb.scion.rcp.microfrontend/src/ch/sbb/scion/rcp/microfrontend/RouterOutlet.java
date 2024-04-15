@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import java.io.UnsupportedEncodingException;
@@ -52,8 +53,9 @@ public final class RouterOutlet extends Composite implements DisposeListener {
   private final RouterOutletProxy routerOutletProxy;
   private final Browser browser;
   private URL url;
-  private final IDisposable navigator;
-  private final IDisposable keystrokeDispatcher;
+  private final List<IDisposable> disposables = new ArrayList<>();
+  //  private final IDisposable navigator;
+  //  private final IDisposable keystrokeDispatcher;
   private final List<LoadListener> loadListeners = new ArrayList<>();
   private final List<UnloadListener> unloadListeners = new ArrayList<>();
   private final Set<String> keystrokes = new HashSet<>();
@@ -99,8 +101,8 @@ public final class RouterOutlet extends Composite implements DisposeListener {
       }
     });
 
-    navigator = installRouter(outletName);
-    keystrokeDispatcher = installKeystrokeDispatcher(keystrokeTarget);
+    disposables.add(installRouter(outletName));
+    disposables.add(installKeystrokeDispatcher(keystrokeTarget));
   }
 
   private IDisposable installRouter(final String outletName) {
@@ -147,6 +149,11 @@ public final class RouterOutlet extends Composite implements DisposeListener {
       }
       getDisplay().post(event);
     });
+  }
+
+  public IDisposable onFocusWithin(final Consumer<Boolean> listener) {
+    Objects.requireNonNull(listener);
+    return routerOutletProxy.onFocusWithin(listener);
   }
 
   public IDisposable onLoad(final LoadListener listener) {
@@ -318,8 +325,9 @@ public final class RouterOutlet extends Composite implements DisposeListener {
   @Override
   public void widgetDisposed(final DisposeEvent e) {
     routerOutletProxy.dispose();
-    navigator.dispose();
-    keystrokeDispatcher.dispose();
+    //    navigator.dispose();
+    //    keystrokeDispatcher.dispose();
+    disposables.forEach(IDisposable::dispose);
   }
 
   @FunctionalInterface

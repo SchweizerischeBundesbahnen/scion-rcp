@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 
 import javax.inject.Inject;
 
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.widgets.Event;
 
@@ -34,6 +35,7 @@ public class RouterOutletProxy {
   private final CompletableFuture<Browser> whenOutlet;
   private final List<Consumer<String>> outletToProxyMessageListeners = new ArrayList<>();
   private final List<Consumer<Event>> outletToProxyKeystrokeListeners = new ArrayList<>();
+  private final List<Consumer<Boolean>> outletToProxyFocusWithinListeners = new ArrayList<>();
   private final List<IDisposable> disposables = new ArrayList<>();
 
   @Inject
@@ -66,19 +68,28 @@ public class RouterOutletProxy {
       outletToProxyKeystrokeListeners.forEach(listener -> listener.accept(swtEvent));
     });
 
+    var outletToProxyFocusWithinCallback = new JavaCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
+
+      var focusWithin = (Boolean) args[1];
+      Platform.getLog(getClass()).info("FocusWithin=" + String.valueOf(focusWithin));
+      outletToProxyFocusWithinListeners.forEach(listener -> listener.accept(focusWithin));
+    });
+
     // Callback to signal when loaded the outlet.
     var outletLoadedCallback = new JavaCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
       whenOutlet.complete(microfrontendPlatformRcpHost.hostBrowser);
     });
 
     var whenCallbacksInstalled = CompletableFuture.allOf(outletToProxyMessageCallback.addTo(disposables).install(),
-        outletToProxyKeystrokeCallback.addTo(disposables).install(), outletLoadedCallback.installOnce());
+        outletToProxyKeystrokeCallback.addTo(disposables).install(), outletToProxyFocusWithinCallback.addTo(disposables).install(),
+        outletLoadedCallback.installOnce());
 
     whenCallbacksInstalled.thenRun(() -> {
       new JavaScriptExecutor(microfrontendPlatformRcpHost.whenHostBrowser,
           Resources.readString("js/router-outlet-proxy/install-sci-router-outlet.js"))
               .replacePlaceholder("outletToProxyMessageCallback", outletToProxyMessageCallback.name)
               .replacePlaceholder("outletToProxyKeystrokeCallback", outletToProxyKeystrokeCallback.name)
+              .replacePlaceholder("outletToProxyFocusWithinCallback", outletToProxyFocusWithinCallback.name)
               .replacePlaceholder("outletLoadedCallback", outletLoadedCallback.name).replacePlaceholder("outletId", outletId)
               .replacePlaceholder("refs.OutletRouter", Refs.OutletRouter).replacePlaceholder("helpers.toJson", Helpers.toJson).execute();
     });
@@ -138,6 +149,11 @@ public class RouterOutletProxy {
   public IDisposable onKeystroke(final Consumer<Event> keystrokeListener) {
     outletToProxyKeystrokeListeners.add(keystrokeListener);
     return () -> outletToProxyMessageListeners.remove(keystrokeListener);
+  }
+
+  public IDisposable onFocusWithin(final Consumer<Boolean> focusWithinListener) {
+    outletToProxyFocusWithinListeners.add(focusWithinListener);
+    return () -> outletToProxyFocusWithinListeners.remove(focusWithinListener);
   }
 
   public String getOutletId() {

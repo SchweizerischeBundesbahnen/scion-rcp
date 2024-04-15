@@ -22,9 +22,9 @@ import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
-import ch.sbb.scion.rcp.microfrontend.OutletRouter;
 import ch.sbb.scion.rcp.microfrontend.ManifestService;
 import ch.sbb.scion.rcp.microfrontend.MessageClient;
+import ch.sbb.scion.rcp.microfrontend.OutletRouter;
 import ch.sbb.scion.rcp.microfrontend.RouterOutlet;
 import ch.sbb.scion.rcp.microfrontend.model.Application;
 import ch.sbb.scion.rcp.microfrontend.model.MessageHeaders;
@@ -124,6 +124,14 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
   public void createPartControl(final Composite parent) {
     sciRouterOutlet = new RouterOutlet(parent, SWT.NONE, getSciViewId());
     sciRouterOutlet.setContextValue("ɵworkbench.view.id", getSciViewId());
+    sciRouterOutlet.onFocusWithin(focusWithin -> {
+      if (focusWithin != null && focusWithin.booleanValue()) {
+        // TODO: General problem: FocusWithin is not lost on activating another part...
+        //        getSite().getPage().activate(this); // <- does not work
+        //        setFocus(); // <- does not work
+        //        sciRouterOutlet.forceFocus(); // <- works, as long as focusWithin was not already set
+      }
+    });
   }
 
   @Override
