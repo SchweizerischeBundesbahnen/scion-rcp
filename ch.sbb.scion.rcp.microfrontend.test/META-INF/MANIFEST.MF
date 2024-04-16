@@ -7,10 +7,10 @@ Bundle-Vendor: SBB and Contributors
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Fragment-Host: rcp-microfrontend
 Automatic-Module-Name: rcp-microfrontend-test
-Require-Bundle: org.junit.jupiter.api,
- org.mockito.mockito-core,
+Require-Bundle: org.mockito.mockito-core,
  org.hamcrest,
  org.mockito.junit-jupiter,
  net.bytebuddy.byte-buddy,
  net.bytebuddy.byte-buddy-agent,
- wrapped.org.mockito.mockito-inline
+ wrapped.org.mockito.mockito-inline,
+ junit-jupiter-api

@@ -9,4 +9,4 @@ Automatic-Module-Name: rcp-workbench-test
 Bundle-Vendor: SBB and Contributors
 Require-Bundle: org.mockito.mockito-core,
  org.hamcrest,
- org.junit.jupiter.api
+ junit-jupiter-api
