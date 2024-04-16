@@ -56,13 +56,9 @@
 	</scm>
 
 	<properties>
-		<java.version>11</java.version>
-		<maven.compiler.source>${java.version}</maven.compiler.source>
-		<maven.compiler.target>${java.version}</maven.compiler.target>
-		<maven.compiler.release>${java.version}</maven.compiler.release>
+		<maven.compiler.release>17</maven.compiler.release>
 
 		<tycho.version>3.0.4</tycho.version>
-		<surefire.plugin.version>3.1.0</surefire.plugin.version>
 		<jacoco.version>0.8.10</jacoco.version>
 		<gpg-plugin.version>3.0.1</gpg-plugin.version>
 		<flatten-maven-plugin.version>1.4.1</flatten-maven-plugin.version>
@@ -71,8 +67,7 @@
 		<deploy-plugin.version>3.1.1</deploy-plugin.version>
 		<javadoc-plugin.version>2.9.1</javadoc-plugin.version>
 
-		<eclipse.release>2022-03</eclipse.release>
-		<eclipse.orbit.release>R20220302172233</eclipse.orbit.release>
+		<eclipse.release>2023-09</eclipse.release>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -82,11 +77,6 @@
 		<repository>
 			<id>eclipse-platform</id>
 			<url>https://download.eclipse.org/releases/${eclipse.release}/</url>
-			<layout>p2</layout>
-		</repository>
-		<repository>
-			<id>eclipse-orbit</id>
-			<url>https://download.eclipse.org/tools/orbit/downloads/drops/${eclipse.orbit.release}/repository/</url>
 			<layout>p2</layout>
 		</repository>
 	</repositories>

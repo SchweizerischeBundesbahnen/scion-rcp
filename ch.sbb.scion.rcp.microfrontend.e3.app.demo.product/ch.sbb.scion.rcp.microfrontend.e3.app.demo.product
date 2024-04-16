@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="SCION RCP Demo Application" uid="ch.sbb.scion.rcp.microfrontend.e3.app.demo.product" id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.product" application="ch.sbb.scion.rcp.microfrontend.e3.app.demo.application" version="0.0.6.qualifier" useFeatures="true" includeLaunchers="true" autoIncludeRequirements="true">
+<product name="SCION RCP Demo Application" uid="ch.sbb.scion.rcp.microfrontend.e3.app.demo.product" id="ch.sbb.scion.rcp.microfrontend.e3.app.demo.product" application="ch.sbb.scion.rcp.microfrontend.e3.app.demo.application" version="0.0.6.qualifier" type="features" includeLaunchers="true" autoIncludeRequirements="true">
 
    <configIni use="default">
    </configIni>
@@ -39,7 +39,6 @@
       <feature id="org.eclipse.equinox.executable" installMode="root"/>
       <feature id="org.eclipse.e4.rcp" installMode="root"/>
       <feature id="ch.sbb.scion.rcp.feature" installMode="root"/>
-      <feature id="org.eclipse.swtbot.junit5" installMode="root"/>
       <feature id="ch.sbb.scion.rcp.swtbot.feature" installMode="root"/>
    </features>
 

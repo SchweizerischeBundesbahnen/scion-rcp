@@ -10,15 +10,12 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-    
-    - name: 'Install Edge'
-      uses: browser-actions/setup-edge@v1
 
     - name: 'Checkout'
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: 'Setup JDK'
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         java-version: 17
         distribution: temurin
@@ -35,20 +32,15 @@ jobs:
         MAVEN_OPTS: "-javaagent:${{ steps.setup-lombok.outputs.lombok-jar }}"
       
     - name: 'Upload microfrontend library'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: microfrontend-library
         path: | 
           ch.sbb.scion.rcp.microfrontend/target/*.jar
 
     - name: 'Upload workbench library'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: workbench-library
         path: |
           ch.sbb.scion.rcp.workbench/target/*.jar
-        
-#    - name: 'Run headless SWTBot Tests'    
-#      run: |
-#        sudo apt-get install libwebkit2gtk-4.0-37
-#        xvfb-run java -Xms256M -Xmx768M -jar ch.sbb.scion.rcp.microfrontend.e3.app.demo.product/target/products/ch.sbb.scion.rcp.microfrontend.e3.app.demo.product/linux/gtk/x86_64/plugins/org.eclipse.equinox.launcher_1.6.400.v20210924-0641.jar -application org.eclipse.swtbot.eclipse.junit5.headless.swtbottestapplication -product ch.sbb.scion.rcp.microfrontend.e3.app.demo.product -testApplication ch.sbb.scion.rcp.microfrontend.e3.app.demo.application -data . -testPluginName ch.sbb.scion.rcp.microfrontend.e3.app.demo.test formatter=org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter,./AllTests.xml -classname ch.sbb.scion.rcp.microfrontend.e3.app.demo.test.PopupCapabilityTest -os linux -ws gtk -arch x86_64 -consoleLog -debug
