@@ -3,6 +3,7 @@
    <service>
       <provide interface="ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost"/>
    </service>
+   <reference cardinality="1..1" field="focusEventEmulatorInstaller" interface="ch.sbb.scion.rcp.microfrontend.host.FocusEventEmulatorInstaller" name="focusEventEmulatorInstaller"/>
    <reference cardinality="1..1" field="intentInterceptorInstaller" interface="ch.sbb.scion.rcp.microfrontend.host.IntentInterceptorInstaller" name="intentInterceptorInstaller"/>
    <reference cardinality="1..1" field="messageInterceptorInstaller" interface="ch.sbb.scion.rcp.microfrontend.host.MessageInterceptorInstaller" name="messageInterceptorInstaller"/>
    <implementation class="ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost"/>

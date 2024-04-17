@@ -129,7 +129,7 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
         // TODO: General problem: FocusWithin is not lost on activating another part...
         //        getSite().getPage().activate(this); // <- does not work
         //        setFocus(); // <- does not work
-        //        sciRouterOutlet.forceFocus(); // <- works, as long as focusWithin was not already set
+        sciRouterOutlet.forceFocus(); // <- works, as long as focusWithin was not already set
       }
     });
   }
