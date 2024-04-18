@@ -26,6 +26,8 @@ import org.eclipse.swt.browser.ProgressAdapter;
 import org.eclipse.swt.browser.ProgressEvent;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -79,6 +81,25 @@ public final class RouterOutlet extends Composite implements DisposeListener {
     routerOutletProxy = new RouterOutletProxy(outletName);
 
     browser = new Browser(this, SWT.EDGE);
+    browser.addFocusListener(new FocusListener() {
+
+      @Override
+      public void focusLost(final FocusEvent e) {
+        Platform.getLog(getClass()).info("Browser: Focus lost");
+      }
+
+      @Override
+      public void focusGained(final FocusEvent e) {
+        Platform.getLog(getClass()).info("Browser: Focus gained");
+      }
+    });
+    browser.addListener(SWT.Activate, event -> {
+      Platform.getLog(getClass()).info("Browser: Activated");
+    });
+    browser.addListener(SWT.Deactivate, event -> {
+      Platform.getLog(getClass()).info("Browser: Deactivated");
+    });
+
     browser.addProgressListener(new ProgressAdapter() {
 
       private final List<IDisposable> disposables = new ArrayList<>();
