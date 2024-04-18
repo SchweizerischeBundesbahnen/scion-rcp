@@ -149,6 +149,11 @@ public final class RouterOutlet extends Composite implements DisposeListener {
     });
   }
 
+  public IDisposable onFocusWithin(final FocusWithinListener listener) {
+    Objects.requireNonNull(listener);
+    return routerOutletProxy.onFocusWithin(listener::onFocusWithin);
+  }
+
   public IDisposable onLoad(final LoadListener listener) {
     Objects.requireNonNull(listener);
     loadListeners.add(listener);
@@ -332,5 +337,11 @@ public final class RouterOutlet extends Composite implements DisposeListener {
   public static interface UnloadListener {
 
     public void onUnload(URL url);
+  }
+
+  @FunctionalInterface
+  public static interface FocusWithinListener {
+
+    public void onFocusWithin(Boolean focusWithin);
   }
 }
