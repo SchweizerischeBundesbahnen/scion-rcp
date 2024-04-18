@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.eclipse.e4.ui.workbench.lifecycle.PostContextCreate;
 
-import ch.sbb.scion.rcp.microfrontend.MicrofrontendPlatform;
 import ch.sbb.scion.rcp.microfrontend.IntentClient;
+import ch.sbb.scion.rcp.microfrontend.MicrofrontendPlatform;
 import ch.sbb.scion.rcp.microfrontend.model.ApplicationConfig;
 import ch.sbb.scion.rcp.microfrontend.model.Capability;
 import ch.sbb.scion.rcp.microfrontend.model.Capability.ParamDefinition;

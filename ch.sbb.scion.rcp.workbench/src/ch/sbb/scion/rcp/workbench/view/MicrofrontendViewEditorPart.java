@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -22,6 +23,7 @@ import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.EditorPart;
 
+import ch.sbb.scion.rcp.microfrontend.IDisposable;
 import ch.sbb.scion.rcp.microfrontend.ManifestService;
 import ch.sbb.scion.rcp.microfrontend.MessageClient;
 import ch.sbb.scion.rcp.microfrontend.OutletRouter;
@@ -124,14 +126,20 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
   public void createPartControl(final Composite parent) {
     sciRouterOutlet = new RouterOutlet(parent, SWT.NONE, getSciViewId());
     sciRouterOutlet.setContextValue("ɵworkbench.view.id", getSciViewId());
-    sciRouterOutlet.onFocusWithin(focusWithin -> {
-      if (focusWithin != null && focusWithin.booleanValue()) {
-        // TODO: General problem: FocusWithin is not lost on activating another part...
-        //        getSite().getPage().activate(this); // <- does not work
-        //        setFocus(); // <- does not work
-        sciRouterOutlet.forceFocus(); // <- works, as long as focusWithin was not already set
-      }
-    });
+    //    sciRouterOutlet.onFocusWithin(focusWithin -> {
+    //      if (focusWithin != null && focusWithin.booleanValue()) {
+    //        // TODO: General problem: FocusWithin is not lost on activating another part...
+    //        getSite().getPage().activate(this); // <- does not highlight the tab, but the we are the active part, according to the check below!
+    //        Platform.getLog(getClass()).info("Active part=%s".formatted(getSite().getPage().getActivePart() == this));
+    //        //        sciRouterOutlet.setEnabled(true); // <- enables Window?!, hence not useful
+    //        //        setFocus(); // <- does not work
+    //        //        sciRouterOutlet.forceFocus(); // <- works, as long as focusWithin was not already set - observation: if you select the tab, then the previously focused control in the web-app is not focused any longer...
+    //      }
+    //    });
+  }
+
+  public IDisposable onFocusWithin(final Consumer<Boolean> listener) {
+    return sciRouterOutlet.onFocusWithin(listener);
   }
 
   @Override

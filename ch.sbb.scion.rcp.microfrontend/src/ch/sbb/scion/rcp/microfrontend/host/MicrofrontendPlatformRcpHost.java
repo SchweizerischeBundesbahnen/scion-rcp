@@ -59,20 +59,14 @@ public class MicrofrontendPlatformRcpHost {
   @Reference
   private IntentInterceptorInstaller intentInterceptorInstaller;
 
-  @Reference
-  private FocusEventEmulatorInstaller focusEventEmulatorInstaller;
-
   /**
    * Starts the SCION Microfrontend Platform host.
    *
    * @see "https://scion-microfrontend-platform-api.vercel.app/classes/MicrofrontendPlatformHost.html#start"
    */
   public CompletableFuture<Browser> start(final MicrofrontendPlatformConfig config) {
-    Display display = Display.getDefault();
-    focusEventEmulatorInstaller.install(display);
-
     // Create the shell
-    shell = new Shell(display);
+    shell = new Shell(Display.getDefault());
     shell.setLayout(new FillLayout());
     shell.setSize(new Point(400, 700));
     shell.setText("SCION Microfrontend Platform RCP host");

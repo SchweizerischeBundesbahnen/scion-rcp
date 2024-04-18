@@ -19,7 +19,8 @@ Bundle-ActivationPolicy: lazy
 Import-Package: javax.annotation,
  javax.inject
 Export-Package: ch.sbb.scion.rcp.workbench
-Service-Component: OSGI-INF/ch.sbb.scion.rcp.workbench.internal.ScionWorkbenchInitializer.xml,
+Service-Component: OSGI-INF/ch.sbb.scion.rcp.workbench.MicrofrontendViewPartTracker.xml,
+ OSGI-INF/ch.sbb.scion.rcp.workbench.internal.ScionWorkbenchInitializer.xml,
  OSGI-INF/ch.sbb.scion.rcp.workbench.popup.PopupIntentInterceptor.xml,
  OSGI-INF/ch.sbb.scion.rcp.workbench.popup.PopupRegistry.xml,
  OSGI-INF/ch.sbb.scion.rcp.workbench.popup.PopupService.xml,
