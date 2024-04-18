@@ -2,6 +2,7 @@
 const refs = {OutletRouter: /@@refs.OutletRouter@@/};
 const outletId = '/@@outletId@@/';
 const outletToProxyKeystrokeCallback = window['/@@outletToProxyKeystrokeCallback@@/'];
+const outletToProxyFocusWithinCallback = window['/@@outletToProxyFocusWithinCallback@@/'];
 // ======= SCRIPT PLACEHOLDERS END =======
 
 // Append sci-router-outlet
@@ -52,4 +53,8 @@ sciRouterOutlet.addEventListener('keydown', event => {
 });
 sciRouterOutlet.addEventListener('keyup', event => {
   outletToProxyKeystrokeCallback('keyup', event.key, event.ctrlKey, event.shiftKey, event.altKey, event.metaKey);
+});
+// Install focus dispatcher
+sciRouterOutlet.addEventListener('focuswithin', event => {
+  outletToProxyFocusWithinCallback('focuswithin', event.detail);
 });

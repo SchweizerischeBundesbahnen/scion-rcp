@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Support tracking subscriber count of messaging topic. This change allows cleaning up unsubscribed intent reply subscriptions. Previously, there were no means to detect whether the intent issuer is still subscribed to the reply observable.
+- Support listening to focus-within events on the router outlet.
+- Introduce minimal public API for the microfrontend view part.
+  - Allow identifying a microfrontend view part.
+  - Support listening to focus-within events of the embedded router outlet.
+  - Provide a selection provider that can be used to inform the Eclipse context about selections in the embedded microfrontend. In particular, this selection provider integrates with the Eclipse selection service.
 
 ### Changed
 
