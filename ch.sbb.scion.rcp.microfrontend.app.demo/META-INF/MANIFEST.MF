@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: RCP Application
 Bundle-SymbolicName: ch.sbb.scion.rcp.microfrontend.app.demo;singleton:=true
-Bundle-Version: 0.0.6
+Bundle-Version: 0.0.7.qualifier
 Bundle-Activator: ch.sbb.scion.rcp.microfrontend.app.demo.Activator
 Require-Bundle: javax.inject,
  org.eclipse.swt,
