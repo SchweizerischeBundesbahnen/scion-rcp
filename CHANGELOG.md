@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.6] - 2024-04-22
+
 ### Added
 
 - Support tracking subscriber count of messaging topic. This change allows cleaning up unsubscribed intent reply subscriptions. Previously, there were no means to detect whether the intent issuer is still subscribed to the reply observable.
