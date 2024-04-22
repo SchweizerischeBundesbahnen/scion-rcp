@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="ch.sbb.scion.rcp.microfrontend.app.demo.product" uid="ch.sbb.scion.rcp.microfrontend.app.demo.product" id="ch.sbb.scion.rcp.microfrontend.app.demo.product" application="org.eclipse.e4.ui.workbench.swt.E4Application" version="0.0.6" useFeatures="true" includeLaunchers="true" autoIncludeRequirements="true">
+<product name="ch.sbb.scion.rcp.microfrontend.app.demo.product" uid="ch.sbb.scion.rcp.microfrontend.app.demo.product" id="ch.sbb.scion.rcp.microfrontend.app.demo.product" application="org.eclipse.e4.ui.workbench.swt.E4Application" version="0.0.7.qualifier" useFeatures="true" includeLaunchers="true" autoIncludeRequirements="true">
 
 
    <configIni use="default">
