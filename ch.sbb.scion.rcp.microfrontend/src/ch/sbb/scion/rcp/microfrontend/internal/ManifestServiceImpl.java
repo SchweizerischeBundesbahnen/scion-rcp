@@ -16,6 +16,8 @@ import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost;
 import ch.sbb.scion.rcp.microfrontend.internal.gson.GsonFactory;
 import ch.sbb.scion.rcp.microfrontend.model.Application;
 import ch.sbb.scion.rcp.microfrontend.model.Capability;
+import ch.sbb.scion.rcp.microfrontend.model.CapabilityIdentifier;
+import ch.sbb.scion.rcp.microfrontend.model.Intention;
 import ch.sbb.scion.rcp.microfrontend.model.ManifestObjectFilter;
 import ch.sbb.scion.rcp.microfrontend.script.Script;
 import ch.sbb.scion.rcp.microfrontend.script.Script.Flags;
@@ -123,4 +125,95 @@ public class ManifestServiceImpl implements ManifestService {
     return unregistered;
   }
 
+  @Override
+  public ISubscription lookupIntentions(final ISubscriber<List<Intention>> subscriber) {
+    return lookupIntentions(null, subscriber);
+  }
+
+  @Override
+  public ISubscription lookupIntentions(final ManifestObjectFilter filter, final ISubscriber<List<Intention>> subscriber) {
+    Objects.requireNonNull(subscriber);
+    var manifestObjectFilter = Optional.ofNullable(filter).orElse(new ManifestObjectFilter());
+    var observeIIFE = new Script(Resources.readString("js/sci-manifest-service/lookup-intentions.iife.js"))
+        .replacePlaceholder("refs.ManifestService", Refs.ManifestService)
+        .replacePlaceholder("filter.id", manifestObjectFilter.id(), Flags.ToJson)
+        .replacePlaceholder("filter.type", manifestObjectFilter.type(), Flags.ToJson)
+        .replacePlaceholder("filter.qualifier", manifestObjectFilter.qualifier(), Flags.ToJson)
+        .replacePlaceholder("filter.appSymbolicName", manifestObjectFilter.appSymbolicName(), Flags.ToJson)
+        .replacePlaceholder("helpers.fromJson", Helpers.fromJson).substitute();
+
+    var observable = new RxJsObservable<List<Intention>>(microfrontendPlatformRcpHost.whenHostBrowser, observeIIFE,
+        new ParameterizedType(List.class, Intention.class));
+    return observable.subscribe(subscriber);
+  }
+
+  @Override
+  public CompletableFuture<String> registerIntention(final Intention intention) {
+    Objects.requireNonNull(intention);
+    var registered = new CompletableFuture<String>();
+    new JavaCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
+      var error = args[0];
+      if (error == null) {
+        registered.complete((String) args[1]);
+      }
+      else {
+        registered.completeExceptionally(new RuntimeException((String) error));
+      }
+    }).installOnce().thenAccept(callback -> {
+      new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser,
+          Resources.readString("js/sci-manifest-service/register-intention.js")).replacePlaceholder("callback", callback.name)
+              .replacePlaceholder("intention", intention, Flags.ToJson).replacePlaceholder("refs.ManifestService", Refs.ManifestService)
+              .replacePlaceholder("helpers.fromJson", Helpers.fromJson).runInsideAsyncFunction().execute();
+    });
+
+    return registered;
+  }
+
+  @Override
+  public CompletableFuture<Void> unregisterIntentions() {
+    return unregisterIntentions(null);
+  }
+
+  @Override
+  public CompletableFuture<Void> unregisterIntentions(final ManifestObjectFilter filter) {
+    var unregistered = new CompletableFuture<Void>();
+    var manifestObjectFilter = Optional.ofNullable(filter).orElse(new ManifestObjectFilter());
+    new JavaCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
+      var error = args[0];
+      if (error == null) {
+        unregistered.complete(null);
+      }
+      else {
+        unregistered.completeExceptionally(new RuntimeException((String) error));
+      }
+    }).installOnce().thenAccept(callback -> {
+      new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser,
+          Resources.readString("js/sci-manifest-service/unregister-intentions.js")).replacePlaceholder("callback", callback.name)
+              .replacePlaceholder("refs.ManifestService", Refs.ManifestService)
+              .replacePlaceholder("filter.id", manifestObjectFilter.id(), Flags.ToJson)
+              .replacePlaceholder("filter.type", manifestObjectFilter.type(), Flags.ToJson)
+              .replacePlaceholder("filter.qualifier", manifestObjectFilter.qualifier(), Flags.ToJson)
+              .replacePlaceholder("filter.appSymbolicName", manifestObjectFilter.appSymbolicName(), Flags.ToJson)
+              .replacePlaceholder("helpers.fromJson", Helpers.fromJson).runInsideAsyncFunction().execute();
+    });
+
+    return unregistered;
+  }
+
+  @Override
+  public ISubscription isApplicationQualified(final String appSymbolicName, final CapabilityIdentifier qualifiedFor,
+      final ISubscriber<Boolean> subscriber) {
+    Objects.requireNonNull(appSymbolicName);
+    Objects.requireNonNull(qualifiedFor);
+    Objects.requireNonNull(qualifiedFor.capabilityId());
+    Objects.requireNonNull(subscriber);
+    var observeIIFE = new Script(Resources.readString("js/sci-manifest-service/is-application-qualified.iife.js"))
+        .replacePlaceholder("refs.ManifestService", Refs.ManifestService)
+        .replacePlaceholder("appSymbolicName", appSymbolicName, Flags.ToJson)
+        .replacePlaceholder("qualifiedFor.capabilityId", qualifiedFor.capabilityId(), Flags.ToJson)
+        .replacePlaceholder("helpers.fromJson", Helpers.fromJson).substitute();
+
+    var observable = new RxJsObservable<Boolean>(microfrontendPlatformRcpHost.whenHostBrowser, observeIIFE, Boolean.class);
+    return observable.subscribe(subscriber);
+  }
 }
