@@ -5,6 +5,8 @@ import java.util.concurrent.CompletableFuture;
 
 import ch.sbb.scion.rcp.microfrontend.model.Application;
 import ch.sbb.scion.rcp.microfrontend.model.Capability;
+import ch.sbb.scion.rcp.microfrontend.model.CapabilityIdentifier;
+import ch.sbb.scion.rcp.microfrontend.model.Intention;
 import ch.sbb.scion.rcp.microfrontend.model.ManifestObjectFilter;
 import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscriber;
 import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
@@ -20,12 +22,12 @@ public interface ManifestService {
   CompletableFuture<List<Application>> getApplications();
 
   /**
-   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/ManifestService.html#lookupCapabilities"
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/ManifestService.html#lookupCapabilities_"
    */
   ISubscription lookupCapabilities(final ISubscriber<List<Capability>> subscriber);
 
   /**
-   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/ManifestService.html#lookupCapabilities"
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/ManifestService.html#lookupCapabilities_"
    */
   ISubscription lookupCapabilities(final ManifestObjectFilter filter, final ISubscriber<List<Capability>> subscriber);
 
@@ -44,4 +46,34 @@ public interface ManifestService {
    */
   CompletableFuture<Void> unregisterCapabilities(final ManifestObjectFilter filter);
 
+  /**
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/ManifestService.html#lookupIntentions_"
+   */
+  ISubscription lookupIntentions(final ISubscriber<List<Intention>> subscriber);
+
+  /**
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/ManifestService.html#lookupIntentions_"
+   */
+  ISubscription lookupIntentions(final ManifestObjectFilter filter, final ISubscriber<List<Intention>> subscriber);
+
+  /**
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/ManifestService.html#registerIntention"
+   */
+  CompletableFuture<String> registerIntention(final Intention intention);
+
+  /**
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/ManifestService.html#unregisterIntentions"
+   */
+  CompletableFuture<Void> unregisterIntentions();
+
+  /**
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/ManifestService.html#unregisterIntentions"
+   */
+  CompletableFuture<Void> unregisterIntentions(final ManifestObjectFilter filter);
+
+  /**
+   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/ManifestService.html#isApplicationQualified_"
+   */
+  ISubscription isApplicationQualified(final String appSymbolicName, final CapabilityIdentifier qualifiedFor,
+      final ISubscriber<Boolean> subscriber);
 }
