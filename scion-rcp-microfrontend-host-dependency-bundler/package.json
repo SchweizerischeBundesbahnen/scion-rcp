@@ -4,20 +4,20 @@
     "bundle": "parcel build src/refs.ts --no-cache --dist-dir ../ch.sbb.scion.rcp.microfrontend/js"
   },
   "dependencies": {
-    "@scion/microfrontend-platform": "1.0.0-rc.12",
-    "@scion/toolkit": "1.3.1",
-    "rxjs": "7.6.0"
+    "@scion/microfrontend-platform": "1.2.2",
+    "@scion/toolkit": "1.4.1",
+    "rxjs": "7.8.1"
   },
   "devDependencies": {
-    "@types/node": "^16.0.0",
-    "parcel": "^2.7.0",
-    "typescript": "^4.8.4"
+    "@types/node": "20.12.7",
+    "parcel": "2.12.0",
+    "typescript": "5.0.4"
   },
   "browserslist": [
     "last 2 Chrome versions"
   ],
   "alias": {
     "process": false,
-    "@scion/toolkit/*": "./node_modules/@scion/toolkit/fesm2020/scion-toolkit-$1.mjs"
+    "@scion/toolkit/*": "./node_modules/@scion/toolkit/fesm2022/scion-toolkit-$1.mjs"
   }
 }
