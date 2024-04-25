@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.eclipse.e4.ui.workbench.lifecycle.PostContextCreate;
 
-import ch.sbb.scion.rcp.microfrontend.MicrofrontendPlatform;
 import ch.sbb.scion.rcp.microfrontend.IntentClient;
+import ch.sbb.scion.rcp.microfrontend.MicrofrontendPlatform;
 import ch.sbb.scion.rcp.microfrontend.model.ApplicationConfig;
 import ch.sbb.scion.rcp.microfrontend.model.Capability;
 import ch.sbb.scion.rcp.microfrontend.model.Capability.ParamDefinition;
@@ -74,8 +74,6 @@ public class ApplicationStartup {
                 ))).build())
         .applications(
             List.of(ApplicationConfig.builder().symbolicName("client-app").manifestUrl("http://localhost:4201/manifest.json").build(),
-                ApplicationConfig.builder().symbolicName("tms-kast-demo")
-                    .manifestUrl("https://tms-kast-demo-dev.sbb-cloud.net/assets/manifest.json").build(),
                 ApplicationConfig.builder().symbolicName("devtools")
                     .manifestUrl("https://scion-microfrontend-platform-devtools-v1-0-0-rc-12.vercel.app/assets/manifest.json")
                     .intentionCheckDisabled(Boolean.TRUE).scopeCheckDisabled(Boolean.TRUE).build()))
