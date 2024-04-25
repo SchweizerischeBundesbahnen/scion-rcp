@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.7] - 2024-04-25
+
+### Added
+
+- Support intention registration and lookup functionalities as well as application qualification check
+
+### Changed
+
+- Upgrade integrated @scion/microfrontend-platform to version 1.2.2
+
 ## [0.0.6] - 2024-04-22
 
 ### Added
