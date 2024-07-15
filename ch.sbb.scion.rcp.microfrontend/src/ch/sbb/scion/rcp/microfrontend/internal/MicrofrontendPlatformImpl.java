@@ -24,8 +24,13 @@ public class MicrofrontendPlatformImpl implements MicrofrontendPlatform {
 
   @Override
   public CompletableFuture<Browser> startHost(final MicrofrontendPlatformConfig config) {
+    return startHost(config, true);
+  }
+
+  @Override
+  public CompletableFuture<Browser> startHost(final MicrofrontendPlatformConfig config, final boolean headless) {
     Objects.requireNonNull(config);
-    return microfrontendPlatformRcpHost.start(config);
+    return microfrontendPlatformRcpHost.start(config, headless);
   }
 
   @Override
