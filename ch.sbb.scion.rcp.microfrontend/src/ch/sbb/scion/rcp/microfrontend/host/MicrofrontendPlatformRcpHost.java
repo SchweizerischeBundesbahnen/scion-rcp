@@ -44,7 +44,6 @@ import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
 @Component(service = MicrofrontendPlatformRcpHost.class)
 public class MicrofrontendPlatformRcpHost {
 
-  private final boolean headless = false;
   private Shell shell;
   private Webserver webserver;
   private final List<MessageInterceptorDescriptor<?>> messageInterceptors = new ArrayList<>();
@@ -64,7 +63,7 @@ public class MicrofrontendPlatformRcpHost {
    *
    * @see "https://scion-microfrontend-platform-api.vercel.app/classes/MicrofrontendPlatformHost.html#start"
    */
-  public CompletableFuture<Browser> start(final MicrofrontendPlatformConfig config) {
+  public CompletableFuture<Browser> start(final MicrofrontendPlatformConfig config, final boolean headless) {
     // Create the shell
     shell = new Shell(Display.getDefault());
     shell.setLayout(new FillLayout());

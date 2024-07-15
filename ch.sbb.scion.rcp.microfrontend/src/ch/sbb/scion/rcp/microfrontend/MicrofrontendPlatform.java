@@ -24,6 +24,12 @@ public interface MicrofrontendPlatform {
   CompletableFuture<Browser> startHost(final MicrofrontendPlatformConfig config);
 
   /**
+   * Starts the SCION Microfrontend Platform host. If headless is false, then an additional shell that contains the microfrontend platform
+   * host browser context is opened.
+   */
+  CompletableFuture<Browser> startHost(final MicrofrontendPlatformConfig config, boolean headless);
+
+  /**
    * Registers an interceptor for intercepting messages before being dispatched. Interceptors must be registered prior to starting the host.
    */
   <T> void registerMessageInterceptor(final String topic, final MessageInterceptor<T> interceptor);
