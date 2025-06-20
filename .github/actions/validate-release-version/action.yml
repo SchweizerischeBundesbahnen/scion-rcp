@@ -14,5 +14,5 @@ outputs:
   develop-version:
     description: 'The next development iteration version according to the release version'
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'
