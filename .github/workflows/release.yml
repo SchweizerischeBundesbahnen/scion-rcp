@@ -16,7 +16,7 @@ jobs:
       release-version: ${{ steps.validate-release-version.outputs.release-version }}
       develop-version: ${{ steps.validate-release-version.outputs.develop-version }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: 'Validate release version'
         uses: ./.github/actions/validate-release-version
         id: validate-release-version
@@ -39,7 +39,7 @@ jobs:
         distribution: temurin
         gpg-private-key: "${{ secrets.GPG_PRIVATE_KEY }}"
         gpg-passphrase: GPG_PASSPHRASE # This is actually the default value
-        server-id: ossrh
+        server-id: sonatype-central
         server-username: SERVER_USERNAME
         server-password: SERVER_PASSWORD
      
@@ -57,9 +57,8 @@ jobs:
         MAVEN_OPTS: "-javaagent:${{ steps.setup-lombok.outputs.lombok-jar }}"
         RELEASE_VERSION: "${{ needs.release-guard.outputs.release-version }}"
         DEVELOP_VERSION: "${{ needs.release-guard.outputs.develop-version }}"
-        STAGING_PROFILE_ID: "${{ vars.STAGING_PROFILE_ID }}"
-        SERVER_USERNAME: "${{ vars.SERVER_USERNAME }}"
-        SERVER_PASSWORD: "${{ secrets.SERVER_PASSWORD }}"
+        SERVER_USERNAME: "${{ vars.PUBLISHER_API_SERVER_USERNAME }}"
+        SERVER_PASSWORD: "${{ secrets.PUBLISHER_API_SERVER_PASSWORD }}"
 
     - name: 'Upload microfrontend library'
       uses: actions/upload-artifact@v4
