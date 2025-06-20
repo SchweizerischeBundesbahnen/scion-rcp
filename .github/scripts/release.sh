@@ -20,10 +20,6 @@ exit_if_empty "$DEVELOP_VERSION" "Next development iteration: $develop_version"
 develop_version=$DEVELOP_VERSION
 echo "Next development iteration: $develop_version"
 
-exit_if_empty "$STAGING_PROFILE_ID" "STAGING_PROFILE_ID must be set"
-staging_profile_id=$STAGING_PROFILE_ID
-echo "Staging profile ID: $staging_profile_id"
-
 work_dir=`pwd`
 echo "Working directory: $work_dir"
 
@@ -61,31 +57,8 @@ git push
 git push origin tag "$release_version"
 
 echo
-echo "Step $i: Create local stage" ; ((++i))
-local_stage="$work_dir/target/local-stage/$staging_profile_id"
-echo "Creating $local_stage"
-mkdir -p $local_stage
-
-echo
-echo "Step $i: Stage artifacts locally ($local_stage)" ; ((++i))
+echo "Step $i: Perform release" ; ((++i))
 mvn -B release:perform \
-  -Dgoals="deploy -DaltDeploymentRepository=local::file:///$local_stage" \
   -DconnectionUrl="https://github.com/SchweizerischeBundesbahnen/scion-rcp.git" \
   -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
-exit_if_failed "$?" "Stage artifacts locally failed, exiting"
-
-echo
-echo "Step $i: Upload staged artifacts to remote stage (Nexus repository)" ; ((++i))
-# Go to local stage to be in a directory that does not contain a pom. Otherwise maven would use the pom for executing the command which we do not want.
-echo "Changing to $local_stage"
-cd $local_stage
-mvn -B org.sonatype.plugins:nexus-staging-maven-plugin:1.6.13:deploy-staged-repository \
-  -DnexusUrl="https://oss.sonatype.org" \
-  -DserverId="ossrh" \
-  -DrepositoryDirectory=. \
-  -DstagingProfileId="$staging_profile_id" \
-  -DskipStagingRepositoryClose=true
-exit_if_failed "$?" "Upload staged artifacts to remote stage failed, exiting"
-echo "Returning to $work_dir"
-cd $work_dir
-
+exit_if_failed "$?" "Perform release failed, exiting"
