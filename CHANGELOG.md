@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Upgrade @types/node to version 24.2.1 in affected web projects as a security update
+- Upgrade parcel to version 2.15.4 in affected web projects as a security update
+- Upgrade typescript to version 5.9.2 in affected web projects as a security update
+- Upgrade @parcel/transformer-sass to version 2.15.4 in demo web project as a security update
+- Upgrade cpy-cli to version 6.0.0 in demo web project as a security update
+- Upgrade @scion/microfrontend-platform to 1.2.2 in demo web project to match the version used in the host dependency bundler project
+- Upgrade @scion/toolkit to 1.4.1 in demo web project to match the version used in the host dependency bundler project
+- Upgrade rxjs to 7.8.1 in demo web project to match the version used in the host dependency bundler project
+- Rebuild the Scion RCP microfrontend host dependency JS bundles
+
 ## [0.0.8] - 2024-07-16
 
 ### Added
