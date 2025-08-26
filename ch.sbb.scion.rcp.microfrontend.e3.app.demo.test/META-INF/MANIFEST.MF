@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ch.sbb.scion.rcp.microfrontend.e3.app.demo.test
 Bundle-SymbolicName: ch.sbb.scion.rcp.microfrontend.e3.app.demo.test;singleton:=true
-Bundle-Version: 0.0.10
+Bundle-Version: 0.0.11.qualifier
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: SBB and Contributors
 Bundle-RequiredExecutionEnvironment: JavaSE-17
