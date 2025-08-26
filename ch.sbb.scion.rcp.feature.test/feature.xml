@@ -2,7 +2,7 @@
 <feature
       id="ch.sbb.scion.rcp.feature.test"
       label="Test"
-      version="0.0.9.qualifier"
+      version="0.0.10"
       provider-name="SBB and Contributors">
 
    <description url="https://github.com/SchweizerischeBundesbahnen/scion-rcp#readme">
