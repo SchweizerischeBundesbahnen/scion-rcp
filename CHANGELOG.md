@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.10] - 2024-08-26
+
 ### Changed
 
 - Upgrade @types/node to version 24.2.1 in affected web projects as a security update
