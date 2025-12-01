@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 /**
- * @see <a href="https://scion-microfrontend-platform-api.vercel.app/interfaces/RequestOptions.html">RequestOptions</a>
+ * @see <a href="https://microfrontend-platform-api.scion.vercel.app/interfaces/RequestOptions.html">RequestOptions</a>
  */
 @NoArgsConstructor
 @ToString(callSuper = true)

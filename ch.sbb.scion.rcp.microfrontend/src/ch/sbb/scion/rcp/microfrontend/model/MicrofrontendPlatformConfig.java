@@ -11,7 +11,7 @@ import lombok.experimental.Accessors;
 
 /**
  * @see <a href=
- *      "https://scion-microfrontend-platform-api.vercel.app/classes/MicrofrontendPlatformConfig.html">MicrofrontendPlatformConfig</a>
+ *      "https://microfrontend-platform-api.scion.vercel.app/classes/MicrofrontendPlatformConfig.html">MicrofrontendPlatformConfig</a>
  */
 @Accessors(fluent = true)
 @Getter

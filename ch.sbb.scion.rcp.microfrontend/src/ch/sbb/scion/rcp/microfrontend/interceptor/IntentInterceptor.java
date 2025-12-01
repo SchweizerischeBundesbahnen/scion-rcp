@@ -7,7 +7,7 @@ import ch.sbb.scion.rcp.microfrontend.model.IntentMessage;
  * Allows intercepting intents prior to their publication. Interceptors are to be registered via
  * {@link MicrofrontendPlatform#registerIntentInterceptor} prior to starting the host.
  *
- * @see <a href="https://scion-microfrontend-platform-api.vercel.app/classes/IntentInterceptor.html">IntentInterceptor</a>
+ * @see <a href="https://microfrontend-platform-api.scion.vercel.app/classes/IntentInterceptor.html">IntentInterceptor</a>
  */
 public interface IntentInterceptor<T> {
 

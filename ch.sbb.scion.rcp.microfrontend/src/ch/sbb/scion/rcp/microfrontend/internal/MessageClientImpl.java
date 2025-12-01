@@ -86,7 +86,7 @@ public class MessageClientImpl implements MessageClient {
   }
 
   /**
-   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/MessageClient.html#request_"
+   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/MessageClient.html#request_"
    */
   private <T> ISubscription requestJson(final String topic, final String json, RequestOptions options, final Class<T> clazz,
       final ISubscriber<TopicMessage<T>> subscriber) {
@@ -124,7 +124,7 @@ public class MessageClientImpl implements MessageClient {
   }
 
   /**
-   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/MessageClient.html#publish"
+   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/MessageClient.html#publish"
    */
   private CompletableFuture<Void> publishJson(final String topic, final String json, final PublishOptions publishOptions) {
     Objects.requireNonNull(topic);

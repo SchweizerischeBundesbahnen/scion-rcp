@@ -10,7 +10,7 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 
 /**
- * @see "https://scion-microfrontend-platform-api.vercel.app/interfaces/NavigationOptions.html"
+ * @see "https://microfrontend-platform-api.scion.vercel.app/interfaces/NavigationOptions.html"
  */
 @Accessors(fluent = true)
 @Getter

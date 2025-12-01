@@ -11,7 +11,7 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 
 /**
- * @see <a href="https://scion-microfrontend-platform-api.vercel.app/interfaces/PublishOptions.html">PublishOptions</a>
+ * @see <a href="https://microfrontend-platform-api.scion.vercel.app/interfaces/PublishOptions.html">PublishOptions</a>
  */
 @Accessors(fluent = true)
 @Getter

@@ -10,7 +10,7 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 
 /**
- * @see <a href="https://scion-microfrontend-platform-api.vercel.app/interfaces/Intent.html">Intent</a>
+ * @see <a href="https://microfrontend-platform-api.scion.vercel.app/interfaces/Intent.html">Intent</a>
  */
 @Accessors(fluent = true)
 @Getter
