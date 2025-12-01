@@ -1,7 +1,7 @@
 package ch.sbb.scion.rcp.microfrontend.model;
 
 /**
- * @see <a href="https://scion-microfrontend-platform-api.vercel.app/enums/MessageHeaders.html">MessageHeaders</a>
+ * @see <a href="https://microfrontend-platform-api.scion.vercel.app/enums/MessageHeaders.html">MessageHeaders</a>
  */
 public enum MessageHeaders {
 

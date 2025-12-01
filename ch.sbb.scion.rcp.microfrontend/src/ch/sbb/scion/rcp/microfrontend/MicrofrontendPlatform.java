@@ -12,14 +12,14 @@ import ch.sbb.scion.rcp.microfrontend.model.MicrofrontendPlatformConfig;
 import ch.sbb.scion.rcp.microfrontend.model.Qualifier;
 
 /**
- * @see <a href="https://scion-microfrontend-platform-api.vercel.app/classes/MicrofrontendPlatform.html">MicrofrontendPlatform</a>
+ * @see <a href="https://microfrontend-platform-api.scion.vercel.app/classes/MicrofrontendPlatform.html">MicrofrontendPlatform</a>
  */
 public interface MicrofrontendPlatform {
 
   /**
    * Starts the SCION Microfrontend Platform host.
    *
-   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/MicrofrontendPlatformHost.html#start"
+   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/MicrofrontendPlatformHost.html#start"
    */
   CompletableFuture<Browser> startHost(final MicrofrontendPlatformConfig config);
 

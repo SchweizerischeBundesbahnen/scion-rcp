@@ -43,7 +43,7 @@ import ch.sbb.scion.rcp.microfrontend.script.Scripts.Helpers;
 /**
  * Widget to display a microfrontend. This widget acts as proxy for the SCION &lt;sci-router-outlet&gt; web component.
  *
- * @see <a href="https://scion-microfrontend-platform-api.vercel.app/classes/SciRouterOutletElement.html">SciRouterOutletElement</a>
+ * @see <a href="https://microfrontend-platform-api.scion.vercel.app/classes/SciRouterOutletElement.html">SciRouterOutletElement</a>
  */
 public final class RouterOutlet extends Composite implements DisposeListener {
 
@@ -198,7 +198,7 @@ public final class RouterOutlet extends Composite implements DisposeListener {
    * Makes contextual data available to embedded content. Embedded content can lookup contextual data using the
    * <code>org.eclipse.ui.internal.contexts.ContextService</code>. Contextual data must be serializable with the structured clone algorithm.
    *
-   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/SciRouterOutletElement.html#setContextValue"
+   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/SciRouterOutletElement.html#setContextValue"
    */
   public CompletableFuture<Void> setContextValue(final String name, final Object value) {
     Objects.requireNonNull(name);
@@ -212,7 +212,7 @@ public final class RouterOutlet extends Composite implements DisposeListener {
    * result, due to a value being stored in a parent context.
    *
    * @return `true` if removed the value from the outlet context; otherwise `false`.
-   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/SciRouterOutletElement.html#removeContextValue"
+   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/SciRouterOutletElement.html#removeContextValue"
    */
   public CompletableFuture<Boolean> removeContextValue(final String name) {
     Objects.requireNonNull(name);

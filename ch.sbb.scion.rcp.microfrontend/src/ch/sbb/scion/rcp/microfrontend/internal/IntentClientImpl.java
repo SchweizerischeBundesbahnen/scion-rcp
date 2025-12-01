@@ -109,7 +109,7 @@ public class IntentClientImpl implements IntentClient {
   }
 
   /**
-   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#observe_"
+   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/IntentClient.html#observe_"
    */
   private <T> ISubscription requestJson(final Intent intent, final String json, RequestOptions options, final Class<T> clazz,
       final ISubscriber<TopicMessage<T>> subscriber) {
@@ -128,7 +128,7 @@ public class IntentClientImpl implements IntentClient {
   }
 
   /**
-   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/IntentClient.html#publish"
+   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/IntentClient.html#publish"
    */
   private CompletableFuture<Void> publishJson(final Intent intent, final String json, final PublishOptions intentOptions) {
     Objects.requireNonNull(intent);

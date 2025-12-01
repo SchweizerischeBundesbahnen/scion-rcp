@@ -61,7 +61,7 @@ public class MicrofrontendPlatformRcpHost {
   /**
    * Starts the SCION Microfrontend Platform host.
    *
-   * @see "https://scion-microfrontend-platform-api.vercel.app/classes/MicrofrontendPlatformHost.html#start"
+   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/MicrofrontendPlatformHost.html#start"
    */
   public CompletableFuture<Browser> start(final MicrofrontendPlatformConfig config, final boolean headless) {
     // Create the shell

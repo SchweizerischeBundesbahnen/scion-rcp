@@ -8,7 +8,7 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 
 /**
- * @see <a href="https://scion-microfrontend-platform-api.vercel.app/interfaces/IntentSelector.html">IntentSelector</a>
+ * @see <a href="https://microfrontend-platform-api.scion.vercel.app/interfaces/IntentSelector.html">IntentSelector</a>
  */
 @Accessors(fluent = true)
 @Getter

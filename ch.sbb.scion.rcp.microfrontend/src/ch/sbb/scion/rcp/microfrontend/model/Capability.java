@@ -12,7 +12,7 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 
 /**
- * @see <a href="https://scion-microfrontend-platform-api.vercel.app/interfaces/Capability.html">Capability</a>
+ * @see <a href="https://microfrontend-platform-api.scion.vercel.app/interfaces/Capability.html">Capability</a>
  */
 @Accessors(fluent = true)
 @Getter
@@ -81,7 +81,7 @@ public class Capability {
   }
 
   /**
-   * @see "https://scion-microfrontend-platform-api.vercel.app/interfaces/ParamDefinition.html"
+   * @see "https://microfrontend-platform-api.scion.vercel.app/interfaces/ParamDefinition.html"
    */
   @Accessors(fluent = true)
   @Getter
