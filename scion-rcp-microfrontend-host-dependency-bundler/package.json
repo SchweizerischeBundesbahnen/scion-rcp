@@ -1,17 +1,18 @@
 {
   "name": "scion-rcp-microfrontend-host-dependency-bundler",
   "scripts": {
-    "bundle": "parcel build src/refs.ts --no-cache --dist-dir ../ch.sbb.scion.rcp.microfrontend/js"
+    "bundle": "parcel build src/refs.ts --no-cache --dist-dir ../ch.sbb.scion.rcp.microfrontend/js",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@scion/microfrontend-platform": "1.2.2",
-    "@scion/toolkit": "1.4.1",
-    "rxjs": "7.8.1"
+    "@scion/microfrontend-platform": "3.0.0",
+    "@scion/toolkit": "2.1.0",
+    "rxjs": "7.8.2"
   },
   "devDependencies": {
-    "@types/node": "24.2.1",
-    "parcel": "2.15.4",
-    "typescript": "5.9.2"
+    "@types/node": "26.6.2",
+    "parcel": "2.16.4",
+    "typescript": "7.0.2"
   },
   "browserslist": [
     "last 2 Chrome versions"
