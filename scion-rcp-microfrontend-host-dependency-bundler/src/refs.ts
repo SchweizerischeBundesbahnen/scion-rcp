@@ -2,8 +2,7 @@ import {IntentClient, IntentInterceptor, MicrofrontendPlatform, MicrofrontendPla
 import {Beans} from '@scion/toolkit/bean-manager';
 import {UUID} from '@scion/toolkit/uuid';
 
-window['__SCION_RCP'] = window['__SCION_RCP'] || {};
-window['__SCION_RCP'].refs = {
+const refs = {
   get MicrofrontendPlatform() {
     return MicrofrontendPlatform;
   },
@@ -44,4 +43,10 @@ window['__SCION_RCP'].refs = {
     return UUID;
   },
 };
+
+// Bridges typed refs to the untyped JS snippets executed by the Java host, preserving other
+// properties (e.g. `storage`/`helpers`) added to the same namespace by helpers.js.
+const scionRcpWindow = (window as unknown as {__SCION_RCP?: {refs?: typeof refs}});
+scionRcpWindow.__SCION_RCP = scionRcpWindow.__SCION_RCP || {};
+scionRcpWindow.__SCION_RCP.refs = refs;
 
