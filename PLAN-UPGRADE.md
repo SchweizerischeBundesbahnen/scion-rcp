@@ -32,14 +32,14 @@ No other breaking API usage was found for `ManifestService`, `MessageClient`, `I
 7. **Manual smoke test** via the demo apps (`ch.sbb.scion.rcp.microfrontend.app.demo` / e3 variant): host start/stop (exercises the new synchronous `destroy`/`onState` internals on page unload), capability registration/lookup, messaging, intent handling, router-outlet navigation.
 8. Update `CHANGELOG.md` of scion-rcp noting the platform version bump and any behavioral notes (e.g., synchronous shutdown).
 
-## 9. Java model/service gaps vs. current platform API (`ch.sbb.scion.rcp.microfrontend`)
+## Java model/service gaps vs. current platform API (`ch.sbb.scion.rcp.microfrontend`)
 
 Beyond wire-compatibility, the Java model and service classes in `ch.sbb.scion.rcp.microfrontend`
 mirror the TypeScript API by hand (à la the workbench protocol) and have drifted from it. None of
 these fail to compile — they are silent gaps: new properties are simply never sent/read, and new
 API surface is simply missing.
 
-### 9.1 Missing properties on existing model classes
+### Missing properties on existing model classes
 
 | Java class | Missing property | Introduced in | Effect |
 |---|---|---|---|
@@ -52,7 +52,7 @@ API surface is simply missing.
 | `Application.java` | `platformVersion: Promise<string>` | later 1.x | Cannot read which platform version a connected app uses |
 | `MicrofrontendPlatformConfig.java` | `liveness?: {interval, timeout}` | **1.0.0-rc.11**, i.e. already before the 1.2.2 baseline | `heartbeatInterval` (still the only field in Java) was replaced by `liveness` — this field has been a no-op for the entire time rcp has depended on the library; must be replaced regardless of the 3.0.0 upgrade |
 
-### 9.2 Stale / renamed properties
+### Stale / renamed properties
 
 - `ApplicationConfig.java` and `Application.java` both still declare `messageOrigin`. The host-config
   property was renamed to `secondaryOrigin` back in `1.0.0-rc.11` (pre-dates the 1.2.2 baseline);
@@ -62,13 +62,13 @@ API surface is simply missing.
   so that field always deserializes to `null` today. Rename to `secondaryOrigin` and wire it through
   properly, or remove if intentionally superseded by the hardcoded `start-host.js` behavior.
 
-### 9.3 Missing service methods
+### Missing service methods
 
 | Java interface | Missing method | Introduced in | Effect |
 |---|---|---|---|
 | `ManifestService.java` | `getApplication(symbolicName)` (single lookup, with `orElse: null` option) | 1.3.0 ("provide method to get a specific application") | Java callers must fetch all applications and filter manually (as `MicrofrontendPopupDialog.getApplication()` already does) instead of using the platform's built-in lookup |
 
-### 9.4 Missing extensibility point
+### Missing extensibility point
 
 - **`CapabilityInterceptor`** (host-side, register via `Beans.register(CapabilityInterceptor, {multi: true})`) —
   lets the host intercept, transform, or reject (`null`) capabilities at registration time. Introduced
@@ -79,7 +79,20 @@ API surface is simply missing.
   analogous to the existing `IntentInterceptorInstaller`/`MessageInterceptorInstaller`, if this
   extensibility point should be exposed to Java host code.
 
-### 9.5 Recommended additions to the upgrade steps (§ above)
+### Missing outlet context read-back
+
+- **`SciRouterOutletElement.contextValues$`** — an Observable exposing all context values
+  currently set on a specific outlet, including ones the library sets autonomously (not just what
+  the host explicitly pushes via `setContextValue`). Two confirmed cases of autonomous, library-internal
+  context writes: `installOutletContext()` auto-sets `OUTLET_CONTEXT` whenever the outlet's name
+  changes, and `registerKeystroke()` auto-sets a keystroke context entry (RCP's own
+  `MicrofrontendPopupDialog.java` triggers this via `sciRouterOutlet.registerKeystroke("keydown.escape")`
+  without controlling the resulting key/value itself). `RouterOutlet.java`/`RouterOutletProxy.java`
+  expose only the write side (`setContextValue`/`removeContextValue`) — there is no Java bridge for
+  `contextValues$`, so Java's view of an outlet's context can silently diverge from the actual
+  JS/DOM-side state, with no way to detect or read it back.
+
+### Recommended additions to the upgrade steps (§ above)
 
 - Add `inactive`, param `default`/`deprecated` to `Capability`/`ParamDefinition`.
 - Add `capabilityActiveCheckDisabled` to `ApplicationConfig`, `HostConfig`, `Application`.
@@ -89,3 +102,6 @@ API surface is simply missing.
 - Decide whether to implement `CapabilityInterceptor` support end-to-end (Java interface, JS bridging
   script, registration API on `MicrofrontendPlatform`).
 - Add `Application.platformVersion` if useful for diagnostics/support tooling.
+- Add a Java-side read-back for outlet context (`contextValues$`) to `RouterOutlet.java`/
+  `RouterOutletProxy.java`, so Java can observe context values the library itself sets
+  autonomously (`OUTLET_CONTEXT`, keystroke entries) rather than only what it explicitly pushed.
