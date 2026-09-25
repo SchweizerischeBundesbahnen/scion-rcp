@@ -89,7 +89,6 @@ public class Capability {
     private String appSymbolicName;
   }
 
-  // todo: custom type adapater
   /**
    * @see "https://microfrontend-platform-api.scion.vercel.app/interfaces/ParamDefinition.html"
    */
@@ -114,20 +113,12 @@ public class Capability {
      */
     private boolean isRequired;
     /**
-     * Allows deprecating the parameter.
+     * Allows deprecating the parameter. Can either be {@code null}, {@code Boolean#TRUE} or an instance of {@code DeprecationInfo}.
      * <p>
-     * It is good practice to explain the deprecation, provide the date of removal, and how to migrate. Use the
-     * {@link ParamDefinition#deprecationInfo} for this purpose.
+     * It is good practice to explain the deprecation, provide the date of removal, and how to migrate. Use the {@link DeprecationInfo} for
+     * this purpose.
      */
-    private Boolean isDeprecated;
-    /**
-     * Provides information about the deprecation of this parameter.
-     * <p>
-     * It is good practice to explain the deprecation, provide the date of removal, and how to migrate. If renaming the parameter, you can
-     * set the {@link DeprecationInfo#useInstead} property to specify which parameter to use instead. At runtime, this will map the
-     * parameter to the specified replacement, allowing for straightforward migration on the provider side.
-     */
-    private DeprecationInfo deprecationInfo;
+    private Object deprecated;
     /**
      * Allows the declaration of additional metadata that can be interpreted in an interceptor, for example.
      */

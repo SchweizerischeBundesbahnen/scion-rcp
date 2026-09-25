@@ -58,7 +58,7 @@ public class CapabilityParamDefinitionTypeAdapterFactory implements TypeAdapterF
             builder.defaultValue(gson.fromJson(reader.nextString(), Object.class));
           }
           else if (DEPRECATED_KEY.equals(key) && reader.peek() != JsonToken.NULL) {
-            builder.isDeprecated(Boolean.TRUE).deprecationInfo(readDeprecationInfo(reader));
+            builder.deprecated(readDeprecated(reader));
           }
           else if (DESCRIPTION_KEY.equals(key) && reader.peek() != JsonToken.NULL) {
             builder.description(reader.nextString());
@@ -84,13 +84,13 @@ public class CapabilityParamDefinitionTypeAdapterFactory implements TypeAdapterF
         return builder.properties(properties).build();
       }
 
-      private DeprecationInfo readDeprecationInfo(final JsonReader reader) throws IOException {
+      private Object readDeprecated(final JsonReader reader) throws IOException {
         var token = reader.peek();
         // 'deprecated' can either be null, 'true', or '{ message?: string, useInstead?: string }'; null is already handled:
         if (token == JsonToken.BOOLEAN) {
           // No deprecation info, just deprecated:
           reader.nextBoolean(); // still, we need to consume the 'true' value
-          return null;
+          return Boolean.TRUE;
         }
         return gson.getAdapter(DeprecationInfo.class).fromJson(reader.nextString());
       }
@@ -114,12 +114,9 @@ public class CapabilityParamDefinitionTypeAdapterFactory implements TypeAdapterF
         if (paramDefinition.defaultValue() != null) {
           writer.name(DEFAULT_KEY).value(gson.toJson(paramDefinition.defaultValue()));
         }
-        if (Boolean.TRUE.equals(paramDefinition.isDeprecated()) && paramDefinition.deprecationInfo() != null) {
+        if (paramDefinition.deprecated() != null) {
           writer.name(DEPRECATED_KEY);
-          gson.getAdapter(DeprecationInfo.class).write(writer, paramDefinition.deprecationInfo());
-        }
-        else if (Boolean.TRUE.equals(paramDefinition.isDeprecated())) {
-          writer.name(DEPRECATED_KEY).value(true);
+          writeDeprecated(writer, paramDefinition.deprecated());
         }
         if (paramDefinition.description() != null) {
           writer.name(DESCRIPTION_KEY).value(paramDefinition.description());
@@ -132,7 +129,20 @@ public class CapabilityParamDefinitionTypeAdapterFactory implements TypeAdapterF
         writer.name(REQUIRED_KEY).value(paramDefinition.isRequired());
 
         writer.endObject();
+      }
 
+      private void writeDeprecated(final JsonWriter writer, final Object deprecated) throws IOException {
+        if (deprecated instanceof Boolean b && Boolean.TRUE.equals(b)) {
+          // Only 'true' is allowed by type constraint:
+          writer.value(true);
+        }
+        else if (deprecated instanceof DeprecationInfo di) {
+          gson.getAdapter(DeprecationInfo.class).write(writer, di);
+        }
+        else {
+          // Unknown value type:
+          writer.nullValue();
+        }
       }
 
       private void writeProperties(final JsonWriter writer, final Properties properties) throws IOException {
