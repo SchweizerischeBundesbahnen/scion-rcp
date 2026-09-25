@@ -30,11 +30,14 @@ public class ApplicationConfig {
   private String manifestUrl;
 
   /**
-   * Specifies the origin that messages from this application must have. Messages of a different origin will be rejected. If not explicitly
-   * set, the origin is derived from the manifest URL or the base URL as specified in the manifest file. The explicit setting of an origin
-   * is required, for example, when bridging messages.
+   * Specifies an additional origin (in addition to the origin of the application) from which the application is allowed to connect to the
+   * platform.
+   * <p>
+   * By default, if not set, the application is allowed to connect from the origin of the manifest URL or the base URL as specified in the
+   * manifest file. Setting an additional origin may be necessary if, for example, integrating microfrontends into a rich client, enabling
+   * an integrator to bridge messages between clients and host across browser boundaries.
    */
-  private String messageOrigin;
+  private String secondaryOrigin;
 
   /**
    * Maximum time (in milliseconds) that the host waits until the manifest for this application is loaded. If set, overrides the global
@@ -55,21 +58,31 @@ public class ApplicationConfig {
   private Boolean exclude;
 
   /**
-   * Controls whether this micro application can interact with private capabilities of other micro applications. By default, scope check is
-   * enabled. Disabling scope check is strongly discouraged.
+   * Allows this application to access private capabilities of other applications.
+   * <p>
+   * Disabling this check is discouraged. Enabled by default.
    */
   private Boolean scopeCheckDisabled;
 
   /**
-   * Controls whether this micro application can interact with the capabilities of other apps without having to declare respective
-   * intentions. By default, intention check is enabled. Disabling intention check is strongly discouraged.
+   * Allows this application to access public capabilities of other applications without declaring an intention.
+   * <p>
+   * Disabling this check is discouraged. Enabled by default.
    */
   private Boolean intentionCheckDisabled;
 
   /**
-   * Controls whether this micro application can register and unregister intentions dynamically at runtime. By default, this API is
-   * disabled. Enabling this API is strongly discouraged.
+   * Allows this application to register and unregister intentions at runtime.
+   * <p>
+   * Enabling this API is discouraged. Disabled by default.
    */
   private Boolean intentionRegisterApiDisabled;
+
+  /**
+   * Allows this application to access inactive capabilities.
+   * <p>
+   * Disabling this check is discouraged. Enabled by default.
+   */
+  private Boolean capabilityActiveCheckDisabled;
 
 }

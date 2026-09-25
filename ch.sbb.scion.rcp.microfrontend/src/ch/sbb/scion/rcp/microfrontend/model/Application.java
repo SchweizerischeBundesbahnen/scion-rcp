@@ -31,10 +31,6 @@ public class Application {
    */
   private String baseUrl;
   /**
-   * Specifies the origin where message from this application must originate from. Messages of a different origin will be rejected.
-   */
-  private String messageOrigin;
-  /**
    * URL to the manifest of this application.
    */
   private String manifestUrl;
@@ -62,4 +58,10 @@ public class Application {
    * Indicates whether or not 'Intention Registration API' is disabled for this application.
    */
   private boolean intentionRegisterApiDisabled;
+  /**
+   * Indicates whether this application is allowed to access inactive capabilities.
+   */
+  private boolean capabilityActiveCheckDisabled;
+
+  // todo: platformVersion? <- is this information even relevant to the Java side?
 }
