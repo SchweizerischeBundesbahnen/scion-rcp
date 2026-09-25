@@ -65,8 +65,8 @@ public class ApplicationStartup {
                             .set("size", WorkbenchPopupSize.builder().width("500px").height("600px").build()))
                         .build(),
                     Capability.builder().type("view").qualifier(new Qualifier().set("test", "eclipse-view")).isPrivate(Boolean.FALSE)
-                        .params(List.of(
-                            ParamDefinition.builder().name("example").required(Boolean.FALSE).description("An example parameter").build()))
+                        .params(List
+                            .of(ParamDefinition.builder().name("example").isRequired(false).description("An example parameter").build()))
                         .properties(new Properties().set("title", "Eclipse Test View").set("heading", "Eclipse Test View with input")
                             .set("eclipseViewId", "ch.sbb.scion.rcp.views.testView"))
                         .build()

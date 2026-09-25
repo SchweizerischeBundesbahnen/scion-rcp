@@ -212,8 +212,9 @@ public class ManifestServicePart {
 
       @Override
       public String getText(final Object message) {
-        var application = (Application) message;
-        return application.messageOrigin();
+        // fixme: application no longer has information about message origin
+        //var application = (Application) message;
+        return "?";
       }
     });
   }
@@ -548,7 +549,7 @@ public class ManifestServicePart {
       @Override
       public void widgetSelected(final SelectionEvent e) {
         capabilityModel.getParams()
-            .add(ParamDefinition.builder().name(paramNameText.getText()).required(Boolean.valueOf(isRequired.getSelection())).build());
+            .add(ParamDefinition.builder().name(paramNameText.getText()).isRequired(isRequired.getSelection()).build());
         paramNameText.setText("");
         isRequired.setSelection(true);
       }
@@ -833,7 +834,7 @@ public class ManifestServicePart {
 
       @Override
       public String getText(final Object message) {
-        return ((ParamDefinition) message).required().booleanValue() ? "True" : "False";
+        return ((ParamDefinition) message).isRequired() ? "True" : "False";
       }
     });
   }
