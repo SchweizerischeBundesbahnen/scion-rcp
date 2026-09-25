@@ -39,6 +39,7 @@ public class QualifierTypeAdapterFactory implements TypeAdapterFactory {
           var key = reader.nextName();
 
           var token = reader.peek();
+          // Note: Null values are not allowed.
           if (token.equals(JsonToken.STRING)) {
             qualifier.set(key, reader.nextString());
           }
@@ -47,6 +48,9 @@ public class QualifierTypeAdapterFactory implements TypeAdapterFactory {
           }
           else if (token.equals(JsonToken.BOOLEAN)) {
             qualifier.set(key, reader.nextBoolean());
+          }
+          else {
+            reader.skipValue();
           }
         }
         reader.endObject();

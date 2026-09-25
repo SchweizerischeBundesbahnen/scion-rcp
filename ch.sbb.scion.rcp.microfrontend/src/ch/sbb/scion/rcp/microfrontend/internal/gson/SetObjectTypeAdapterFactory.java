@@ -37,6 +37,7 @@ public class SetObjectTypeAdapterFactory implements TypeAdapterFactory {
     }
 
     var jsonElementAdapter = gson.getAdapter(JsonElement.class);
+    // The first argument is skipPast:
     var defaultSetAdapter = gson.getDelegateAdapter(this, (TypeToken<Set<?>>) type);
 
     return (TypeAdapter<T>) new TypeAdapter<Set<?>>() {
@@ -52,9 +53,11 @@ public class SetObjectTypeAdapterFactory implements TypeAdapterFactory {
         var typeElement = jsonObject.get(CUSTOM_OBJECT_TYPE_FIELD);
 
         if (typeElement != null && typeElement.isJsonPrimitive() && CUSTOM_OBJECT_TYPE.equals(typeElement.getAsString())) {
+          // The value field contains a standard JavaScript array, that the default Set adapter can read:
           return defaultSetAdapter.fromJsonTree(jsonObject.get(CUSTOM_OBJECT_VALUE_FIELD));
         }
         else {
+          // It's a Set but not stored in the expected format, give adapters further down the chain a chance:
           return defaultSetAdapter.fromJsonTree(jsonObject);
         }
       }

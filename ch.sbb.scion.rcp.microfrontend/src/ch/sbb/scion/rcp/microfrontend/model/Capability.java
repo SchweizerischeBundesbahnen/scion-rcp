@@ -57,10 +57,19 @@ public class Capability {
   private Properties properties;
   /**
    * Metadata about the capability (read-only, exclusively managed by the platform).
-   * <p>
-   * ignore
    */
   private Metadata metadata;
+  // todo: set default values?
+  /**
+   * Controls whether this capability is inactive. Defaults to <code>false</code>.
+   * <p>
+   * Capabilities can be marked as inactive in a capability interceptor, for example, based on user permissions. Inactive capabilities are
+   * unavailable to applications but still visible in the SCION DevTools for discovery.
+   * <p>
+   * Note: Applications configured with <code>capabilityActiveCheckDisabled</code> can still access inactive capabilities (discouraged).
+   */
+  @SerializedName("inactive")
+  private Boolean isInactive;
 
   @Accessors(fluent = true)
   @Getter
@@ -80,6 +89,7 @@ public class Capability {
     private String appSymbolicName;
   }
 
+  // todo: custom type adapater
   /**
    * @see "https://microfrontend-platform-api.scion.vercel.app/interfaces/ParamDefinition.html"
    */
@@ -102,8 +112,56 @@ public class Capability {
     /**
      * Specifies whether the parameter must be passed along with the intent.
      */
-    private Boolean required;
+    private boolean isRequired;
+    /**
+     * Allows deprecating the parameter.
+     * <p>
+     * It is good practice to explain the deprecation, provide the date of removal, and how to migrate. Use the
+     * {@link ParamDefinition#deprecationInfo} for this purpose.
+     */
+    private Boolean isDeprecated;
+    /**
+     * Provides information about the deprecation of this parameter.
+     * <p>
+     * It is good practice to explain the deprecation, provide the date of removal, and how to migrate. If renaming the parameter, you can
+     * set the {@link DeprecationInfo#useInstead} property to specify which parameter to use instead. At runtime, this will map the
+     * parameter to the specified replacement, allowing for straightforward migration on the provider side.
+     */
+    private DeprecationInfo deprecationInfo;
+    /**
+     * Allows the declaration of additional metadata that can be interpreted in an interceptor, for example.
+     */
+    private Properties properties;
+    /**
+     * Defines a default value. Only applies to optional parameters.
+     * <p>
+     * The default value is used when the parameter is not provided.
+     */
+    private Object defaultValue;
+  }
 
+  /**
+   * Provides information about the deprecation of a capability parameter.
+   *
+   * @see "https://microfrontend-platform-api.scion.vercel.app/interfaces/ParamDefinition.html"
+   */
+  @Accessors(fluent = true)
+  @Getter
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @Builder
+  @ToString
+  public static class DeprecationInfo {
+
+    /**
+     * Explanation of the deprecation. It is good practice to mention the date of removal, and describe how to migrate.
+     */
+    private String message;
+    /**
+     * Specifies the name of the parameter the should be used instead, if there is any. At runtime, this will map the parameter to the
+     * specified replacement, allowing for straightforward migration on the provider side.
+     */
+    private String useInstead;
   }
 
 }

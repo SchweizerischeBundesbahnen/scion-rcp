@@ -26,6 +26,7 @@ public class PropertiesTypeAdapterFactory implements TypeAdapterFactory {
       return null;
     }
 
+    // We don't want the Javascript Map object type adapter, but the default Map (dictionary) adapter:
     var defaultMapAdapter = gson.getDelegateAdapter(GsonFactory.MAP_OBJECT_TYPE_ADAPTER_FACTORY, TypeToken.get(Map.class));
 
     return (TypeAdapter<T>) new TypeAdapter<Properties>() {

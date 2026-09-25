@@ -37,6 +37,7 @@ public class MapObjectTypeAdapterFactory implements TypeAdapterFactory {
     }
 
     var jsonElementAdapter = gson.getAdapter(JsonElement.class);
+    // The first argument is skipPast:
     var defaultMapAdapter = gson.getDelegateAdapter(this, (TypeToken<Map<?, ?>>) type);
 
     return (TypeAdapter<T>) new TypeAdapter<Map<?, ?>>() {
@@ -52,9 +53,11 @@ public class MapObjectTypeAdapterFactory implements TypeAdapterFactory {
         var typeElement = jsonObject.get(CUSTOM_OBJECT_TYPE_FIELD);
 
         if (typeElement != null && typeElement.isJsonPrimitive() && CUSTOM_OBJECT_TYPE.equals(typeElement.getAsString())) {
+          // The value field contains a standard JavaScript object (dictionary), that the default Map adapter can read:
           return defaultMapAdapter.fromJsonTree(jsonObject.get(CUSTOM_OBJECT_VALUE_FIELD));
         }
         else {
+          // It's a Map but not stored in the expected format, give adapters further down the chain a chance:
           return defaultMapAdapter.fromJsonTree(jsonObject);
         }
       }
