@@ -55,7 +55,7 @@ public class CapabilityParamDefinitionTypeAdapterFactory implements TypeAdapterF
         while (reader.hasNext()) {
           var key = reader.nextName();
           if (DEFAULT_KEY.equals(key) && reader.peek() != JsonToken.NULL) {
-            builder.defaultValue(gson.fromJson(reader.nextString(), Object.class));
+            builder.defaultValue(gson.fromJson(reader, Object.class));
           }
           else if (DEPRECATED_KEY.equals(key) && reader.peek() != JsonToken.NULL) {
             builder.deprecated(readDeprecated(reader));
@@ -92,7 +92,8 @@ public class CapabilityParamDefinitionTypeAdapterFactory implements TypeAdapterF
           reader.nextBoolean(); // still, we need to consume the 'true' value
           return Boolean.TRUE;
         }
-        return gson.getAdapter(DeprecationInfo.class).fromJson(reader.nextString());
+        // It's a JSON object, not a string, so read it directly from the stream rather than via fromJson(String):
+        return gson.getAdapter(DeprecationInfo.class).read(reader);
       }
 
       private Object readPropertyNullable(final JsonReader reader) throws IOException {
@@ -112,7 +113,8 @@ public class CapabilityParamDefinitionTypeAdapterFactory implements TypeAdapterF
 
         writer.beginObject();
         if (paramDefinition.defaultValue() != null) {
-          writer.name(DEFAULT_KEY).value(gson.toJson(paramDefinition.defaultValue()));
+          writer.name(DEFAULT_KEY);
+          writeValue(writer, paramDefinition.defaultValue());
         }
         if (paramDefinition.deprecated() != null) {
           writer.name(DEPRECATED_KEY);
@@ -150,15 +152,18 @@ public class CapabilityParamDefinitionTypeAdapterFactory implements TypeAdapterF
           var key = entry.getKey();
           var value = entry.getValue();
 
-          // write
           writer.name(key);
           if (value == null) {
             writer.nullValue();
             continue;
           }
-          var valueAdapter = gson.getAdapter((Class<Object>) value.getClass());
-          valueAdapter.write(writer, value);
+          writeValue(writer, value);
         }
+      }
+
+      private void writeValue(final JsonWriter writer, final Object value) throws IOException {
+        var valueAdapter = gson.getAdapter((Class<Object>) value.getClass());
+        valueAdapter.write(writer, value);
       }
     };
     return typeAdapter;

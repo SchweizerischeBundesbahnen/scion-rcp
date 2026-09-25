@@ -13,4 +13,5 @@ Require-Bundle: org.mockito.mockito-core,
  net.bytebuddy.byte-buddy,
  net.bytebuddy.byte-buddy-agent,
  wrapped.org.mockito.mockito-inline,
- junit-jupiter-api
+ junit-jupiter-api,
+ junit-jupiter-params
