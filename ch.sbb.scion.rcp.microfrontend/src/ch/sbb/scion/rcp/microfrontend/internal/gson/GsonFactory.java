@@ -20,6 +20,7 @@ public interface GsonFactory {
   public static final QualifierTypeAdapterFactory QUALIFIER_TYPE_ADAPTER_FACTORY = new QualifierTypeAdapterFactory();
   public static final PropertiesTypeAdapterFactory PROPERTIES_TYPE_ADAPTER_FACTORY = new PropertiesTypeAdapterFactory();
 
+  // todo: singleton?
   /**
    * Use to create a {@link Gson} instance to be used in conjunction with <a href="file:../../../../../../../js/helper.js">helper.js</a> to-
    * and FromJson in Javascript.

@@ -1,6 +1,7 @@
 package ch.sbb.scion.rcp.microfrontend.internal;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -29,7 +30,9 @@ import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
 @Component
 public class ManifestServiceImpl implements ManifestService {
 
+  // Applications cannot be registered dynamically, therefore, we can keep a static list here:
   private CompletableFuture<List<Application>> applications;
+  private Map<String, CompletableFuture<Application>> applicationBySymbolicName;
 
   @Reference
   private MicrofrontendPlatformRcpHost microfrontendPlatformRcpHost;
@@ -215,5 +218,32 @@ public class ManifestServiceImpl implements ManifestService {
 
     var observable = new RxJsObservable<Boolean>(microfrontendPlatformRcpHost.whenHostBrowser, observeIIFE, Boolean.class);
     return observable.subscribe(subscriber);
+  }
+
+  @Override
+  public CompletableFuture<Application> getApplication(final String symbolicName) {
+    return getApplicationOrNull(symbolicName).handle((app, ex) -> {
+      // currently, this future cannot complete exceptionally based on application code, hence, exception is ignored.
+      if (app == null) {
+        throw new IllegalStateException("No application with symbolicName=%s registered.".formatted(symbolicName));
+      }
+      return app;
+    });
+  }
+
+  @Override
+  public CompletableFuture<Application> getApplicationOrNull(final String symbolicName) {
+    return applicationBySymbolicName.computeIfAbsent(symbolicName, sn -> {
+      CompletableFuture<Application> application = new CompletableFuture<>();
+      new JavaCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
+        application.complete(GsonFactory.create().fromJson((String) args[0], Application.class));
+      }).installOnce().thenAccept(callback -> {
+        new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser,
+            Resources.readString("js/sci-manifest-service/lookup-application.js")).replacePlaceholder("callback", callback.name)
+                .replacePlaceholder("refs.ManifestService", Refs.ManifestService).replacePlaceholder("helpers.toJson", Helpers.toJson)
+                .execute();
+      });
+      return application;
+    });
   }
 }

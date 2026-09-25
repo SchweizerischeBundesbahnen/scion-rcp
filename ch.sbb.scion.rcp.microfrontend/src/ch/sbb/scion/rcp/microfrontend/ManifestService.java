@@ -22,57 +22,71 @@ public interface ManifestService {
   CompletableFuture<List<Application>> getApplications();
 
   /**
-   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/ManifestService.html#lookupCapabilities_"
+   * The returned future completes exceptionally in case no application is found with the given symbolic name.
+   *
+   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/ManifestService.html#getapplication"
+   */
+  CompletableFuture<Application> getApplication(String symbolicName);
+
+  /**
+   * The returned future completes with {@code null} in case no application is found with the given symbolic name.
+   *
+   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/ManifestService.html#getapplication"
+   */
+  CompletableFuture<Application> getApplicationOrNull(String symbolicName);
+
+  /**
+   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/ManifestService.html#lookupcapabilities"
    */
   ISubscription lookupCapabilities(final ISubscriber<List<Capability>> subscriber);
 
   /**
-   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/ManifestService.html#lookupCapabilities_"
+   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/ManifestService.html#lookupcapabilities"
    */
   ISubscription lookupCapabilities(final ManifestObjectFilter filter, final ISubscriber<List<Capability>> subscriber);
 
   /**
-   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/ManifestService.html#registerCapability"
+   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/ManifestService.html#registercapability"
    */
   CompletableFuture<String> registerCapability(final Capability capability);
 
   /**
-   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/ManifestService.html#unregisterCapabilities"
+   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/ManifestService.html#unregistercapabilities"
    */
   CompletableFuture<Void> unregisterCapabilities();
 
   /**
-   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/ManifestService.html#unregisterCapabilities"
+   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/ManifestService.html#unregistercapabilities"
    */
   CompletableFuture<Void> unregisterCapabilities(final ManifestObjectFilter filter);
 
   /**
-   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/ManifestService.html#lookupIntentions_"
+   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/ManifestService.html#lookupintentions"
    */
   ISubscription lookupIntentions(final ISubscriber<List<Intention>> subscriber);
 
   /**
-   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/ManifestService.html#lookupIntentions_"
+   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/ManifestService.html#lookupintentions"
    */
   ISubscription lookupIntentions(final ManifestObjectFilter filter, final ISubscriber<List<Intention>> subscriber);
 
   /**
-   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/ManifestService.html#registerIntention"
+   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/ManifestService.html#registerintention"
    */
   CompletableFuture<String> registerIntention(final Intention intention);
 
   /**
-   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/ManifestService.html#unregisterIntentions"
+   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/ManifestService.html#unregisterintentions"
    */
   CompletableFuture<Void> unregisterIntentions();
 
   /**
-   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/ManifestService.html#unregisterIntentions"
+   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/ManifestService.html#unregisterintentions"
    */
   CompletableFuture<Void> unregisterIntentions(final ManifestObjectFilter filter);
 
   /**
-   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/ManifestService.html#isApplicationQualified_"
+   * @see "https://microfrontend-platform-api.scion.vercel.app/classes/ManifestService.html#isapplicationqualified"
    */
   ISubscription isApplicationQualified(final String appSymbolicName, final CapabilityIdentifier qualifiedFor,
       final ISubscriber<Boolean> subscriber);
