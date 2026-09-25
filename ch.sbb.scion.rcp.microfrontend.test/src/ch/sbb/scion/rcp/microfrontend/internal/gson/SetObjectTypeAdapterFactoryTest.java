@@ -78,6 +78,18 @@ class SetObjectTypeAdapterFactoryTest {
   }
 
   @Test
+  void typeAdapterRead_shouldReturnNull_whenJsonIsNull() {
+    // given
+    var setOfStringType = TypeToken.getParameterized(Set.class, String.class).getType();
+
+    // when
+    Set<String> jsonSet = gson.fromJson("null", setOfStringType);
+
+    // then
+    assertNull(jsonSet);
+  }
+
+  @Test
   void typeAdapterWrite_shouldReturnJsonRepresentingSetObject() {
     // given
     var setOfStringType = TypeToken.getParameterized(Set.class, String.class).getType();
@@ -93,5 +105,17 @@ class SetObjectTypeAdapterFactoryTest {
     assertEquals(10, letters.length);
     var actualSet = Stream.of(letters).map(l -> String.valueOf(l.charAt(1))).collect(Collectors.toSet());
     assertEquals(JAVA_SET, actualSet);
+  }
+
+  @Test
+  void typeAdapterWrite_shouldWriteJsonNull_whenSetIsNull() {
+    // given
+    var setOfStringType = TypeToken.getParameterized(Set.class, String.class).getType();
+
+    // when
+    String json = gson.toJson(null, setOfStringType);
+
+    // then
+    assertEquals("null", json);
   }
 }

@@ -3,6 +3,7 @@ package ch.sbb.scion.rcp.microfrontend.model;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import lombok.ToString;
 
@@ -22,6 +23,7 @@ public class Qualifier {
   }
 
   public Qualifier set(final String key, final String value) {
+    Objects.requireNonNull(value);
     entries.put(key, value);
     return this;
   }

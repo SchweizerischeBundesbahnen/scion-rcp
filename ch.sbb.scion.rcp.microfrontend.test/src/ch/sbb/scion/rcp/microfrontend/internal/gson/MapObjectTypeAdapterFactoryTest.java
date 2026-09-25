@@ -77,6 +77,18 @@ class MapObjectTypeAdapterFactoryTest {
   }
 
   @Test
+  void typeAdapterRead_shouldReturnNull_whenJsonIsNull() {
+    // given
+    var mapOfStringType = TypeToken.getParameterized(Map.class, String.class, String.class).getType();
+
+    // when
+    Map<String, String> jsonMap = gson.fromJson("null", mapOfStringType);
+
+    // then
+    assertNull(jsonMap);
+  }
+
+  @Test
   void typeAdapterWrite_shouldReturnJsonRepresentingMapObject() {
     // given
     var mapOfStringType = TypeToken.getParameterized(Map.class, String.class, String.class).getType();
@@ -94,5 +106,17 @@ class MapObjectTypeAdapterFactoryTest {
       actualMap.put(entryMatcher.group("key"), entryMatcher.group("value"));
     }
     assertEquals(JAVA_MAP, actualMap);
+  }
+
+  @Test
+  void typeAdapterWrite_shouldWriteJsonNull_whenMapIsNull() {
+    // given
+    var mapOfStringType = TypeToken.getParameterized(Map.class, String.class, String.class).getType();
+
+    // when
+    String json = gson.toJson(null, mapOfStringType);
+
+    // then
+    assertEquals("null", json);
   }
 }

@@ -50,6 +50,7 @@ public class QualifierTypeAdapterFactory implements TypeAdapterFactory {
             qualifier.set(key, reader.nextBoolean());
           }
           else {
+            // todo: log warning or throw exception?
             reader.skipValue();
           }
         }
