@@ -29,20 +29,29 @@ public class HostConfig {
    */
   private Object manifest;
   /**
-   * Controls whether the host can interact with private capabilities of other micro applications. By default, scope check is enabled.
-   * Disabling scope check is strongly discouraged.
+   * Allows the host to access private capabilities of other applications.
+   * <p>
+   * Disabling this check is discouraged. Enabled by default.
    */
   private Boolean scopeCheckDisabled;
   /**
-   * Controls whether the host can interact with the capabilities of other apps without having to declare respective intentions. By default,
-   * intention check is enabled. Disabling intention check is strongly discouraged.
+   * Allows the host to access public capabilities of other applications without declaring an intention.
+   * <p>
+   * Disabling this check is discouraged. Enabled by default.
    */
   private Boolean intentionCheckDisabled;
   /**
-   * Controls whether the host can register and unregister intentions dynamically at runtime. By default, this API is disabled. Enabling
-   * this API is strongly discouraged.
+   * Allows the host to register and unregister intentions at runtime.
+   * <p>
+   * Enabling this API is discouraged. Disabled by default.
    */
   private Boolean intentionRegisterApiDisabled;
+  /**
+   * Allows the host to access inactive capabilities.
+   * <p>
+   * Disabling this check is discouraged. Enabled by default.
+   */
+  private Boolean capabilityActiveCheckDisabled;
   /**
    * Maximum time (in milliseconds) that the platform waits to receive dispatch confirmation for messages sent by the host until rejecting
    * the publishing Promise. By default, a timeout of 10s is used.

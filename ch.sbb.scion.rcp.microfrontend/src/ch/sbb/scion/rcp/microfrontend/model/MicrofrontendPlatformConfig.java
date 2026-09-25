@@ -36,13 +36,13 @@ public class MicrofrontendPlatformConfig {
    * startup hook for micro applications to initialize or register message or intent handlers to provide functionality. By default, this API
    * is enabled.
    */
-  private Boolean activatorApiDisabled;;
+  private Boolean activatorApiDisabled;
   /**
    * Maximum time (in milliseconds) that the platform waits until the manifest of an application is loaded. You can set a different timeout
    * per application via {@link ApplicationConfig#manifestLoadTimeout}. If not set, by default, the browser's HTTP fetch timeout applies.
    * Consider setting this timeout if, for example, a web application firewall delays the responses of unavailable applications.
    */
-  private Long manifestLoadTimeout;;
+  private Long manifestLoadTimeout;
   /**
    * Maximum time (in milliseconds) for each application to signal readiness. If specified and activating an application takes longer, the
    * host logs an error and continues startup. Has no effect for applications which provide no activator(s) or are not configured to signal
@@ -50,15 +50,38 @@ public class MicrofrontendPlatformConfig {
    * is set, meaning that if an app fails to signal readiness, e.g., due to an error, that app would block the host startup process
    * indefinitely. It is therefore recommended to specify a timeout accordingly.
    */
-  private Long activatorLoadTimeout;;
+  private Long activatorLoadTimeout;
   /**
-   * Interval (in seconds) at which connected clients must send a heartbeat to indicate connectivity to the host. By default, if not set, a
-   * heartbeat interval of 60s is used.
+   * Configures the liveness probe performed at regular intervals between host and clients to detect and dispose stale clients. Clients not
+   * replying to the probe are removed.
    */
-  private Long heartbeatInterval;;
+  private LivenessConfig liveness;
   /**
    * Defines user-defined properties which can be read by micro applications via <code>PlatformPropertyService</code>.
    */
   private Properties properties;
 
+  @Accessors(fluent = true)
+  @Getter
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @Builder
+  @ToString
+  public static class LivenessConfig {
+
+    /**
+     * Interval (in seconds) at which liveness probes are performed between host and connected clients. Note that the interval must not be 0
+     * and be greater than twice the timeout period to give a probe enough time to complete before performing a new probe.
+     * <p>
+     * By default, if not set, an interval of 60s is used.
+     */
+    private Integer interval;
+    /**
+     * Timeout (in seconds) after which a client is unregistered if not replying to the probe. Note that timeout must not be 0 and be less
+     * than half the interval period to give a probe enough time to complete before performing a new probe.
+     * <p>
+     * By default, if not set, a timeout of 10s is used.
+     */
+    private Integer timeout;
+  }
 }
