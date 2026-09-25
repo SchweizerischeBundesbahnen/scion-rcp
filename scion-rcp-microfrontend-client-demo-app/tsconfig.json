@@ -1,7 +1,16 @@
 {
   "compilerOptions": {
-    "target": "es2015",
-    "module": "commonjs",
+    "strict": true,
+    "target": "ES2022",
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
     "types": [
       "node"
     ]

@@ -1,19 +1,20 @@
 {
   "name": "scion-rcp-microfrontend-client-demo-app",
   "scripts": {
-    "start": "cpy src/*.json dist && parcel src/*.html --port 4201 --no-cache --open"
+    "start": "cpy src/*.json dist && parcel src/*.html --port 4201 --no-cache --open",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@scion/microfrontend-platform": "1.2.2",
-    "@scion/toolkit": "1.4.1",
-    "rxjs": "7.8.1"
+    "@scion/microfrontend-platform": "3.0.0",
+    "@scion/toolkit": "2.1.0",
+    "rxjs": "7.8.2"
   },
   "devDependencies": {
-    "@parcel/transformer-sass": "2.15.4",
-    "@types/node": "24.2.1",
-    "cpy-cli": "6.0.0",
-    "parcel": "2.15.4",
-    "typescript": "5.9.2"
+    "@parcel/transformer-sass": "2.16.4",
+    "@types/node": "26.6.2",
+    "cpy-cli": "7.0.0",
+    "parcel": "2.16.4",
+    "typescript": "7.0.2"
   },
   "browserslist": [
     "last 2 Chrome versions"

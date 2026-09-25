@@ -11,7 +11,8 @@ class ClientController {
   }
 
   private async createConnectSection(): Promise<void> {
-    const connectStatus = document.querySelector<HTMLButtonElement>('output#connect-status');
+    // we know that this element exists in the DOM, so we can use the non-null assertion operator.
+    const connectStatus = document.querySelector<HTMLButtonElement>('output#connect-status')!;
     try {
       await MicrofrontendPlatformClient.connect('client-app');
       connectStatus.classList.add('connected');
@@ -24,10 +25,11 @@ class ClientController {
   }
 
   private createPublishSection(): void {
-    const publishButton = document.querySelector<HTMLButtonElement>('button#publish');
-    const topic = document.querySelector<HTMLInputElement>('input#publish-topic')
-    const message = document.querySelector<HTMLInputElement>('textarea#message')
-    const retain = document.querySelector<HTMLInputElement>('input#retain')
+    // we know that these elements exist in the DOM, so we can use the non-null assertion operator.
+    const publishButton = document.querySelector<HTMLButtonElement>('button#publish')!;
+    const topic = document.querySelector<HTMLInputElement>('input#publish-topic')!;
+    const message = document.querySelector<HTMLInputElement>('textarea#message')!;
+    const retain = document.querySelector<HTMLInputElement>('input#retain')!;
 
     fromEvent(publishButton, 'click').subscribe(async () => {
       publishButton.disabled = true;
@@ -47,9 +49,10 @@ class ClientController {
   }
 
   private createSubscribeSection(): void {
-    const subscribeButton = document.querySelector<HTMLButtonElement>('button#subscribe');
-    const topic = document.querySelector<HTMLInputElement>('input#subscribe-topic')
-    const messagesElement = document.querySelector<HTMLInputElement>('ul#messages')
+    // we know that these elements exist in the DOM, so we can use the non-null assertion operator.
+    const subscribeButton = document.querySelector<HTMLButtonElement>('button#subscribe')!;
+    const topic = document.querySelector<HTMLInputElement>('input#subscribe-topic')!;
+    const messagesElement = document.querySelector<HTMLInputElement>('ul#messages')!;
     let subscription: Subscription | null = null;
 
     fromEvent(subscribeButton, 'click').subscribe(async () => {
@@ -73,7 +76,7 @@ class ClientController {
               messageElement.classList.add('message');
               messageElement.innerHTML = `
                 <span>${typeof message.body === 'object' ? JSON.stringify(message.body) : message.body}</span>
-                <span>${new Date(message.headers.get(MessageHeaders.Timestamp)).toLocaleTimeString()}`;
+                <span>${new Date(message.headers.get(MessageHeaders.Timestamp) as Date).toLocaleTimeString()}`;
               messagesElement.prepend(messageElement);
             },
             error: error => {
@@ -90,16 +93,20 @@ class ClientController {
     });
   }
 
-  private setConnectError(error: Error | string): void {
-    document.querySelector<HTMLOutputElement>('output#connect-status').value = error instanceof Error ? error.message : error;
+  private setConnectError(error: any): void {
+    document.querySelector<HTMLOutputElement>('output#connect-status')!.value = this.getErrorMessage(error);
   }
 
-  private setPublishError(error: Error | string): void {
-    document.querySelector<HTMLOutputElement>('output#publish-error').value = error instanceof Error ? error.message : error;
+  private setPublishError(error: any): void {
+    document.querySelector<HTMLOutputElement>('output#publish-error')!.value = this.getErrorMessage(error);
   }
 
-  private setSubscribeError(error: Error | string): void {
-    document.querySelector<HTMLOutputElement>('output#subscribe-error').value = error instanceof Error ? error.message : error;
+  private setSubscribeError(error: any): void {
+    document.querySelector<HTMLOutputElement>('output#subscribe-error')!.value = this.getErrorMessage(error);
+  }
+
+  private getErrorMessage(error: any): string {
+    return error instanceof Error ? error.message : String(error);
   }
 }
 
