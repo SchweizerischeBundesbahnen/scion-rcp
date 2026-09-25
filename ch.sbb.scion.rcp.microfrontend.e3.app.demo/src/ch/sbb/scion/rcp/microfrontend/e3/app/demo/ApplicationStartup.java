@@ -75,7 +75,7 @@ public class ApplicationStartup {
         .applications(
             List.of(ApplicationConfig.builder().symbolicName("client-app").manifestUrl("http://localhost:4201/manifest.json").build(),
                 ApplicationConfig.builder().symbolicName("devtools")
-                    .manifestUrl("https://scion-microfrontend-platform-devtools-v1-0-0-rc-12.vercel.app/assets/manifest.json")
+                    .manifestUrl("https://microfrontend-platform-devtools-v3-0-0.scion.vercel.app/manifest.json")
                     .intentionCheckDisabled(Boolean.TRUE).scopeCheckDisabled(Boolean.TRUE).build()))
         .manifestLoadTimeout(Long.valueOf(2000L)).activatorLoadTimeout(Long.valueOf(5000L)).build());
 
