@@ -1,0 +1,98 @@
+/*
+ * Project: RCS - Rail Control System
+ *
+ * © Copyright by SBB AG, Alle Rechte vorbehalten
+ */
+package ch.sbb.scion.rcp.microfrontend.internal.gson;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
+class MapObjectTypeAdapterFactoryTest {
+
+  private static final Map<String, String> JAVA_MAP = Map.of("A", "1", "B", "2", "C", "3");
+  private static final String JSON_MAP = "{\"__type\":\"Map\",\"__value\":[[\"A\",\"1\"],[\"B\",\"2\"],[\"C\",\"3\"]]}";
+  private static final Pattern JSON_MAP_PATTERN = Pattern.compile("^\\{\"__type\":\"Map\",\"__value\":\\[(?<value>.*)\\]\\}$");
+  private static final Pattern JSON_MAP_ENTRY_PATTERN = Pattern.compile("\\[\"(?<key>[A-Z])\",\"(?<value>\\d)\"\\]");
+  private static final String JSON_OBJECT = "{\"A\":\"1\",\"B\":\"2\",\"C\":\"3\"}";
+
+  private MapObjectTypeAdapterFactory factory;
+
+  private Gson gson;
+
+  @BeforeEach
+  void beforeEach() {
+    factory = new MapObjectTypeAdapterFactory();
+    gson = new GsonBuilder().registerTypeAdapterFactory(factory).create();
+  }
+
+  @Test
+  void create_shouldReturnNull_whenTokenDoesNotRepresentMap() {
+    TypeToken<Long> longToken = TypeToken.get(Long.class);
+    assertNull(factory.create(gson, longToken));
+  }
+
+  @Test
+  void create_shouldReturnTypeAdapter_whenTokenRepresentsMap() {
+    var hashMapToken = TypeToken.getParameterized(HashMap.class, String.class, String.class);
+    assertNotNull(factory.create(gson, hashMapToken));
+  }
+
+  @Test
+  void typeAdapterRead_shouldReturnMap_whenIsJsonStringThatRepresentsMapObject() {
+    // given
+    var mapOfStringType = TypeToken.getParameterized(Map.class, String.class, String.class).getType();
+
+    // when
+    Map<String, String> jsonMap = gson.fromJson(JSON_MAP, mapOfStringType);
+
+    // then
+    assertEquals(JAVA_MAP, jsonMap);
+  }
+
+  @Test
+  void typeAdapterRead_shouldReturnMap_whenIsJsonStringThatRepresentsPlainObject() {
+    // given
+    var mapOfStringType = TypeToken.getParameterized(Map.class, String.class, String.class).getType();
+
+    // when
+    // This will not use our type adapter but should properly delegate to the default Map type adapter provided by GSON:
+    Map<String, String> jsonMap = gson.fromJson(JSON_OBJECT, mapOfStringType);
+
+    // then
+    assertEquals(JAVA_MAP, jsonMap);
+  }
+
+  @Test
+  void typeAdapterWrite_shouldReturnJsonRepresentingMapObject() {
+    // given
+    var mapOfStringType = TypeToken.getParameterized(Map.class, String.class, String.class).getType();
+
+    // when
+    String json = gson.toJson(JAVA_MAP, mapOfStringType);
+
+    // then
+    var matcher = JSON_MAP_PATTERN.matcher(json);
+    assertTrue(matcher.matches());
+
+    var entryMatcher = JSON_MAP_ENTRY_PATTERN.matcher(matcher.group("value"));
+    var actualMap = new HashMap<String, String>();
+    while (entryMatcher.find()) {
+      actualMap.put(entryMatcher.group("key"), entryMatcher.group("value"));
+    }
+    assertEquals(JAVA_MAP, actualMap);
+  }
+}

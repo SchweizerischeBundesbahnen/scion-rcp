@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
@@ -49,17 +50,20 @@ public class SetObjectTypeAdapterFactory implements TypeAdapterFactory {
           return null;
         }
 
-        var jsonObject = jsonElementAdapter.read(reader).getAsJsonObject();
-        var typeElement = jsonObject.get(CUSTOM_OBJECT_TYPE_FIELD);
-
-        if (typeElement != null && typeElement.isJsonPrimitive() && CUSTOM_OBJECT_TYPE.equals(typeElement.getAsString())) {
+        var jsonElement = jsonElementAdapter.read(reader);
+        if (jsonElement.isJsonObject() && representsSetObject(jsonElement.getAsJsonObject())) {
           // The value field contains a standard JavaScript array, that the default Set adapter can read:
+          var jsonObject = jsonElement.getAsJsonObject();
           return defaultSetAdapter.fromJsonTree(jsonObject.get(CUSTOM_OBJECT_VALUE_FIELD));
         }
         else {
-          // It's a Set but not stored in the expected format, give adapters further down the chain a chance:
-          return defaultSetAdapter.fromJsonTree(jsonObject);
+          return defaultSetAdapter.fromJsonTree(jsonElement);
         }
+      }
+
+      private boolean representsSetObject(final JsonObject jsonObject) {
+        var typeElement = jsonObject.get(CUSTOM_OBJECT_TYPE_FIELD);
+        return typeElement != null && typeElement.isJsonPrimitive() && CUSTOM_OBJECT_TYPE.equals(typeElement.getAsString());
       }
 
       @Override
