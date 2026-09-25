@@ -8,26 +8,22 @@ package ch.sbb.scion.rcp.microfrontend.internal.gson;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
 class SetObjectTypeAdapterFactoryTest {
 
   private static final Set<String> JAVA_SET = Set.of("J", "I", "H", "G", "F", "E", "D", "C", "B", "A");
   private static final String JSON_SET = "{\"__type\":\"Set\",\"__value\":[\"J\",\"I\",\"H\",\"G\",\"F\",\"E\",\"D\",\"C\",\"B\",\"A\"]}";
-  private static final Pattern JSON_SET_PATTERN = Pattern.compile("^\\{\"__type\":\"Set\",\"__value\":\\[(?<value>.*)\\]\\}$");
   private static final String JSON_ARRAY = "[\"J\",\"I\",\"H\",\"G\",\"F\",\"E\",\"D\",\"C\",\"B\",\"A\"]";
 
   private SetObjectTypeAdapterFactory factory;
@@ -98,12 +94,10 @@ class SetObjectTypeAdapterFactoryTest {
     String json = gson.toJson(JAVA_SET, setOfStringType);
 
     // then
-    var matcher = JSON_SET_PATTERN.matcher(json);
-    assertTrue(matcher.matches());
-    var value = matcher.group("value");
-    var letters = value.split(",");
-    assertEquals(10, letters.length);
-    var actualSet = Stream.of(letters).map(l -> String.valueOf(l.charAt(1))).collect(Collectors.toSet());
+    var jsonObject = gson.fromJson(json, JsonObject.class);
+    assertEquals("Set", jsonObject.get("__type").getAsString());
+    var actualSet = new HashSet<String>();
+    jsonObject.getAsJsonArray("__value").forEach(element -> actualSet.add(element.getAsString()));
     assertEquals(JAVA_SET, actualSet);
   }
 
