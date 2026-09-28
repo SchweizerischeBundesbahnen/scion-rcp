@@ -1,5 +1,6 @@
 package ch.sbb.scion.rcp.microfrontend.internal;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -31,18 +32,22 @@ import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
 public class ManifestServiceImpl implements ManifestService {
 
   // Applications cannot be registered dynamically, therefore, we can keep a static list here:
-  private CompletableFuture<List<Application>> applications;
-  private Map<String, CompletableFuture<Application>> applicationBySymbolicName;
+  private CompletableFuture<ApplicationCache> whenApplicationCache;
 
   @Reference
   private MicrofrontendPlatformRcpHost microfrontendPlatformRcpHost;
 
   @Override
   public CompletableFuture<List<Application>> getApplications() {
-    if (applications == null) {
-      applications = new CompletableFuture<>();
+    return loadApplicationCacheIfAbsent().thenApply(ApplicationCache::applications);
+  }
+
+  private CompletableFuture<ApplicationCache> loadApplicationCacheIfAbsent() {
+    if (whenApplicationCache == null) {
+      whenApplicationCache = new CompletableFuture<>();
       new JavaCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
-        applications.complete(GsonFactory.create().fromJson((String) args[0], new ParameterizedType(List.class, Application.class)));
+        whenApplicationCache.complete(
+            ApplicationCache.from(GsonFactory.create().fromJson((String) args[0], new ParameterizedType(List.class, Application.class))));
       }).installOnce().thenAccept(callback -> {
         new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser,
             Resources.readString("js/sci-manifest-service/lookup-applications.js")).replacePlaceholder("callback", callback.name)
@@ -50,7 +55,7 @@ public class ManifestServiceImpl implements ManifestService {
                 .execute();
       });
     }
-    return applications;
+    return whenApplicationCache;
   }
 
   @Override
@@ -223,9 +228,9 @@ public class ManifestServiceImpl implements ManifestService {
   @Override
   public CompletableFuture<Application> getApplication(final String symbolicName) {
     return getApplicationOrNull(symbolicName).handle((app, ex) -> {
-      // currently, this future cannot complete exceptionally based on application code, hence, exception is ignored.
+      CompletableFutures.rethrow(ex);
       if (app == null) {
-        throw new IllegalStateException("No application with symbolicName=%s registered.".formatted(symbolicName));
+        throw new RuntimeException("[NullApplicationError] No application found with symbolic name '%s'.".formatted(symbolicName));
       }
       return app;
     });
@@ -233,17 +238,23 @@ public class ManifestServiceImpl implements ManifestService {
 
   @Override
   public CompletableFuture<Application> getApplicationOrNull(final String symbolicName) {
-    return applicationBySymbolicName.computeIfAbsent(symbolicName, sn -> {
-      CompletableFuture<Application> application = new CompletableFuture<>();
-      new JavaCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
-        application.complete(GsonFactory.create().fromJson((String) args[0], Application.class));
-      }).installOnce().thenAccept(callback -> {
-        new JavaScriptExecutor(microfrontendPlatformRcpHost.hostBrowser,
-            Resources.readString("js/sci-manifest-service/lookup-application.js")).replacePlaceholder("callback", callback.name)
-                .replacePlaceholder("refs.ManifestService", Refs.ManifestService).replacePlaceholder("helpers.toJson", Helpers.toJson)
-                .execute();
-      });
-      return application;
-    });
+    return loadApplicationCacheIfAbsent().thenApply(c -> c.findBySymbolicName(symbolicName));
+  }
+
+  private record ApplicationCache(List<Application> applications, Map<String, Integer> indexOnSymbolicName) {
+
+    static ApplicationCache from(final List<Application> applications) {
+      Map<String, Integer> indexOnSymoblicName = new HashMap<>();
+      for (int i = 0; i < applications.size(); ++i) {
+        var application = applications.get(i);
+        indexOnSymoblicName.put(application.symbolicName(), Integer.valueOf(i));
+      }
+      return new ApplicationCache(applications, indexOnSymoblicName);
+    }
+
+    Application findBySymbolicName(final String symbolicName) {
+      var i = indexOnSymbolicName.get(symbolicName);
+      return i == null ? null : applications.get(i.intValue());
+    }
   }
 }

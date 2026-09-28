@@ -19,6 +19,7 @@ public interface GsonFactory {
   public static final SetObjectTypeAdapterFactory SET_OBJECT_TYPE_ADAPTER_FACTORY = new SetObjectTypeAdapterFactory();
   public static final QualifierTypeAdapterFactory QUALIFIER_TYPE_ADAPTER_FACTORY = new QualifierTypeAdapterFactory();
   public static final PropertiesTypeAdapterFactory PROPERTIES_TYPE_ADAPTER_FACTORY = new PropertiesTypeAdapterFactory();
+  public static final CapabilityParamDefinitionTypeAdapterFactory CAPABILITY_PARAM_DEFINITION_TYPE_ADAPTER_FACTORY = new CapabilityParamDefinitionTypeAdapterFactory();
 
   // todo: singleton?
   /**
@@ -28,6 +29,7 @@ public interface GsonFactory {
   public static Gson create() {
     return new GsonBuilder().registerTypeAdapterFactory(MAP_OBJECT_TYPE_ADAPTER_FACTORY)
         .registerTypeAdapterFactory(SET_OBJECT_TYPE_ADAPTER_FACTORY).registerTypeAdapterFactory(QUALIFIER_TYPE_ADAPTER_FACTORY)
-        .registerTypeAdapterFactory(PROPERTIES_TYPE_ADAPTER_FACTORY).serializeNulls().create();
+        .registerTypeAdapterFactory(PROPERTIES_TYPE_ADAPTER_FACTORY)
+        .registerTypeAdapterFactory(CAPABILITY_PARAM_DEFINITION_TYPE_ADAPTER_FACTORY).serializeNulls().create();
   }
 }

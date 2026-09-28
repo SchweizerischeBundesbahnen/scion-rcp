@@ -1,9 +1,10 @@
 package ch.sbb.scion.rcp.microfrontend.browser;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+
+import java.lang.reflect.Type;
 
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.browser.Browser;
@@ -23,17 +24,23 @@ import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
  */
 public class RxJsObservable<T> {
 
-  private CompletableFuture<Browser> whenBrowser;
-  private Type clazz;
-  private String rxjsObservableIIFE;
+  private final CompletableFuture<Browser> whenBrowser;
+  private final Type clazz;
+  private final String rxjsObservableIIFE;
+  private boolean logToConsole = false;
 
-  public RxJsObservable(CompletableFuture<Browser> browser, String rxjsObservableIIFE, Type clazz) {
+  public RxJsObservable(final CompletableFuture<Browser> browser, final String rxjsObservableIIFE, final Type clazz) {
     this.whenBrowser = browser;
     this.rxjsObservableIIFE = rxjsObservableIIFE;
     this.clazz = clazz;
   }
 
-  public ISubscription subscribe(ISubscriber<T> observer) {
+  public RxJsObservable<T> printScriptToConsole() {
+    logToConsole = true;
+    return this;
+  }
+
+  public ISubscription subscribe(final ISubscriber<T> observer) {
     var disposables = new ArrayList<IDisposable>();
 
     new JavaCallback(whenBrowser, args -> {
@@ -61,10 +68,14 @@ public class RxJsObservable<T> {
       }
     }).addTo(disposables).install().thenAccept(callback -> {
       var uuid = UUID.randomUUID();
-      new JavaScriptExecutor(whenBrowser, Resources.readString("js/rxjs-observable/subscribe.js"))
+      var executor = new JavaScriptExecutor(whenBrowser, Resources.readString("js/rxjs-observable/subscribe.js"))
           .replacePlaceholder("callback", callback.name).replacePlaceholder("subscriptionStorageKey", uuid)
           .replacePlaceholder("helpers.toJson", Helpers.toJson).replacePlaceholder("storage", Scripts.Storage)
-          .replacePlaceholder("rxjsObservableIIFE", rxjsObservableIIFE).execute();
+          .replacePlaceholder("rxjsObservableIIFE", rxjsObservableIIFE);
+      if (logToConsole) {
+        executor.printScriptToConsole();
+      }
+      executor.execute();
 
       disposables.add(() -> new JavaScriptExecutor(whenBrowser, Resources.readString("js/rxjs-observable/unsubscribe.js"))
           .replacePlaceholder("subscriptionStorageKey", uuid).replacePlaceholder("storage", Scripts.Storage).execute());
