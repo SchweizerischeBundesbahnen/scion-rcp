@@ -78,6 +78,12 @@ API surface is simply missing.
   capability interceptor at all. Add a `CapabilityInterceptor` Java interface + bridging JS snippet
   analogous to the existing `IntentInterceptorInstaller`/`MessageInterceptorInstaller`, if this
   extensibility point should be exposed to Java host code.
+- **`HostManifestInterceptor`** (host-side, register via `Beans.register(HostManifestInterceptor, {multi: true})`) —
+  mutates the host manifest before the platform registers it, for example to add intentions or
+  capabilities supplied by an integrating library. The exported `MicrofrontendPlatform` Java API
+  only registers message and intent interceptors; it has no host-manifest hook. This is distinct
+  from `CapabilityInterceptor`, which runs when a capability is registered. A Java hook would need
+  to be installed before the TypeScript host starts.
 
 ### Missing outlet context read-back
 
@@ -101,7 +107,72 @@ API surface is simply missing.
 - Add `ManifestService.getApplication(String symbolicName, ...)`.
 - Decide whether to implement `CapabilityInterceptor` support end-to-end (Java interface, JS bridging
   script, registration API on `MicrofrontendPlatform`).
+- Decide whether to expose `HostManifestInterceptor` to Java host integrations before host startup.
 - Add `Application.platformVersion` if useful for diagnostics/support tooling.
 - Add a Java-side read-back for outlet context (`contextValues$`) to `RouterOutlet.java`/
   `RouterOutletProxy.java`, so Java can observe context values the library itself sets
   autonomously (`OUTLET_CONTEXT`, keystroke entries) rather than only what it explicitly pushed.
+
+### Current API comparison (addendum)
+
+The entries above describe gaps identified during the original review; several have since been
+implemented. This comparison uses the TypeScript library's `src/public-api.ts` and its host/client
+`public_api.ts` barrels, and the Java packages exported by `ch.sbb.scion.rcp.microfrontend/META-INF/MANIFEST.MF`
+(`microfrontend`, `interceptor`, `model`, `subscriber`). Java services in the first package include
+`MicrofrontendPlatform`, `ManifestService`, `MessageClient`, `IntentClient`, `OutletRouter`, and the
+`RouterOutlet` SWT widget. The host runs the TypeScript library in an SWT Browser; a public TypeScript
+export is not automatically callable from Java. In particular, `scion-rcp-microfrontend-host-dependency-bundler/src/refs.ts`
+only exposes selected exports to the JavaScript bridge.
+
+**Already present in Java (the earlier recommendations are historical, not outstanding work):**
+
+- `ManifestService.getApplication` and `getApplicationOrNull` are implemented using the application
+  cache in `ManifestServiceImpl`. The earlier missing-method row is no longer accurate.
+- `Capability.isInactive`, `Capability.ParamDefinition.defaultValue`/`deprecated` (including the
+  `default`/`deprecated` JSON adapter), and `capabilityActiveCheckDisabled` on `ApplicationConfig`,
+  `HostConfig`, and `Application` are present.
+- `ApplicationConfig.secondaryOrigin` and `MicrofrontendPlatformConfig.liveness` with nested
+  `LivenessConfig.interval`/`timeout` are present. `start-host.js` still overrides each configured
+  application's `secondaryOrigin` with the host origin for the RCP message bridge, so the Java
+  setting cannot take effect as supplied. `Application.platformVersion` is still absent.
+
+**Additional host-side services and hooks without a Java-facing equivalent:**
+
+| TypeScript public API | Current Java surface / consequence |
+|---|---|
+| `MicrofrontendPlatform.state`, `state$`, `onState(...)`, `destroy()` | `MicrofrontendPlatform` only starts the host and registers interceptors; Java cannot observe lifecycle state or explicitly stop the TypeScript platform. Disposing the OSGi host shell is not an equivalent public lifecycle API. |
+| `MicrofrontendPlatformHost.startupProgress$` | `startHost(...)` returns a future for the completed startup, but Java cannot report manifest/activator startup progress to an RCP progress monitor. |
+| `Logger` bean | The TypeScript logger is replaceable through `Beans`; Java has no registration hook to route platform logs through Eclipse logging. This is separate from logging errors in Java's host startup callback. |
+| `RouterOutletUrlAssigner` / `RelativePathResolver` beans | TypeScript consumers can replace iframe URL assignment and relative-path resolution. The exported Java API offers no corresponding strategy hook; RCP's `RouterOutletProxy` creates the DOM outlet internally. |
+
+The `HostManifestInterceptor` described above is another host-side extension hook not registered
+by the current `MicrofrontendPlatform` Java API. Both it and `CapabilityInterceptor` would require
+adding the TypeScript token to `refs.ts`, then installing a Java-to-JS adapter before host startup;
+the existing message/intent installer pattern alone cannot access an unexposed token.
+
+**Browser-client APIs not mirrored by the Java bundle (scope decision, not necessarily defects):**
+
+- `PlatformPropertyService` reads host-defined properties, while Java's
+  `MicrofrontendPlatformConfig.properties` only supplies them. `ContextService` looks up and observes
+  inherited outlet context, while Java `RouterOutlet` only writes its own context. Neither service
+  has a Java facade; embedded TypeScript microfrontends can continue using them directly.
+- `FocusMonitor.focus$`/`focusWithin$` observe focus of the *current microfrontend* across iframe
+  boundaries. Java `RouterOutlet.onFocusWithin` is scoped to one embedded outlet, not equivalent.
+  `PreferredSizeService` is used by embedded content to report its size; Java's outlet has no
+  matching client-side service. `MicrofrontendPlatformClient.connect`, `isConnected`, and
+  `signalReady` likewise remain browser-client APIs, not Java services.
+- `MicrofrontendPlatformStopper` is a replaceable TypeScript bean for page-unload shutdown. Java
+  cannot configure it through the exported bundle API; decide whether controlling shutdown from
+  RCP is required before adding a bridge.
+
+**Additional differences on existing Java services:** `OutletRouter.navigate(null, options)`
+clears a target outlet and its retained navigation in TypeScript, but Java's
+`OutletRouterImpl.navigateInternal` rejects a null target. `RouterOutlet.installRouter` already maps
+an absent URL message body to `about:blank`; enabling explicit clearing needs a Java API/bridge path
+that permits null and verification that the retained navigation is removed.
+`SciRouterOutletElement` also exposes `empty$`, `scrollable`, `preferredSize`, and
+`resetPreferredSize()` in addition to the already noted `contextValues$`; Java's SWT outlet has no
+equivalent read-back/control for these properties. Treat these as separate outlet feature choices,
+not as missing `ContextService` methods. `NavigationOptions.showSplash` is also absent from the
+Java options model even though the TypeScript router supports it; enabling it would require a
+client to call `MicrofrontendPlatformClient.signalReady()`.
