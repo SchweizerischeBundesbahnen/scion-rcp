@@ -69,14 +69,20 @@ public class ApplicationStartup {
                             .of(ParamDefinition.builder().name("example").isRequired(false).description("An example parameter").build()))
                         .properties(new Properties().set("title", "Eclipse Test View").set("heading", "Eclipse Test View with input")
                             .set("eclipseViewId", "ch.sbb.scion.rcp.views.testView"))
-                        .build()
+                        .build(),
+                    // An example tile (fixme: remove when rtui-portal-ui gets removed)
+                    Capability.builder().type("tile").qualifier(new Qualifier().set("id", "example-tile")).isPrivate(Boolean.FALSE)
+                        .properties(new Properties().set("title", "Example Tile")).build()
                 //
                 ))).build())
         .applications(
             List.of(ApplicationConfig.builder().symbolicName("client-app").manifestUrl("http://localhost:4201/manifest.json").build(),
                 ApplicationConfig.builder().symbolicName("devtools")
                     .manifestUrl("https://microfrontend-platform-devtools-v3-0-0.scion.vercel.app/manifest.json")
-                    .intentionCheckDisabled(Boolean.TRUE).scopeCheckDisabled(Boolean.TRUE).build()))
+                    .intentionCheckDisabled(Boolean.TRUE).scopeCheckDisabled(Boolean.TRUE).build(),
+                // fixme: remove (don't commit)
+                ApplicationConfig.builder().symbolicName("rtui-portal-frontend").manifestUrl("https://localhost:4200/assets/manifest.json")
+                    .build()))
         // todo: remove as soon as done with debugging (headless = false)
         .manifestLoadTimeout(Long.valueOf(2000L)).activatorLoadTimeout(Long.valueOf(5000L)).build(), false);
 
