@@ -77,7 +77,8 @@ public class ApplicationStartup {
                 ApplicationConfig.builder().symbolicName("devtools")
                     .manifestUrl("https://microfrontend-platform-devtools-v3-0-0.scion.vercel.app/manifest.json")
                     .intentionCheckDisabled(Boolean.TRUE).scopeCheckDisabled(Boolean.TRUE).build()))
-        .manifestLoadTimeout(Long.valueOf(2000L)).activatorLoadTimeout(Long.valueOf(5000L)).build());
+        // todo: remove as soon as done with debugging (headless = false)
+        .manifestLoadTimeout(Long.valueOf(2000L)).activatorLoadTimeout(Long.valueOf(5000L)).build(), false);
 
     // Open SCION DevTools
     intentClient

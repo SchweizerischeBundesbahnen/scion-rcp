@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
@@ -79,6 +80,8 @@ public class ManifestServicePart {
   private final IObservableValue<String> capabilityResultMessage = new WritableValue<>("", String.class);
   private Text intentionResultText;
   private final IObservableValue<String> intentionResultMessage = new WritableValue<>("", String.class);
+  private Text applicationLookupResultText;
+  private final IObservableValue<String> applicationLookupResultMessage = new WritableValue<>("", String.class);
   private Text isAppQualifiedResultText;
   private final IObservableValue<String> isAppQualifiedResultMessage = new WritableValue<>("", String.class);
 
@@ -107,6 +110,13 @@ public class ManifestServicePart {
 
     var applicationsComposite = createApplicationsGroup(tabArea);
     GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(applicationsComposite);
+
+    // todo: should we group input and result areas?
+    var lookupApplicationComposite = createApplicationLookupComposite(tabArea);
+    GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(lookupApplicationComposite);
+
+    var lookupResultArea = createApplicationLookupResultArea(tabArea);
+    GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(lookupResultArea);
 
     var isApplicationQualifiedComposite = createIsApplicationQualifiedComposite(tabArea);
     GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(isApplicationQualifiedComposite);
@@ -138,6 +148,7 @@ public class ManifestServicePart {
     createScopeCheckDisabledColumn(applicationsTableViewer);
     createIntentionCheckDisabledColumn(applicationsTableViewer);
     createIntentionRegisterApiDisabledColumn(applicationsTableViewer);
+    createCapabilityActiveCheckDisabledColumn(applicationsTableViewer);
     GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(applicationsTableViewer.getControl());
 
     applicationsTableViewer.setInput(Collections.EMPTY_LIST);
@@ -301,6 +312,103 @@ public class ManifestServicePart {
         return String.valueOf(application.intentionRegisterApiDisabled());
       }
     });
+  }
+
+  private void createCapabilityActiveCheckDisabledColumn(final TableViewer messagesTableViewer) {
+    var idColumn = new TableViewerColumn(messagesTableViewer, SWT.NONE);
+    idColumn.getColumn().setText("Capability Active Check Disabled");
+    idColumn.getColumn().setWidth(100);
+    idColumn.setLabelProvider(new ColumnLabelProvider() {
+
+      @Override
+      public String getText(final Object message) {
+        var application = (Application) message;
+        return String.valueOf(application.capabilityActiveCheckDisabled());
+      }
+    });
+  }
+
+  private Composite createApplicationLookupComposite(final Composite parent) {
+    var appQualificationModel = new ApplicationQualificationCheckModel();
+    var group = GroupFactory.newGroup(SWT.NONE).text("Lookup Application").create(parent);
+    GridLayoutFactory.swtDefaults().applyTo(group);
+
+    // Application qualification check arguments composite
+    var appQualificationComposite = CompositeFactory.newComposite(SWT.NONE).create(group);
+    GridLayoutFactory.swtDefaults().numColumns(5).applyTo(appQualificationComposite);
+
+    // App symbolic name
+    LabelFactory.newLabel(SWT.NONE).text("Symbolic Name*:").layoutData(GridDataFactory.fillDefaults().hint(50, SWT.DEFAULT).create())
+        .create(appQualificationComposite);
+    var appSymbolicNameText = TextFactory.newText(SWT.SINGLE | SWT.BORDER)
+        .layoutData(GridDataFactory.fillDefaults().span(4, 1).grab(true, false).create()).create(appQualificationComposite);
+
+    GridDataFactory.swtDefaults().hint(50, SWT.DEFAULT).align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(appQualificationComposite);
+
+    // Subscribe button
+    var findButton = ButtonFactory.newButton(SWT.NONE).text("Find").layoutData(GridDataFactory.fillDefaults().create()).create(group);
+
+    findButton.addSelectionListener(new SelectionAdapter() {
+
+      @Override
+      public void widgetSelected(final SelectionEvent e) {
+        manifestService.getApplication(appSymbolicNameText.getText()).whenComplete((app, ex) -> {
+          if (ex != null) {
+            // exception could be wrapped in CompletionException
+            ex = ex instanceof CompletionException ? ex.getCause() : ex;
+            applicationLookupResultMessage.setValue(ex.getMessage());
+            applicationLookupResultText.setBackground(RED);
+            applicationLookupResultText.getParent().setBackground(RED);
+            return;
+          }
+          // Cannot be null if there is no exception:
+          applicationLookupResultMessage.setValue(app.toString());
+          applicationLookupResultText.setBackground(GREEN);
+          applicationLookupResultText.getParent().setBackground(GREEN);
+        });
+      }
+    });
+    findButton.setEnabled(true);
+
+    // add bindings - Most certainly, the part below can be implemented in a prettier way:
+    // Update model <-> control
+    dbc.bindValue(WidgetProperties.text(SWT.Modify).observe(appSymbolicNameText), appQualificationModel.getAppSymbolicName());
+
+    // Validate control
+    var validator = new IValidator<String>() {
+
+      @Override
+      public IStatus validate(final String value) {
+        String s = String.valueOf(value);
+        if (!s.isBlank()) {
+          return ValidationStatus.ok();
+        }
+        return ValidationStatus.warning("Field is mandatory");
+      }
+    };
+    var strategy = new UpdateValueStrategy<String, String>();
+    strategy.setBeforeSetValidator(validator);
+
+    var appSymbolicModel = new WritableValue<>();
+    var appSymbolicNameWidgetValue = WidgetProperties.text(SWT.Modify).observe(appSymbolicNameText);
+    var bindingAppSymbolicName = dbc.bindValue(appSymbolicNameWidgetValue, appSymbolicModel, strategy, null);
+    ControlDecorationSupport.create(bindingAppSymbolicName, SWT.TOP | SWT.LEFT);
+
+    // TODO: Properly disable/enable the find button based on symbolic name...
+    return group;
+  }
+
+  private Composite createApplicationLookupResultArea(final Composite parent) {
+    var group = GroupFactory.newGroup(SWT.NONE).text("Result").create(parent);
+    GridLayoutFactory.swtDefaults().numColumns(1).applyTo(group);
+
+    // validation text field
+    applicationLookupResultText = TextFactory.newText(SWT.READ_ONLY | SWT.MULTI | SWT.WRAP)
+        .layoutData(GridDataFactory.fillDefaults().hint(SWT.DEFAULT, 40).grab(true, false).align(SWT.FILL, SWT.CENTER).create())
+        .font(JFaceResources.getFontRegistry().get(JFaceResources.DIALOG_FONT)).create(group);
+    dbc.bindValue(WidgetProperties.text(SWT.Modify).observe(applicationLookupResultText), applicationLookupResultMessage);
+
+    return group;
   }
 
   private Composite createIsApplicationQualifiedComposite(final Composite parent) {
@@ -757,12 +865,14 @@ public class ManifestServicePart {
     var whenUnregistered = manifestService.unregisterCapabilities(filter);
     whenUnregistered.exceptionally(ex -> {
       capabilityResultMessage.setValue(ex.getMessage());
+      capabilityResultText.setBackground(RED);
       capabilityResultText.getParent().setBackground(RED);
       return null;
     });
 
     whenUnregistered.thenAccept(s -> {
       capabilityResultMessage.setValue("Unregister OK.");
+      capabilityResultText.setBackground(GREEN);
       capabilityResultText.getParent().setBackground(GREEN);
     });
   }
@@ -1131,6 +1241,7 @@ public class ManifestServicePart {
     var whenRegistered = manifestService.registerIntention(newIntention);
     whenRegistered.exceptionally(ex -> {
       intentionResultMessage.setValue(ex.getMessage());
+      intentionResultText.setBackground(RED);
       intentionResultText.getParent().setBackground(RED);
       return ex.getMessage();
     });
@@ -1138,6 +1249,7 @@ public class ManifestServicePart {
     whenRegistered.thenAccept(s -> {
       intentionResultMessage.setValue("Registered intention with ID: " + s);
       intentionResultText.setBackground(GREEN);
+      intentionResultText.getParent().setBackground(GREEN);
     });
   }
 
