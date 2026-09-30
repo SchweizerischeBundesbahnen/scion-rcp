@@ -1,7 +1,5 @@
 package ch.sbb.scion.rcp.microfrontend.internal;
 
-import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import org.osgi.service.component.annotations.Component;
@@ -44,9 +42,7 @@ public class OutletRouterImpl implements OutletRouter {
   }
 
   private CompletableFuture<Void> navigateInternal(final Object target, final NavigationOptions navigationOptions) {
-    Objects.requireNonNull(target);
-    var options = Optional.ofNullable(navigationOptions).orElse(new NavigationOptions());
-
+    var options = navigationOptions == null ? new NavigationOptions() : navigationOptions;
     var navigated = new CompletableFuture<Void>();
     new JavaCallback(microfrontendPlatformRcpHost.whenHostBrowser, args -> {
       var error = args[0];
@@ -66,7 +62,6 @@ public class OutletRouterImpl implements OutletRouter {
           .replacePlaceholder("refs.OutletRouter", Refs.OutletRouter).replacePlaceholder("helpers.fromJson", Helpers.fromJson)
           .runInsideAsyncFunction().execute();
     });
-
     return navigated;
   }
 
