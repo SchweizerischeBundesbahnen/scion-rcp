@@ -1,10 +1,11 @@
 package ch.sbb.scion.rcp.workbench.popup;
 
+import static ch.sbb.scion.rcp.microfrontend.util.CompletableFutures.logOnException;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 import org.eclipse.core.runtime.Platform;
@@ -124,13 +125,17 @@ public class PopupIntentInterceptor {
   }
 
   private void reply(final String replyTo, final Object result) {
-    logOnException(messageClient.publish(replyTo, result,
-        new PublishOptions(Map.of(MessageHeaders.STATUS.value, Integer.valueOf(ResponseStatusCodes.TERMINAL.value)))));
+    messageClient
+        .publish(replyTo, result,
+            new PublishOptions(Map.of(MessageHeaders.STATUS.value, Integer.valueOf(ResponseStatusCodes.TERMINAL.value))))
+        .whenComplete(logOnException(PopupIntentInterceptor.class));
   }
 
   private void replyWithError(final String replyTo, final String errorMessage) {
-    logOnException(messageClient.publish(replyTo, errorMessage,
-        new PublishOptions(Map.of(MessageHeaders.STATUS.value, Integer.valueOf(ResponseStatusCodes.ERROR.value)))));
+    messageClient
+        .publish(replyTo, errorMessage,
+            new PublishOptions(Map.of(MessageHeaders.STATUS.value, Integer.valueOf(ResponseStatusCodes.ERROR.value))))
+        .whenComplete(logOnException(PopupIntentInterceptor.class));
   }
 
   private void openPopupDialog(final IWorkbenchPopupWindow popupDialog, final Popup popup) {
@@ -175,14 +180,6 @@ public class PopupIntentInterceptor {
       onFocusLost = closeStrategy.onFocusLost;
     }
     return new PopupCloseStrategy().onEscape(onEscape).onFocusLost(onFocusLost);
-  }
-
-  private static void logOnException(final CompletableFuture<Void> future) {
-    future.whenComplete((none, ex) -> {
-      if (ex != null) {
-        Platform.getLog(PopupIntentInterceptor.class).error(ex.getMessage());
-      }
-    });
   }
 
 }

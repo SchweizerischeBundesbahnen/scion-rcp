@@ -22,6 +22,10 @@ public final class WorkbenchCommands {
     return String.format("ɵworkbench/popups/%s/close", popupId);
   }
 
+  public static String popupResultTopic(final String popupId) {
+    return String.format("ɵworkbench/popups/%s/result", popupId);
+  }
+
   private WorkbenchCommands() {
     // utility
   }

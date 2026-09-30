@@ -39,6 +39,8 @@ public class Popup implements IWorkbenchPopup {
 
   private final PopupReferrer referrer;
 
+  private Object result;
+
   @Inject
   private MessageClient messageClient;
 
@@ -62,6 +64,10 @@ public class Popup implements IWorkbenchPopup {
     return params;
   }
 
+  public void closeOnFocusLoss() {
+    this.close(result);
+  }
+
   @Override
   public void close(final Object result) {
     this.whenClose.complete(result);
@@ -71,6 +77,11 @@ public class Popup implements IWorkbenchPopup {
   public void closeWithException(final Exception exception) {
     Objects.requireNonNull(exception, "Exception must not be null!");
     this.whenClose.complete(exception instanceof PopupException ? exception : new PopupException(exception));
+  }
+
+  @Override
+  public void setResult(final Object result) {
+    this.result = result;
   }
 
   @Override

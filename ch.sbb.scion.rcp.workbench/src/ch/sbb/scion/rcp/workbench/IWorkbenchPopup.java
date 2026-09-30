@@ -81,5 +81,5 @@ public interface IWorkbenchPopup {
    */
   void closeWithException(Exception ex);
 
-  // todo: missing functionality: setResult, focused
+  void setResult(Object result);
 }

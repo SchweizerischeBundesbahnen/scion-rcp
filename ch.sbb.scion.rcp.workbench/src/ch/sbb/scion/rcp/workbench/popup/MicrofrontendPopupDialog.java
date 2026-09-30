@@ -1,5 +1,7 @@
 package ch.sbb.scion.rcp.workbench.popup;
 
+import static ch.sbb.scion.rcp.microfrontend.util.CompletableFutures.logOnException;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -24,9 +26,9 @@ import ch.sbb.scion.rcp.microfrontend.RouterOutlet;
 import ch.sbb.scion.rcp.microfrontend.model.NavigationOptions;
 import ch.sbb.scion.rcp.microfrontend.model.PublishOptions;
 import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
+import ch.sbb.scion.rcp.microfrontend.util.CompletableFutures;
 import ch.sbb.scion.rcp.workbench.IWorkbenchPopupWindow;
 import ch.sbb.scion.rcp.workbench.WorkbenchPopupOrigin;
-import ch.sbb.scion.rcp.workbench.internal.CompletableFutures;
 import ch.sbb.scion.rcp.workbench.internal.ContextInjectors;
 import ch.sbb.scion.rcp.workbench.internal.WorkbenchCommands;
 
@@ -61,15 +63,19 @@ public class MicrofrontendPopupDialog extends Dialog implements IWorkbenchPopupW
 
   @Override
   public void init() {
+    // Install workbench-client popup listeners, before navigation:
+    subscriptions.add(installCloseListener());
+    subscriptions.add(installOriginListener());
+    subscriptions.add(installResultListener());
+
+    // Navigate:
     var capability = popup.getCapability();
     var application = CompletableFutures.await(manifestService.getApplication(capability.metadata().appSymbolicName()));
     var path = (String) capability.properties().get("path");
     // todo: if showSplash is added to NavigationOptions, then set it based on capability property (how is this tied to signal-ready?)
     outletRouter.navigate(path, NavigationOptions.builder().outlet(getPopupId()).relativeTo(application.baseUrl()).params(popup.getParams())
-        .pushStateToSessionHistoryStack(Boolean.FALSE).build());
+        .pushStateToSessionHistoryStack(Boolean.FALSE).build()).whenComplete(logOnException(MicrofrontendPopupDialog.class));
 
-    subscriptions.add(installCloseListener());
-    subscriptions.add(installOriginListener());
   }
 
   private void configureShellStyle() {
@@ -93,6 +99,11 @@ public class MicrofrontendPopupDialog extends Dialog implements IWorkbenchPopupW
 
   private ISubscription installOriginListener() {
     return popup.observePopupOrigin(whenInitialOrigin::complete);
+  }
+
+  private ISubscription installResultListener() {
+    return messageClient.subscribe(WorkbenchCommands.popupResultTopic(getPopupId()), Object.class,
+        resultMessage -> popup.setResult(resultMessage.body()));
   }
 
   @Override
@@ -135,7 +146,7 @@ public class MicrofrontendPopupDialog extends Dialog implements IWorkbenchPopupW
     newShell.addListener(SWT.Deactivate, event -> {
       notifyOnDeactivated();
       if (activated && closeOnFocusLost) {
-        popup.close(null);
+        popup.closeOnFocusLoss();
       }
     });
     newShell.addListener(SWT.Activate, event -> {
@@ -148,17 +159,23 @@ public class MicrofrontendPopupDialog extends Dialog implements IWorkbenchPopupW
   }
 
   private void notifyOnDeactivated() {
-    messageClient.publish(WorkbenchCommands.popupFocusedTopic(getPopupId()), Boolean.FALSE, new PublishOptions(true));
+    messageClient.publish(WorkbenchCommands.popupFocusedTopic(getPopupId()), Boolean.FALSE, new PublishOptions(true))
+        .whenComplete(logOnException(MicrofrontendPopupDialog.class));
   }
 
   private void notifyOnActivated() {
-    messageClient.publish(WorkbenchCommands.popupFocusedTopic(getPopupId()), Boolean.TRUE, new PublishOptions(true));
+    messageClient.publish(WorkbenchCommands.popupFocusedTopic(getPopupId()), Boolean.TRUE, new PublishOptions(true))
+        .whenComplete(logOnException(MicrofrontendPopupDialog.class));
   }
 
   private void dispose() {
+    // Clear outlet:
+    outletRouter.navigate((String) null, NavigationOptions.builder().outlet(getPopupId()).build())
+        .whenComplete(logOnException(MicrofrontendPopupDialog.class));
     subscriptions.forEach(ISubscription::unsubscribe);
     // Delete retained message:
-    messageClient.publish(WorkbenchCommands.popupFocusedTopic(getPopupId()), new PublishOptions(true));
+    messageClient.publish(WorkbenchCommands.popupFocusedTopic(getPopupId()), new PublishOptions(true))
+        .whenComplete(logOnException(MicrofrontendPopupDialog.class));
   }
 
   @Override
@@ -186,5 +203,4 @@ public class MicrofrontendPopupDialog extends Dialog implements IWorkbenchPopupW
     GridLayout layout = (GridLayout) parent.getLayout();
     layout.marginHeight = 0;
   }
-
 }
