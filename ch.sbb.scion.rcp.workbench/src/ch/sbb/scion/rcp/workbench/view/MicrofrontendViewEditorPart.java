@@ -34,8 +34,8 @@ import ch.sbb.scion.rcp.microfrontend.model.NavigationOptions;
 import ch.sbb.scion.rcp.microfrontend.model.PublishOptions;
 import ch.sbb.scion.rcp.microfrontend.model.ResponseStatusCodes;
 import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
+import ch.sbb.scion.rcp.microfrontend.util.CompletableFutures;
 import ch.sbb.scion.rcp.workbench.IMicrofrontendViewPart;
-import ch.sbb.scion.rcp.workbench.internal.CompletableFutures;
 import ch.sbb.scion.rcp.workbench.internal.ContextInjectors;
 import ch.sbb.scion.rcp.workbench.internal.SelectionProvider;
 

@@ -27,6 +27,7 @@ import ch.sbb.scion.rcp.microfrontend.script.Scripts.Helpers;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
 import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscriber;
 import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
+import ch.sbb.scion.rcp.microfrontend.util.CompletableFutures;
 
 @Component
 public class ManifestServiceImpl implements ManifestService {

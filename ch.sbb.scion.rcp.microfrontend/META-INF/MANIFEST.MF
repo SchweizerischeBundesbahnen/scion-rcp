@@ -17,7 +17,8 @@ Bundle-ActivationPolicy: lazy
 Export-Package: ch.sbb.scion.rcp.microfrontend,
  ch.sbb.scion.rcp.microfrontend.interceptor,
  ch.sbb.scion.rcp.microfrontend.model,
- ch.sbb.scion.rcp.microfrontend.subscriber
+ ch.sbb.scion.rcp.microfrontend.subscriber,
+ ch.sbb.scion.rcp.microfrontend.util
 Service-Component: OSGI-INF/ch.sbb.scion.rcp.microfrontend.host.IntentInterceptorInstaller.xml,
  OSGI-INF/ch.sbb.scion.rcp.microfrontend.host.MessageInterceptorInstaller.xml,
  OSGI-INF/ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost.xml,
