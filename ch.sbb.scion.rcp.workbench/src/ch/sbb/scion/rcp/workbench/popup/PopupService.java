@@ -14,6 +14,7 @@ import ch.sbb.scion.rcp.microfrontend.model.TopicMessage;
 import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscriber;
 import ch.sbb.scion.rcp.workbench.IWorkbenchPopupService;
 import ch.sbb.scion.rcp.workbench.WorkbenchPopupConfig;
+import ch.sbb.scion.rcp.workbench.internal.WorkbenchCommands;
 
 @Component
 public class PopupService implements IWorkbenchPopupService {
@@ -69,7 +70,7 @@ public class PopupService implements IWorkbenchPopupService {
   }
 
   private static String computeOriginTopic(final PopupCommand command) {
-    return String.format("ɵworkbench/popups/%s/origin", command.popupId);
+    return WorkbenchCommands.popupOriginTopic(command.popupId);
   }
 
   private static String getContext(final WorkbenchPopupConfig config) {

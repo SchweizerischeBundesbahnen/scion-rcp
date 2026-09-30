@@ -18,6 +18,7 @@ import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
 import ch.sbb.scion.rcp.workbench.IWorkbenchPopup;
 import ch.sbb.scion.rcp.workbench.WorkbenchPopupOrigin;
 import ch.sbb.scion.rcp.workbench.internal.ContextInjectors;
+import ch.sbb.scion.rcp.workbench.internal.WorkbenchCommands;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -99,12 +100,34 @@ public class Popup implements IWorkbenchPopup {
 
   @Override
   public ISubscription observePopupOrigin(final ISubscriber<WorkbenchPopupOrigin> subscriber) {
-    var topic = String.format("ɵworkbench/popups/%s/origin", popupId);
-    return messageClient.subscribe(topic, DoublePrecisionPopupOrigin.class, new ISubscriber<TopicMessage<DoublePrecisionPopupOrigin>>() {
+    return messageClient.subscribe(WorkbenchCommands.popupOriginTopic(popupId), DoublePrecisionPopupOrigin.class,
+        new ISubscriber<TopicMessage<DoublePrecisionPopupOrigin>>() {
+
+          @Override
+          public void onNext(final TopicMessage<DoublePrecisionPopupOrigin> next) {
+            subscriber.onNext(next.body() == null ? null : next.body().toSciWorkbenchPopupOrigin());
+          }
+
+          @Override
+          public void onError(final Exception e) {
+            subscriber.onError(e);
+          }
+
+          @Override
+          public void onComplete() {
+            subscriber.onComplete();
+          }
+
+        });
+  }
+
+  @Override
+  public ISubscription observeFocus(final ISubscriber<Boolean> subscriber) {
+    return messageClient.subscribe(WorkbenchCommands.popupFocusedTopic(popupId), Boolean.class, new ISubscriber<TopicMessage<Boolean>>() {
 
       @Override
-      public void onNext(final TopicMessage<DoublePrecisionPopupOrigin> next) {
-        subscriber.onNext(next.body() == null ? null : next.body().toSciWorkbenchPopupOrigin());
+      public void onNext(final TopicMessage<Boolean> next) {
+        subscriber.onNext(next.body());
       }
 
       @Override
@@ -116,7 +139,6 @@ public class Popup implements IWorkbenchPopup {
       public void onComplete() {
         subscriber.onComplete();
       }
-
     });
   }
 

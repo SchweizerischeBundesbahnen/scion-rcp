@@ -60,6 +60,13 @@ public interface IWorkbenchPopup {
   ISubscription observePopupOrigin(ISubscriber<WorkbenchPopupOrigin> subscriber);
 
   /**
+   * Allows observing whether the popup has the focus.
+   *
+   * @return a subscription that can be used to unsubscribe from the popup focus topic
+   */
+  ISubscription observeFocus(ISubscriber<Boolean> subscriber);
+
+  /**
    * Closes the popup and replies to the popup request with the provided result. The result may be null.
    */
   void close(Object result);

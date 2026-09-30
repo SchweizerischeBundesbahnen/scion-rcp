@@ -22,11 +22,13 @@ import ch.sbb.scion.rcp.microfrontend.MessageClient;
 import ch.sbb.scion.rcp.microfrontend.OutletRouter;
 import ch.sbb.scion.rcp.microfrontend.RouterOutlet;
 import ch.sbb.scion.rcp.microfrontend.model.NavigationOptions;
+import ch.sbb.scion.rcp.microfrontend.model.PublishOptions;
 import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
 import ch.sbb.scion.rcp.workbench.IWorkbenchPopupWindow;
 import ch.sbb.scion.rcp.workbench.WorkbenchPopupOrigin;
 import ch.sbb.scion.rcp.workbench.internal.CompletableFutures;
 import ch.sbb.scion.rcp.workbench.internal.ContextInjectors;
+import ch.sbb.scion.rcp.workbench.internal.WorkbenchCommands;
 
 public class MicrofrontendPopupDialog extends Dialog implements IWorkbenchPopupWindow {
 
@@ -80,8 +82,7 @@ public class MicrofrontendPopupDialog extends Dialog implements IWorkbenchPopupW
   }
 
   private ISubscription installCloseListener() {
-    var topic = String.format("ɵworkbench/popups/%s/close", getPopupId());
-    return messageClient.subscribe(topic, Object.class, closeMessage -> {
+    return messageClient.subscribe(WorkbenchCommands.popupCloseTopic(getPopupId()), Object.class, closeMessage -> {
       if (closeMessage.headers().containsKey(CLOSE_WITH_ERROR) && ((Boolean) closeMessage.headers().get(CLOSE_WITH_ERROR)).booleanValue()) {
         popup.closeWithException(new PopupException((String) closeMessage.body()));
         return;
@@ -132,18 +133,32 @@ public class MicrofrontendPopupDialog extends Dialog implements IWorkbenchPopupW
     // Track active state:
     var closeOnFocusLost = popup.closeOnFocusLost();
     newShell.addListener(SWT.Deactivate, event -> {
+      notifyOnDeactivated();
       if (activated && closeOnFocusLost) {
         popup.close(null);
       }
     });
-    newShell.addListener(SWT.Activate, event -> activated = true);
+    newShell.addListener(SWT.Activate, event -> {
+      activated = true;
+      notifyOnActivated();
+    });
 
     // Clean up on disposal:
     newShell.addDisposeListener(event -> this.dispose());
   }
 
+  private void notifyOnDeactivated() {
+    messageClient.publish(WorkbenchCommands.popupFocusedTopic(getPopupId()), Boolean.FALSE, new PublishOptions(true));
+  }
+
+  private void notifyOnActivated() {
+    messageClient.publish(WorkbenchCommands.popupFocusedTopic(getPopupId()), Boolean.TRUE, new PublishOptions(true));
+  }
+
   private void dispose() {
     subscriptions.forEach(ISubscription::unsubscribe);
+    // Delete retained message:
+    messageClient.publish(WorkbenchCommands.popupFocusedTopic(getPopupId()), new PublishOptions(true));
   }
 
   @Override
