@@ -5,8 +5,8 @@ import java.util.concurrent.CompletableFuture;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import ch.sbb.scion.rcp.microfrontend.MessageClient;
 import ch.sbb.scion.rcp.microfrontend.IntentClient;
+import ch.sbb.scion.rcp.microfrontend.MessageClient;
 import ch.sbb.scion.rcp.microfrontend.model.Intent;
 import ch.sbb.scion.rcp.microfrontend.model.PublishOptions;
 import ch.sbb.scion.rcp.microfrontend.model.Qualifier;
@@ -72,8 +72,9 @@ public class PopupService implements IWorkbenchPopupService {
     return String.format("ɵworkbench/popups/%s/origin", command.popupId);
   }
 
-  private static PopupReferrer getContext(final WorkbenchPopupConfig config) {
-    return config.viewId() == null ? null : new PopupReferrer().viewId(config.viewId());
+  private static String getContext(final WorkbenchPopupConfig config) {
+    // todo (later): fall back to calling context for component id information
+    return config.viewId() == null ? null : config.viewId();
   }
 
   private static PopupCloseStrategy getCloseStrategy(final WorkbenchPopupConfig config) {

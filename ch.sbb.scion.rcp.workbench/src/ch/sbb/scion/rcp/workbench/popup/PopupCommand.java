@@ -1,24 +1,23 @@
 package ch.sbb.scion.rcp.workbench.popup;
 
-import java.util.UUID;
-
-import com.google.gson.annotations.SerializedName;
+import ch.sbb.scion.rcp.workbench.WorkbenchIdentifiers;
 
 public class PopupCommand {
 
   public String popupId;
 
-  @SerializedName("context")
-  public PopupReferrer referrer;
+  public String context;
 
   public PopupCloseStrategy closeStrategy;
 
+  // todo: add cssClass?
+
   public PopupCommand() {
-    this.popupId = UUID.randomUUID().toString();
+    this.popupId = WorkbenchIdentifiers.popupId();
   }
 
-  public PopupCommand context(final PopupReferrer referrer) {
-    this.referrer = referrer;
+  public PopupCommand context(final String context) {
+    this.context = context;
     return this;
   }
 

@@ -1,12 +1,27 @@
+/*
+ * Project: RCS - Rail Control System
+ *
+ * © Copyright by SBB AG, Alle Rechte vorbehalten
+ */
 package ch.sbb.scion.rcp.workbench.popup;
 
-public class PopupReferrer {
+import java.util.Objects;
 
-  public String viewId;
+import ch.sbb.scion.rcp.workbench.IReferrer;
 
-  public PopupReferrer viewId(final String viewId) {
-    this.viewId = viewId;
-    return this;
+/**
+ * Refers a popup to an application.
+ */
+public class PopupReferrer implements IReferrer {
+
+  private final String appSymbolicName;
+
+  public PopupReferrer(final String appSymbolicName) {
+    this.appSymbolicName = Objects.requireNonNull(appSymbolicName);
   }
 
+  @Override
+  public String getAppSymbolicName() {
+    return appSymbolicName;
+  }
 }

@@ -48,9 +48,9 @@ public interface IWorkbenchPopup {
   boolean closeOnFocusLost();
 
   /**
-   * @return the id of the view that this popup belongs to, optional
+   * @return a referrer that identifies the source context from which the popup was opened.
    */
-  Optional<String> getReferrerViewId();
+  IReferrer getReferrer();
 
   /**
    * Allows observing the popup origin which is a union of coordinates relative to the parent shell.
@@ -74,4 +74,5 @@ public interface IWorkbenchPopup {
    */
   void closeWithException(Exception ex);
 
+  // todo: missing functionality: setResult, focused
 }

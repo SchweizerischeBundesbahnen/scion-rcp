@@ -4,6 +4,7 @@ import java.util.Map;
 
 import ch.sbb.scion.rcp.microfrontend.model.Capability;
 
+// todo: drop this class? It's not really used and replaced by PopupContext?!
 /**
  * Information about the popup embedding a microfrontend. If the microfrontend is loaded in a workbench popup then this object can be
  * obtained from the ContextService using the name ɵPOPUP_CONTEXT.

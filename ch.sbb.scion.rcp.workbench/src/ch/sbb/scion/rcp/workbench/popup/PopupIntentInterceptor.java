@@ -45,8 +45,11 @@ public class PopupIntentInterceptor {
   private PopupRegistry registry;
 
   public boolean handle(final IntentMessage<PopupCommand> intentMessage) {
+    // todo: what if the body is null? -> throw exception, or can we patch a command?
     var popupId = intentMessage.body().popupId;
     if (openPopupDialogs.contains(popupId)) {
+      Platform.getLog(PopupIntentInterceptor.class)
+          .warn("Ignoring popup intent='%s'. Popup with id='%s' is already open.".formatted(intentMessage.intent(), popupId));
       return true;
     }
 
@@ -88,12 +91,12 @@ public class PopupIntentInterceptor {
     // Prepare popup attributes:
     var popupId = intentMessage.body().popupId;
     var closeStrategy = resolveCloseStrategy(intentMessage.body().closeStrategy);
-    var referrer = intentMessage.body().referrer;
+    var referrer = (String) intentMessage.headers().get(MessageHeaders.APP_SYMBOLIC_NAME.value);
     var params = getParams(intentMessage.intent());
 
     // Create popup dialog:
-    var popup = Popup.builder().popupId(popupId).capability(intentMessage.capability()).params(params).closeStrategy(closeStrategy)
-        .referrer(referrer).build();
+    var popup = Popup.builder().popupId(popupId).capability(intentMessage.capability()).params(params).referrer(new PopupReferrer(referrer))
+        .closeStrategy(closeStrategy).build();
     var popupDialog = popupDialogSupplier.apply(popup);
 
     // Set up on close callback:

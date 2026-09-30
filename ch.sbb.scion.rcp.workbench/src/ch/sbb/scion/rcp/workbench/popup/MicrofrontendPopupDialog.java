@@ -17,11 +17,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
-import ch.sbb.scion.rcp.microfrontend.OutletRouter;
 import ch.sbb.scion.rcp.microfrontend.ManifestService;
 import ch.sbb.scion.rcp.microfrontend.MessageClient;
+import ch.sbb.scion.rcp.microfrontend.OutletRouter;
 import ch.sbb.scion.rcp.microfrontend.RouterOutlet;
-import ch.sbb.scion.rcp.microfrontend.model.Application;
 import ch.sbb.scion.rcp.microfrontend.model.NavigationOptions;
 import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
 import ch.sbb.scion.rcp.workbench.IWorkbenchPopupWindow;
@@ -61,18 +60,14 @@ public class MicrofrontendPopupDialog extends Dialog implements IWorkbenchPopupW
   @Override
   public void init() {
     var capability = popup.getCapability();
-    var application = CompletableFutures.await(getApplication(capability.metadata().appSymbolicName()));
+    var application = CompletableFutures.await(manifestService.getApplication(capability.metadata().appSymbolicName()));
     var path = (String) capability.properties().get("path");
+    // todo: if showSplash is added to NavigationOptions, then set it based on capability property (how is this tied to signal-ready?)
     outletRouter.navigate(path, NavigationOptions.builder().outlet(getPopupId()).relativeTo(application.baseUrl()).params(popup.getParams())
         .pushStateToSessionHistoryStack(Boolean.FALSE).build());
 
     subscriptions.add(installCloseListener());
     subscriptions.add(installOriginListener());
-  }
-
-  private CompletableFuture<Application> getApplication(final String appSymbolicName) {
-    return manifestService.getApplications().thenApply(
-        applications -> applications.stream().filter(application -> appSymbolicName.equals(application.symbolicName())).findFirst().get());
   }
 
   private void configureShellStyle() {
@@ -113,8 +108,9 @@ public class MicrofrontendPopupDialog extends Dialog implements IWorkbenchPopupW
     var initialSize = popup.getInitialSize().orElse(new Point(SWT.DEFAULT, SWT.DEFAULT));
     GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).hint(initialSize).grab(true, true).applyTo(sciRouterOutlet);
 
-    // Provide popup input via context:
-    sciRouterOutlet.setContextValue("ɵworkbench.popup", popup.input);
+    // Provide popup context:
+    sciRouterOutlet.setContextValue(PopupContext.POPUP_CONTEXT, new PopupContext().popupId(popup.getPopupId())
+        .capability(popup.getCapability()).params(popup.getParams()).referrer(popup.getReferrer()));
 
     // Forward escape keystroke from browser window to dialog which will close the dialog:
     if (popup.closeOnEscape()) {

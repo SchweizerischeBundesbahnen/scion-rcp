@@ -12,13 +12,11 @@ import org.eclipse.swt.graphics.Point;
 
 import ch.sbb.scion.rcp.microfrontend.MessageClient;
 import ch.sbb.scion.rcp.microfrontend.model.Capability;
-import ch.sbb.scion.rcp.microfrontend.model.Properties;
 import ch.sbb.scion.rcp.microfrontend.model.TopicMessage;
 import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscriber;
 import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
 import ch.sbb.scion.rcp.workbench.IWorkbenchPopup;
 import ch.sbb.scion.rcp.workbench.WorkbenchPopupOrigin;
-import ch.sbb.scion.rcp.workbench.WorkbenchPopupSize;
 import ch.sbb.scion.rcp.workbench.internal.ContextInjectors;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -26,7 +24,9 @@ import lombok.NoArgsConstructor;
 
 public class Popup implements IWorkbenchPopup {
 
-  public final PopupInput input;
+  private final String popupId;
+
+  private final Map<String, Object> params;
 
   public final CompletableFuture<Object> whenClose = new CompletableFuture<>();
 
@@ -36,14 +36,19 @@ public class Popup implements IWorkbenchPopup {
 
   private final Point initialSize;
 
+  private final PopupReferrer referrer;
+
   @Inject
   private MessageClient messageClient;
 
-  private Popup(final PopupInput input, final Capability capability, final PopupCloseStrategy closeStrategy, final Point size) {
-    this.input = input;
+  private Popup(final String popupId, final Map<String, Object> params, final Capability capability, final PopupCloseStrategy closeStrategy,
+      final Point size, final PopupReferrer referrer) {
+    this.popupId = popupId;
+    this.params = params;
     this.capability = capability;
     this.closeStrategy = closeStrategy;
     this.initialSize = size;
+    this.referrer = referrer;
   }
 
   @Override
@@ -53,7 +58,7 @@ public class Popup implements IWorkbenchPopup {
 
   @Override
   public Map<String, Object> getParams() {
-    return input.params;
+    return params;
   }
 
   @Override
@@ -69,7 +74,7 @@ public class Popup implements IWorkbenchPopup {
 
   @Override
   public String getPopupId() {
-    return input.popupId;
+    return popupId;
   }
 
   @Override
@@ -88,13 +93,13 @@ public class Popup implements IWorkbenchPopup {
   }
 
   @Override
-  public Optional<String> getReferrerViewId() {
-    return Optional.ofNullable(input.referrer).map(referrer -> referrer.viewId);
+  public PopupReferrer getReferrer() {
+    return referrer;
   }
 
   @Override
   public ISubscription observePopupOrigin(final ISubscriber<WorkbenchPopupOrigin> subscriber) {
-    var topic = String.format("ɵworkbench/popups/%s/origin", input.popupId);
+    var topic = String.format("ɵworkbench/popups/%s/origin", popupId);
     return messageClient.subscribe(topic, DoublePrecisionPopupOrigin.class, new ISubscriber<TopicMessage<DoublePrecisionPopupOrigin>>() {
 
       @Override
@@ -164,41 +169,24 @@ public class Popup implements IWorkbenchPopup {
       Objects.requireNonNull(capability);
       Objects.requireNonNull(params);
       Objects.requireNonNull(closeStrategy);
+      Objects.requireNonNull(referrer);
 
-      var popupCapability = createPopupCapability(capability);
-      var initialSize = coercePoint(popupCapability.properties().get("size"));
-
-      var input = new PopupInput().popupId(popupId).capability(popupCapability).params(params).referrer(referrer)
-          .closeOnFocusLost(closeStrategy.onFocusLost.booleanValue());
-      var popup = new Popup(input, capability, closeStrategy, initialSize);
+      var popup = new Popup(popupId, params, capability, closeStrategy, getInitialSizeAsPoint(capability), referrer);
       ContextInjectors.inject(popup);
       return popup;
     }
 
-    private static Capability createPopupCapability(final Capability capability) {
-      var properties = new Properties();
-      if (capability.properties() != null) {
-        properties.set("path", capability.properties().get("path")).set("size", createPopupSize(capability.properties().get("size")))
-            .set("cssClass", capability.properties().get("cssClass"));
-      }
-
-      return Capability.builder().type(capability.type()).qualifier(capability.qualifier()).params(capability.params())
-          .isPrivate(capability.isPrivate()).description(capability.description()).properties(properties).metadata(capability.metadata())
-          .build();
-    }
-
-    @SuppressWarnings("unchecked")
-    private static WorkbenchPopupSize createPopupSize(final Object size) {
-      if (size == null) {
+    private static Point getInitialSizeAsPoint(final Capability capability) {
+      var properties = capability.properties();
+      if (properties == null || properties.get("size") == null) {
         return null;
       }
-      var sizeMap = (Map<String, String>) size;
-      return WorkbenchPopupSize.builder().width(sizeMap.get("width")).height(sizeMap.get("height")).build();
-    }
-
-    private static Point coercePoint(final WorkbenchPopupSize popupSize) {
-      return (popupSize == null || popupSize.width() == null || popupSize.height() == null) ? null
-          : new Point(pixelValueToInt(popupSize.width()), pixelValueToInt(popupSize.height()));
+      @SuppressWarnings("unchecked")
+      // currently, the intent message will always originate from the JS world and be deserialized, therefore, hence, the 'size' object will be a map:
+      var size = (Map<String, String>) properties.get("size");
+      var width = size.get("width");
+      var height = size.get("height");
+      return width == null || height == null ? null : new Point(pixelValueToInt(width), pixelValueToInt(height));
     }
 
     private static int pixelValueToInt(final String pixelValue) {
@@ -245,5 +233,4 @@ public class Popup implements IWorkbenchPopup {
     }
 
   }
-
 }
