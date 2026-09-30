@@ -42,4 +42,5 @@ public class NavigationOptions {
    */
   private Boolean pushStateToSessionHistoryStack;
 
+  // todo: add showSplash?
 }
