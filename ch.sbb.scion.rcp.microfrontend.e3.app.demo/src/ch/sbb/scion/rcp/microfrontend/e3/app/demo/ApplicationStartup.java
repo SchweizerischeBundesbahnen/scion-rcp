@@ -51,7 +51,8 @@ public class ApplicationStartup {
                             .set("eclipseViewId", "ch.sbb.scion.rcp.views.outletRouter"))
                         .build(),
                     Capability.builder().type("view").qualifier(new Qualifier().set("component", "sciRouterOutlet"))
-                        .properties(new Properties().set("title", "Router Outlet").set("heading", "Microfrontend Platform Test Page")
+                        .properties(new Properties()
+                            .set("title", "Router Outlet").set("heading", "Microfrontend Platform Test Page")
                             .set("eclipseViewId", "ch.sbb.scion.rcp.views.routerOutlet"))
                         .build(),
                     Capability.builder().type("view").qualifier(new Qualifier().set("component", "workbenchPopupService"))
@@ -63,7 +64,7 @@ public class ApplicationStartup {
                         .properties(new Properties().set("title", "Eclipse Test Popup")
                             .set("eclipsePopupId", "ch.sbb.scion.rcp.popups.TestPopupDialog")
                             .set("size", WorkbenchPopupSize.builder().width("500px").height("600px").build()))
-                        .build(),
+                        .params(List.of(ParamDefinition.builder().name("id").isRequired(false).build())).build(),
                     Capability.builder().type("view").qualifier(new Qualifier().set("test", "eclipse-view")).isPrivate(Boolean.FALSE)
                         .params(List
                             .of(ParamDefinition.builder().name("example").isRequired(false).description("An example parameter").build()))

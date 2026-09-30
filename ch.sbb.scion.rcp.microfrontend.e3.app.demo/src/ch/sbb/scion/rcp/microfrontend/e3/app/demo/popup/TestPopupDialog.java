@@ -48,10 +48,10 @@ public class TestPopupDialog extends Dialog implements IWorkbenchPopupWindow {
     GridDataFactory.fillDefaults().grab(true, false).hint(new Point(SWT.DEFAULT, 100)).applyTo(paramsText);
     paramsText.setText(gson.toJson(popup.getParams()));
 
-    LabelFactory.newLabel(SWT.NONE).text("Referrer View ID:").create(area);
+    LabelFactory.newLabel(SWT.NONE).text("Referrer Application Symbolic Name:").create(area);
     var referrerText = TextFactory.newText(SWT.BORDER | SWT.READ_ONLY).create(area);
     GridDataFactory.fillDefaults().grab(true, false).applyTo(referrerText);
-    referrerText.setText(popup.getReferrerViewId().orElse("-"));
+    referrerText.setText(popup.getReferrer().getAppSymbolicName());
 
     var closeOnEscape = popup.closeOnEscape();
     area.addTraverseListener(event -> {
