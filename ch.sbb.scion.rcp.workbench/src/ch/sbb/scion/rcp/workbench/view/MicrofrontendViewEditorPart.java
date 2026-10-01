@@ -59,7 +59,6 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
   @Inject
   private MessageClient messageClient;
 
-  private String viewId;
   private RouterOutlet sciRouterOutlet;
   private CompletableFuture<Map<String, Application>> whenApplications;
   private boolean dirty;
@@ -90,6 +89,34 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
     // Set selection provider during initialization, otherwise we are late for accepting the selection changed listener of the selection service.
     getSite().setSelectionProvider(new SelectionProvider());
     getSite().getPage().addPartListener(this);
+  }
+
+  private void installViewTitleUpdater(final String viewId) {
+    subscriptions.add(messageClient.subscribe(WorkbenchCommands.viewTitleTopic(viewId), message -> setPartName(message.body())));
+  }
+
+  private void installViewHeadingUpdater(final String viewId) {
+    subscriptions.add(messageClient.subscribe(WorkbenchCommands.viewHeadingTopic(viewId), message -> setTitleToolTip(message.body())));
+  }
+
+  private void installViewDirtyUpdater(final String viewId) {
+    subscriptions.add(messageClient.subscribe(WorkbenchCommands.viewDirtyTopic(viewId), Boolean.class, message -> {
+      dirty = message.body().booleanValue();
+      firePropertyChange(IEditorPart.PROP_DIRTY);
+    }));
+  }
+
+  private void installParamsUpdater(final String viewId) {
+    var topic = String.format("ɵworkbench/views/%s/capabilities/:capabilityId/params/update", viewId);
+
+    subscriptions.add(messageClient.subscribe(topic, Map.class, message -> {
+      var replyTo = (String) message.headers().get(MessageHeaders.REPLY_TO.value);
+      var error = "Self navigation is not supported by the SCION RCP Workbench. This feature is expected to be removed from the SCION Workbench.";
+      messageClient
+          .publish(replyTo, error,
+              new PublishOptions(Map.of(MessageHeaders.STATUS.value, Integer.valueOf(ResponseStatusCodes.ERROR.value))))
+          .whenComplete(logOnException(MicrofrontendViewEditorPart.class));
+    }));
   }
 
   @Override
@@ -186,34 +213,6 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
   @Override
   public MicrofrontendViewEditorInput getEditorInput() {
     return (MicrofrontendViewEditorInput) super.getEditorInput();
-  }
-
-  private void installViewTitleUpdater(final String viewId) {
-    subscriptions.add(messageClient.subscribe(WorkbenchCommands.viewTitleTopic(viewId), message -> setPartName(message.body())));
-  }
-
-  private void installViewHeadingUpdater(final String viewId) {
-    subscriptions.add(messageClient.subscribe(WorkbenchCommands.viewHeadingTopic(viewId), message -> setTitleToolTip(message.body())));
-  }
-
-  private void installViewDirtyUpdater(final String viewId) {
-    subscriptions.add(messageClient.subscribe(WorkbenchCommands.viewDirtyTopic(getViewId()), Boolean.class, message -> {
-      dirty = message.body().booleanValue();
-      firePropertyChange(IEditorPart.PROP_DIRTY);
-    }));
-  }
-
-  private void installParamsUpdater(final String viewId) {
-    var topic = String.format("ɵworkbench/views/%s/capabilities/:capabilityId/params/update", viewId);
-
-    subscriptions.add(messageClient.subscribe(topic, Map.class, message -> {
-      var replyTo = (String) message.headers().get(MessageHeaders.REPLY_TO.value);
-      var error = "Self navigation is not supported by the SCION RCP Workbench. This feature is expected to be removed from the SCION Workbench.";
-      messageClient
-          .publish(replyTo, error,
-              new PublishOptions(Map.of(MessageHeaders.STATUS.value, Integer.valueOf(ResponseStatusCodes.ERROR.value))))
-          .whenComplete(logOnException(MicrofrontendViewEditorPart.class));
-    }));
   }
 
   private String computeViewParamsTopic() {
