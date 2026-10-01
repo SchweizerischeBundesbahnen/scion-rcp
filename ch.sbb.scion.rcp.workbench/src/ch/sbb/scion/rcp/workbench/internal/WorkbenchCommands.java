@@ -26,6 +26,30 @@ public final class WorkbenchCommands {
     return String.format("ɵworkbench/popups/%s/result", popupId);
   }
 
+  public static String viewParamsTopic(final String viewId) {
+    return String.format("ɵworkbench/views/%s/params", viewId);
+  }
+
+  public static String viewActiveTopic(final String viewId) {
+    return String.format("ɵworkbench/views/%s/active", viewId);
+  }
+
+  public static String viewUnloadingTopic(final String viewId) {
+    return String.format("ɵworkbench/views/%s/unloading", viewId);
+  }
+
+  public static String viewTitleTopic(final String viewId) {
+    return String.format("ɵworkbench/views/%s/title", viewId);
+  }
+
+  public static String viewDirtyTopic(final String viewId) {
+    return String.format("ɵworkbench/views/%s/dirty", viewId);
+  }
+
+  public static String viewHeadingTopic(final String viewId) {
+    return String.format("ɵworkbench/views/%s/heading", viewId);
+  }
+
   private WorkbenchCommands() {
     // utility
   }

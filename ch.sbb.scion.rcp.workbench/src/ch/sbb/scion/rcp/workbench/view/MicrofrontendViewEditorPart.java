@@ -1,5 +1,7 @@
 package ch.sbb.scion.rcp.workbench.view;
 
+import static ch.sbb.scion.rcp.microfrontend.util.CompletableFutures.logOnException;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -38,6 +40,7 @@ import ch.sbb.scion.rcp.microfrontend.util.CompletableFutures;
 import ch.sbb.scion.rcp.workbench.IMicrofrontendViewPart;
 import ch.sbb.scion.rcp.workbench.internal.ContextInjectors;
 import ch.sbb.scion.rcp.workbench.internal.SelectionProvider;
+import ch.sbb.scion.rcp.workbench.internal.WorkbenchCommands;
 
 /**
  * Embeds the microfrontend of a view capability. See `MicrofrontendViewComponent` in SCION Workbench.
@@ -56,8 +59,9 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
   @Inject
   private MessageClient messageClient;
 
+  private String viewId;
   private RouterOutlet sciRouterOutlet;
-  private CompletableFuture<Map<String, Application>> applications;
+  private CompletableFuture<Map<String, Application>> whenApplications;
   private boolean dirty;
 
   private final Set<ISubscription> subscriptions = new HashSet<>();
@@ -68,15 +72,20 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
 
   @Override
   public void init(final IEditorSite site, final IEditorInput input) throws PartInitException {
-    applications = manifestService.getApplications().thenApply(applications -> {
+    whenApplications = manifestService.getApplications().thenApply(applications -> {
       return applications.stream().collect(Collectors.toMap(Application::symbolicName, Function.identity()));
     });
     setSite(site);
+
+    // Install view message listeners before navigation, which happens in setInput:
+    var viewId = ((MicrofrontendViewEditorInput) input).sciViewId;
+    installViewTitleUpdater(viewId);
+    installViewHeadingUpdater(viewId);
+    installViewDirtyUpdater(viewId);
+    installParamsUpdater(viewId);
+
+    // Set input:
     setInput(input);
-    installViewTitleUpdater();
-    installViewHeadingUpdater();
-    installViewDirtyUpdater();
-    installParamsUpdater();
 
     // Set selection provider during initialization, otherwise we are late for accepting the selection changed listener of the selection service.
     getSite().setSelectionProvider(new SelectionProvider());
@@ -103,34 +112,36 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
     params.putAll(intent.params());
     params.putAll(intent.qualifier().entries());
     params.put("ɵViewCapabilityId", capability.metadata().id());
-    messageClient.publish(computeViewParamsTopic(), params, new PublishOptions(true));
+    messageClient.publish(computeViewParamsTopic(), params, new PublishOptions(true))
+        .whenComplete(logOnException(MicrofrontendViewEditorPart.class));
 
     // When navigating to another view capability of the same app, wait until transported the params to consumers before loading the
     // new microfrontend into the iframe, allowing the currently loaded microfrontend to cleanup subscriptions. Params include the
     // capability id.
     if (prevCapability != null && prevCapability.metadata().appSymbolicName().equals(capability.metadata().appSymbolicName())
         && !prevCapability.metadata().id().equals(capability.metadata().id())) {
-      waitForCapabilityParam(capability.metadata().id());
+      waitForCapabilityParams(capability.metadata().id());
     }
 
     // Signal that the currently loaded microfrontend, if any, is about to be replaced by a microfrontend of another application.
     if (prevCapability != null && !prevCapability.metadata().appSymbolicName().equals(capability.metadata().appSymbolicName())) {
-      var topic = String.format("ɵworkbench/views/%s/unloading", getViewId());
-      CompletableFutures.await(messageClient.publish(topic));
+      CompletableFutures.await(messageClient.publish(WorkbenchCommands.viewUnloadingTopic(getViewId())));
     }
 
     // Load the microfrontend
-    var applications = CompletableFutures.await(this.applications);
+    var applications = CompletableFutures.await(this.whenApplications);
     var appSymbolicName = capability.metadata().appSymbolicName();
     var path = (String) capability.properties().get("path");
-    outletRouter.navigate(path, NavigationOptions.builder().outlet(getViewId()).relativeTo(applications.get(appSymbolicName).baseUrl())
-        .params(params).pushStateToSessionHistoryStack(Boolean.FALSE).build());
+    outletRouter
+        .navigate(path, NavigationOptions.builder().outlet(getViewId()).relativeTo(applications.get(appSymbolicName).baseUrl())
+            .params(params).pushStateToSessionHistoryStack(Boolean.FALSE).build())
+        .whenComplete(logOnException(MicrofrontendViewEditorPart.class));
   }
 
   @Override
   public void createPartControl(final Composite parent) {
     sciRouterOutlet = new RouterOutlet(parent, SWT.NONE, getViewId());
-    sciRouterOutlet.setContextValue("ɵworkbench.view.id", getViewId());
+    sciRouterOutlet.setContextValue("ɵworkbench.view.id", getViewId()).whenComplete(logOnException(MicrofrontendViewEditorPart.class));
   }
 
   @Override
@@ -159,14 +170,16 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
   @Override
   public void partVisible(final IWorkbenchPartReference partRef) {
     if (partRef.getPart(false) == this) {
-      messageClient.publish(computeViewActiveTopic(), Boolean.TRUE, new PublishOptions(true));
+      messageClient.publish(computeViewActiveTopic(), Boolean.TRUE, new PublishOptions(true))
+          .whenComplete(logOnException(MicrofrontendViewEditorPart.class));
     }
   }
 
   @Override
   public void partHidden(final IWorkbenchPartReference partRef) {
     if (partRef.getPart(false) == this) {
-      messageClient.publish(computeViewActiveTopic(), Boolean.FALSE, new PublishOptions(true));
+      messageClient.publish(computeViewActiveTopic(), Boolean.FALSE, new PublishOptions(true))
+          .whenComplete(logOnException(MicrofrontendViewEditorPart.class));
     }
   }
 
@@ -175,49 +188,49 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
     return (MicrofrontendViewEditorInput) super.getEditorInput();
   }
 
-  private void installViewTitleUpdater() {
-    var topic = String.format("ɵworkbench/views/%s/title", getViewId());
-    subscriptions.add(messageClient.subscribe(topic, message -> setPartName(message.body())));
+  private void installViewTitleUpdater(final String viewId) {
+    subscriptions.add(messageClient.subscribe(WorkbenchCommands.viewTitleTopic(viewId), message -> setPartName(message.body())));
   }
 
-  private void installViewHeadingUpdater() {
-    var topic = String.format("ɵworkbench/views/%s/heading", getViewId());
-    subscriptions.add(messageClient.subscribe(topic, message -> setTitleToolTip(message.body())));
+  private void installViewHeadingUpdater(final String viewId) {
+    subscriptions.add(messageClient.subscribe(WorkbenchCommands.viewHeadingTopic(viewId), message -> setTitleToolTip(message.body())));
   }
 
-  private void installViewDirtyUpdater() {
-    var topic = String.format("ɵworkbench/views/%s/dirty", getViewId());
-    subscriptions.add(messageClient.subscribe(topic, Boolean.class, message -> {
+  private void installViewDirtyUpdater(final String viewId) {
+    subscriptions.add(messageClient.subscribe(WorkbenchCommands.viewDirtyTopic(getViewId()), Boolean.class, message -> {
       dirty = message.body().booleanValue();
       firePropertyChange(IEditorPart.PROP_DIRTY);
     }));
   }
 
-  private void installParamsUpdater() {
-    var topic = String.format("ɵworkbench/views/%s/capabilities/:capabilityId/params/update", getViewId());
+  private void installParamsUpdater(final String viewId) {
+    var topic = String.format("ɵworkbench/views/%s/capabilities/:capabilityId/params/update", viewId);
 
     subscriptions.add(messageClient.subscribe(topic, Map.class, message -> {
       var replyTo = (String) message.headers().get(MessageHeaders.REPLY_TO.value);
       var error = "Self navigation is not supported by the SCION RCP Workbench. This feature is expected to be removed from the SCION Workbench.";
-      messageClient.publish(replyTo, error,
-          new PublishOptions(Map.of(MessageHeaders.STATUS.value, Integer.valueOf(ResponseStatusCodes.ERROR.value))));
+      messageClient
+          .publish(replyTo, error,
+              new PublishOptions(Map.of(MessageHeaders.STATUS.value, Integer.valueOf(ResponseStatusCodes.ERROR.value))))
+          .whenComplete(logOnException(MicrofrontendViewEditorPart.class));
     }));
   }
 
   private String computeViewParamsTopic() {
-    return String.format("ɵworkbench/views/%s/params", getViewId());
+    return WorkbenchCommands.viewParamsTopic(getViewId());
   }
 
   private String computeViewActiveTopic() {
-    return String.format("ɵworkbench/views/%s/active", getViewId());
+    return WorkbenchCommands.viewActiveTopic(getViewId());
   }
 
   @Override
   public String getViewId() {
+    // Note: The editor input is only available after it was set via setInput!
     return getEditorInput().sciViewId;
   }
 
-  private void waitForCapabilityParam(final String capabilityId) {
+  private void waitForCapabilityParams(final String capabilityId) {
     var future = new CompletableFuture<Void>();
     var subscription = messageClient.subscribe(computeViewParamsTopic(), Map.class, message -> {
       if (capabilityId.equals(message.body().get("ɵViewCapabilityId"))) {
@@ -238,8 +251,10 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
     getSite().getPage().removePartListener(this);
     subscriptions.forEach(ISubscription::unsubscribe);
     // Delete retained messages
-    messageClient.publish(computeViewParamsTopic(), null, new PublishOptions(true));
-    messageClient.publish(computeViewActiveTopic(), null, new PublishOptions(true));
+    messageClient.publish(computeViewParamsTopic(), null, new PublishOptions(true))
+        .whenComplete(logOnException(MicrofrontendViewEditorPart.class));
+    messageClient.publish(computeViewActiveTopic(), null, new PublishOptions(true))
+        .whenComplete(logOnException(MicrofrontendViewEditorPart.class));
   }
 
   @Override

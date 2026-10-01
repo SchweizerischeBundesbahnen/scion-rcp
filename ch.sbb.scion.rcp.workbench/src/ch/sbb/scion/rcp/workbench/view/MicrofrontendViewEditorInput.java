@@ -1,7 +1,6 @@
 package ch.sbb.scion.rcp.workbench.view;
 
 import java.util.Objects;
-import java.util.UUID;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IEditorInput;
@@ -10,6 +9,7 @@ import org.eclipse.ui.IPersistableElement;
 import ch.sbb.scion.rcp.microfrontend.model.Capability;
 import ch.sbb.scion.rcp.microfrontend.model.Capability.ParamDefinition;
 import ch.sbb.scion.rcp.microfrontend.model.Intent;
+import ch.sbb.scion.rcp.workbench.WorkbenchIdentifiers;
 
 /**
  * Represents the input for a {@link MicrofrontendViewEditorPart}.
@@ -21,7 +21,7 @@ public class MicrofrontendViewEditorInput implements IEditorInput {
   public final Capability capability;
 
   public MicrofrontendViewEditorInput(final Capability capability, final Intent intent) {
-    this(UUID.randomUUID().toString(), capability, intent);
+    this(WorkbenchIdentifiers.viewId(), capability, intent);
   }
 
   public MicrofrontendViewEditorInput(final String sciViewId, final Capability capability, final Intent intent) {
