@@ -64,10 +64,6 @@ public class Popup implements IWorkbenchPopup {
     return params;
   }
 
-  public void closeOnFocusLoss() {
-    this.close(result);
-  }
-
   @Override
   public void close(final Object result) {
     this.whenClose.complete(result);
@@ -77,11 +73,6 @@ public class Popup implements IWorkbenchPopup {
   public void closeWithException(final Exception exception) {
     Objects.requireNonNull(exception, "Exception must not be null!");
     this.whenClose.complete(exception instanceof PopupException ? exception : new PopupException(exception));
-  }
-
-  @Override
-  public void setResult(final Object result) {
-    this.result = result;
   }
 
   @Override
@@ -132,25 +123,18 @@ public class Popup implements IWorkbenchPopup {
         });
   }
 
-  @Override
-  public ISubscription observeFocus(final ISubscriber<Boolean> subscriber) {
-    return messageClient.subscribe(WorkbenchCommands.popupFocusedTopic(popupId), Boolean.class, new ISubscriber<TopicMessage<Boolean>>() {
+  /**
+   * Not part of the API
+   */
+  public Object getResult() {
+    return this.result;
+  }
 
-      @Override
-      public void onNext(final TopicMessage<Boolean> next) {
-        subscriber.onNext(next.body());
-      }
-
-      @Override
-      public void onError(final Exception e) {
-        subscriber.onError(e);
-      }
-
-      @Override
-      public void onComplete() {
-        subscriber.onComplete();
-      }
-    });
+  /**
+   * Not part of the API
+   */
+  public void setResult(final Object result) {
+    this.result = result;
   }
 
   public static Builder builder() {

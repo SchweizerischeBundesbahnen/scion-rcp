@@ -153,7 +153,7 @@ public class MicrofrontendPopupDialog extends Dialog implements IWorkbenchPopupW
     messageClient.publish(WorkbenchCommands.popupFocusedTopic(getPopupId()), Boolean.FALSE, new PublishOptions(true))
         .whenComplete(logOnException(MicrofrontendPopupDialog.class));
     if (activated && popup.closeOnFocusLost()) {
-      popup.closeOnFocusLoss();
+      popup.close(popup.getResult());
     }
   }
 
@@ -164,6 +164,7 @@ public class MicrofrontendPopupDialog extends Dialog implements IWorkbenchPopupW
   }
 
   private void dispose() {
+    // todo: should we attempt to close the popup on dispose?!
     // Clear outlet:
     outletRouter.navigate((String) null, NavigationOptions.builder().outlet(getPopupId()).build())
         .whenComplete(logOnException(MicrofrontendPopupDialog.class));
