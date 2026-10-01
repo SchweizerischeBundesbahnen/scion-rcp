@@ -142,28 +142,23 @@ public class MicrofrontendPopupDialog extends Dialog implements IWorkbenchPopupW
     newShell.setText(properties.has("title") ? properties.get("title") : "");
 
     // Track active state:
-    var closeOnFocusLost = popup.closeOnFocusLost();
-    newShell.addListener(SWT.Deactivate, event -> {
-      notifyOnDeactivated();
-      if (activated && closeOnFocusLost) {
-        popup.closeOnFocusLoss();
-      }
-    });
-    newShell.addListener(SWT.Activate, event -> {
-      activated = true;
-      notifyOnActivated();
-    });
+    newShell.addListener(SWT.Deactivate, event -> this.onDeactivate());
+    newShell.addListener(SWT.Activate, event -> this.onActivate());
 
     // Clean up on disposal:
     newShell.addDisposeListener(event -> this.dispose());
   }
 
-  private void notifyOnDeactivated() {
+  private void onDeactivate() {
     messageClient.publish(WorkbenchCommands.popupFocusedTopic(getPopupId()), Boolean.FALSE, new PublishOptions(true))
         .whenComplete(logOnException(MicrofrontendPopupDialog.class));
+    if (activated && popup.closeOnFocusLost()) {
+      popup.closeOnFocusLoss();
+    }
   }
 
-  private void notifyOnActivated() {
+  private void onActivate() {
+    activated = true;
     messageClient.publish(WorkbenchCommands.popupFocusedTopic(getPopupId()), Boolean.TRUE, new PublishOptions(true))
         .whenComplete(logOnException(MicrofrontendPopupDialog.class));
   }
