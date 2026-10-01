@@ -123,16 +123,10 @@ public class Popup implements IWorkbenchPopup {
         });
   }
 
-  /**
-   * Not part of the API
-   */
   public Object getResult() {
     return this.result;
   }
 
-  /**
-   * Not part of the API
-   */
   public void setResult(final Object result) {
     this.result = result;
   }
