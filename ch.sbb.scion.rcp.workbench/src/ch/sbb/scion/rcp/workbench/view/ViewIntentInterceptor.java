@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.e4.core.contexts.IEclipseContext;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IReusableEditor;
 import org.eclipse.ui.IWorkbench;
@@ -54,7 +55,7 @@ public class ViewIntentInterceptor {
     // Handle view intent related to an Eclipse part.
     if (properties.has("eclipseEditorId")) {
       var editorId = (String) properties.get("eclipseEditorId");
-      var editorInput = new ParamsEditorInput(intentMessage.intent().params());
+      var editorInput = getEditorInput(intentMessage);
       getActivePage().openEditor(editorInput, editorId, true, IWorkbenchPage.MATCH_ID);
       return true;
     }
@@ -62,7 +63,11 @@ public class ViewIntentInterceptor {
   }
 
   private IWorkbenchViewInput getViewInput(final IntentMessage<Map<String, ?>> intentMessage) {
-    return new ViewPartInput().intent(intentMessage.intent());
+    return new EclipseViewInput(intentMessage.capability().metadata().id(), intentMessage.intent().params());
+  }
+
+  private IEditorInput getEditorInput(final IntentMessage<Map<String, ?>> intentMessage) {
+    return new EclipseEditorInput(intentMessage.capability().metadata().id(), intentMessage.intent().params());
   }
 
   private void openMicrofrontendEditor(final IntentMessage<Map<String, ?>> intentMessage) throws PartInitException {

@@ -60,6 +60,7 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
   private MessageClient messageClient;
 
   private RouterOutlet sciRouterOutlet;
+  private final CompletableFuture<RouterOutlet> whenSciRouterOutlet = new CompletableFuture<>();
   private CompletableFuture<Map<String, Application>> whenApplications;
   private boolean dirty;
 
@@ -92,6 +93,7 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
   }
 
   private void installViewTitleUpdater(final String viewId) {
+    // todo (later): run if privileged
     subscriptions.add(messageClient.subscribe(WorkbenchCommands.viewTitleTopic(viewId), message -> setPartName(message.body())));
   }
 
@@ -107,10 +109,9 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
   }
 
   private void installParamsUpdater(final String viewId) {
-    var topic = String.format("ɵworkbench/views/%s/capabilities/:capabilityId/params/update", viewId);
-
-    subscriptions.add(messageClient.subscribe(topic, Map.class, message -> {
+    subscriptions.add(messageClient.subscribe(WorkbenchCommands.viewParamsUpdateTopic(viewId, ":capabilityId"), Map.class, message -> {
       var replyTo = (String) message.headers().get(MessageHeaders.REPLY_TO.value);
+      // todo (later): Is this still true? The latest scion-workbench implementation still supports self-navigation, without any deprecation notice...
       var error = "Self navigation is not supported by the SCION RCP Workbench. This feature is expected to be removed from the SCION Workbench.";
       messageClient
           .publish(replyTo, error,
@@ -127,6 +128,17 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
     var intent = getEditorInput().intent;
     var capability = getEditorInput().capability;
 
+    // Signal that the currently loaded microfrontend, if any, is about to be replaced by a microfrontend of another application.
+    if (prevCapability != null && !prevCapability.metadata().appSymbolicName().equals(capability.metadata().appSymbolicName())) {
+      CompletableFutures.await(messageClient.publish(WorkbenchCommands.viewUnloadingTopic(getViewId())));
+    }
+    // then unload
+    this.unload();
+
+    // todo: do properly
+    messageClient.publish(WorkbenchCommands.viewPartIdTopic(getViewId()), "part.unknown", new PublishOptions(true))
+        .whenComplete(logOnException(MicrofrontendViewEditorPart.class));
+
     // Check if navigating to a new microfrontend.
     if (prevCapability == null || !prevCapability.metadata().id().equals(capability.metadata().id())) {
       setPartName(capability.properties().get("title"));
@@ -137,6 +149,7 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
     // Provide params and qualifier to the microfrontend.
     var params = new HashMap<String, Object>();
     params.putAll(intent.params());
+    // todo (later): Why do we add the qualifier values to the params? I could not find similar logic in the scion-workbench implementation
     params.putAll(intent.qualifier().entries());
     params.put("ɵViewCapabilityId", capability.metadata().id());
     messageClient.publish(computeViewParamsTopic(), params, new PublishOptions(true))
@@ -150,25 +163,23 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
       waitForCapabilityParams(capability.metadata().id());
     }
 
-    // Signal that the currently loaded microfrontend, if any, is about to be replaced by a microfrontend of another application.
-    if (prevCapability != null && !prevCapability.metadata().appSymbolicName().equals(capability.metadata().appSymbolicName())) {
-      CompletableFutures.await(messageClient.publish(WorkbenchCommands.viewUnloadingTopic(getViewId())));
-    }
-
     // Load the microfrontend
     var applications = CompletableFutures.await(this.whenApplications);
     var appSymbolicName = capability.metadata().appSymbolicName();
     var path = (String) capability.properties().get("path");
-    outletRouter
-        .navigate(path, NavigationOptions.builder().outlet(getViewId()).relativeTo(applications.get(appSymbolicName).baseUrl())
-            .params(params).pushStateToSessionHistoryStack(Boolean.FALSE).build())
+    // Add view id to context which is required for initializing the scion-workbench-client view context.
+    whenSciRouterOutlet.thenCompose(s -> s.setContextValue("ɵworkbench.view.id", getViewId()))
+        .thenCompose(
+            none -> outletRouter.navigate(path,
+                NavigationOptions.builder().outlet(getViewId()).relativeTo(applications.get(appSymbolicName).baseUrl()).params(params)
+                    .pushStateToSessionHistoryStack(Boolean.FALSE).build()))
         .whenComplete(logOnException(MicrofrontendViewEditorPart.class));
   }
 
   @Override
   public void createPartControl(final Composite parent) {
     sciRouterOutlet = new RouterOutlet(parent, SWT.NONE, getViewId());
-    sciRouterOutlet.setContextValue("ɵworkbench.view.id", getViewId()).whenComplete(logOnException(MicrofrontendViewEditorPart.class));
+    whenSciRouterOutlet.complete(sciRouterOutlet);
   }
 
   @Override
@@ -249,11 +260,22 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
     super.dispose();
     getSite().getPage().removePartListener(this);
     subscriptions.forEach(ISubscription::unsubscribe);
+    unload();
+  }
+
+  private void unload() {
     // Delete retained messages
     messageClient.publish(computeViewParamsTopic(), null, new PublishOptions(true))
         .whenComplete(logOnException(MicrofrontendViewEditorPart.class));
     messageClient.publish(computeViewActiveTopic(), null, new PublishOptions(true))
         .whenComplete(logOnException(MicrofrontendViewEditorPart.class));
+    messageClient.publish(WorkbenchCommands.viewPartIdTopic(getViewId()), null, new PublishOptions(true))
+        .whenComplete(logOnException(MicrofrontendViewEditorPart.class));
+    // Clear outlet if it exists.
+    if (sciRouterOutlet != null) {
+      outletRouter.navigate((String) null, NavigationOptions.builder().outlet(getViewId()).build())
+          .whenComplete(logOnException(MicrofrontendViewEditorPart.class));
+    }
   }
 
   @Override

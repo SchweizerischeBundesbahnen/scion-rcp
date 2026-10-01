@@ -34,6 +34,10 @@ public final class WorkbenchCommands {
     return String.format("ɵworkbench/views/%s/active", viewId);
   }
 
+  public static String viewPartIdTopic(final String viewId) {
+    return String.format("ɵworkbench/views/%s/part/id", viewId);
+  }
+
   public static String viewUnloadingTopic(final String viewId) {
     return String.format("ɵworkbench/views/%s/unloading", viewId);
   }
@@ -48,6 +52,10 @@ public final class WorkbenchCommands {
 
   public static String viewHeadingTopic(final String viewId) {
     return String.format("ɵworkbench/views/%s/heading", viewId);
+  }
+
+  public static String viewParamsUpdateTopic(final String viewId, final String capabilityId) {
+    return String.format("ɵworkbench/views/%s/capabilities/%s/params/update", viewId, capabilityId);
   }
 
   private WorkbenchCommands() {

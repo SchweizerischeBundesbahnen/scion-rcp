@@ -5,9 +5,6 @@
  */
 package ch.sbb.scion.rcp.microfrontend.e3.app.demo.view;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
@@ -23,7 +20,6 @@ import org.eclipse.swt.widgets.Composite;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import ch.sbb.scion.rcp.microfrontend.model.Intent;
 import ch.sbb.scion.rcp.workbench.IWorkbenchViewInput;
 
 /**
@@ -52,18 +48,6 @@ public class TestView {
     if (viewInput == null) {
       return "no view input";
     }
-    return gson.toJson(getCombinedParams(viewInput.getIntent()));
+    return gson.toJson(viewInput.getParams());
   }
-
-  private static Map<String, Object> getCombinedParams(final Intent intent) {
-    var params = new HashMap<String, Object>();
-    if (intent.params() != null) {
-      intent.params().forEach(params::put);
-    }
-    if (intent.qualifier() != null) {
-      intent.qualifier().entries().forEach(params::put);
-    }
-    return params;
-  }
-
 }

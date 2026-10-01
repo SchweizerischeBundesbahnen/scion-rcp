@@ -1,6 +1,6 @@
 package ch.sbb.scion.rcp.workbench;
 
-import ch.sbb.scion.rcp.microfrontend.model.Intent;
+import java.util.Map;
 
 /**
  * Allows injecting intent information into an Eclipse IViewPart that is opened through a Scion workbench view intent. An instance of this
@@ -8,9 +8,7 @@ import ch.sbb.scion.rcp.microfrontend.model.Intent;
  */
 public interface IWorkbenchViewInput {
 
-  /**
-   * @return the intent that was issued to open the view that this input belongs to, never null
-   */
-  Intent getIntent();
+  String getCapabilityId();
 
+  Map<String, Object> getParams();
 }
