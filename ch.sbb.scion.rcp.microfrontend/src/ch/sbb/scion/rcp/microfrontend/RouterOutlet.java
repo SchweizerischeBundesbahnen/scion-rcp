@@ -39,6 +39,8 @@ import ch.sbb.scion.rcp.microfrontend.model.MessageHeaders;
 import ch.sbb.scion.rcp.microfrontend.proxy.RouterOutletProxy;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Helpers;
+import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscriber;
+import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
 
 /**
  * Widget to display a microfrontend. This widget acts as proxy for the SCION &lt;sci-router-outlet&gt; web component.
@@ -217,6 +219,17 @@ public final class RouterOutlet extends Composite implements DisposeListener {
   public CompletableFuture<Boolean> removeContextValue(final String name) {
     Objects.requireNonNull(name);
     return routerOutletProxy.removeContextValue(name);
+  }
+
+  /**
+   * todo
+   *
+   * @param subscriber
+   * @return
+   */
+  public ISubscription subscribeToContextValues(final ISubscriber<Map<String, Object>> subscriber) {
+    Objects.requireNonNull(subscriber);
+    return routerOutletProxy.subscribeToContextValues(subscriber);
   }
 
   /**

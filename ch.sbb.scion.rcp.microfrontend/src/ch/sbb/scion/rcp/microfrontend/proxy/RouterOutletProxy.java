@@ -2,10 +2,13 @@ package ch.sbb.scion.rcp.microfrontend.proxy;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+
+import java.lang.reflect.Type;
 
 import javax.inject.Inject;
 
@@ -16,14 +19,19 @@ import ch.sbb.scion.rcp.microfrontend.IDisposable;
 import ch.sbb.scion.rcp.microfrontend.RouterOutlet;
 import ch.sbb.scion.rcp.microfrontend.browser.JavaCallback;
 import ch.sbb.scion.rcp.microfrontend.browser.JavaScriptExecutor;
+import ch.sbb.scion.rcp.microfrontend.browser.RxJsObservable;
 import ch.sbb.scion.rcp.microfrontend.host.MicrofrontendPlatformRcpHost;
 import ch.sbb.scion.rcp.microfrontend.internal.ContextInjectors;
+import ch.sbb.scion.rcp.microfrontend.internal.ParameterizedType;
 import ch.sbb.scion.rcp.microfrontend.internal.Resources;
 import ch.sbb.scion.rcp.microfrontend.keyboard.JavaScriptKeyboardEvent;
 import ch.sbb.scion.rcp.microfrontend.keyboard.KeyboardEventMapper;
+import ch.sbb.scion.rcp.microfrontend.script.Script;
 import ch.sbb.scion.rcp.microfrontend.script.Script.Flags;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Helpers;
 import ch.sbb.scion.rcp.microfrontend.script.Scripts.Refs;
+import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscriber;
+import ch.sbb.scion.rcp.microfrontend.subscriber.ISubscription;
 
 /**
  * Proxy for the actual &lt;sci-router-outlet&gt; mounted in the RCP host application.
@@ -122,6 +130,15 @@ public class RouterOutletProxy {
           .execute();
     });
     return removed;
+  }
+
+  public ISubscription subscribeToContextValues(final ISubscriber<Map<String, Object>> subscriber) {
+    var observeIIFE = new Script(Resources.readString("js/router-outlet-proxy/get-context-values.iife.js"))
+        .replacePlaceholder("outletId", outletId).substitute();
+
+    var observable = new RxJsObservable<Map<String, Object>>(microfrontendPlatformRcpHost.whenHostBrowser, observeIIFE,
+        new ParameterizedType(Map.class, new Type[] { String.class, Object.class })).printScriptToConsole();
+    return observable.subscribe(subscriber);
   }
 
   /**
