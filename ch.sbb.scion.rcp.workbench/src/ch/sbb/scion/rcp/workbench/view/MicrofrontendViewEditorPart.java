@@ -170,35 +170,34 @@ public class MicrofrontendViewEditorPart extends EditorPart implements IReusable
     var applications = CompletableFutures.await(this.whenApplications);
     var appSymbolicName = capability.metadata().appSymbolicName();
     var path = (String) capability.properties().get("path");
-    // if a view was already loaded into this outlet, previously, then we can directly navigate.
+    var relativeTo = applications.get(appSymbolicName).baseUrl();
+    // If a view was already loaded into this outlet, previously, then we can directly navigate.
     if (prevCapability != null) {
-      // todo: extract navigate to method?
-      outletRouter
-          .navigate(path, NavigationOptions.builder().outlet(getViewId()).relativeTo(applications.get(appSymbolicName).baseUrl())
-              .params(params).pushStateToSessionHistoryStack(Boolean.FALSE).build())
-          .whenComplete(logOnException(MicrofrontendViewEditorPart.class));
+      navigate(path, relativeTo, params);
       return;
     }
 
-    // otherwise wait for the outlet to be created, and the context to be available
+    // Otherwise wait for the outlet to be created, and the context to become available. When the microfrontend gets activated,
+    // the context is expected to be available, otherwise certain, context-dependent services won't get provided.
     CompletableFuture<Void> whenContextAvailable = new CompletableFuture<>();
     AtomicReference<ISubscription> contextValuesSubscriptionRef = new AtomicReference<>();
     whenSciRouterOutlet.thenCompose(s -> {
-      // subscribe to context values
       contextValuesSubscriptionRef.set(s.subscribeToContextValues(c -> {
         if (c.containsKey(CONTEXT_WORKBENCH_VIEW_ID)) {
           whenContextAvailable.complete(null);
         }
       }));
       return s.setContextValue(CONTEXT_WORKBENCH_VIEW_ID, getViewId());
-    });
+    }).whenComplete(CompletableFutures.logOnException(MicrofrontendViewEditorPart.class));
     whenContextAvailable.thenRun(() -> {
       contextValuesSubscriptionRef.get().unsubscribe();
-      outletRouter
-          .navigate(path, NavigationOptions.builder().outlet(getViewId()).relativeTo(applications.get(appSymbolicName).baseUrl())
-              .params(params).pushStateToSessionHistoryStack(Boolean.FALSE).build())
-          .whenComplete(logOnException(MicrofrontendViewEditorPart.class));
-    });
+      navigate(path, relativeTo, params);
+    }).whenComplete(CompletableFutures.logOnException(MicrofrontendViewEditorPart.class));
+  }
+
+  private void navigate(final String path, final String relativeTo, final Map<String, ?> params) {
+    outletRouter.navigate(path, NavigationOptions.builder().outlet(getViewId()).relativeTo(relativeTo).params(params)
+        .pushStateToSessionHistoryStack(Boolean.FALSE).build()).whenComplete(logOnException(MicrofrontendViewEditorPart.class));
   }
 
   @Override
